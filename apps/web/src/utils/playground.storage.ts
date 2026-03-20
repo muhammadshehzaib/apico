@@ -1,4 +1,5 @@
-import { HttpMethod, KeyValuePair, EnvironmentVariable } from '@/types';
+import { HttpMethod, KeyValuePair } from '@/types';
+import type { EnvironmentVariable } from '@/services/environment.service';
 
 export interface GuestHistoryEntry {
   id: string;
