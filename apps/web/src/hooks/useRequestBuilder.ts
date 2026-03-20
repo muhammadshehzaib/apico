@@ -205,7 +205,7 @@ export function useRequestBuilder() {
 
     try {
       // Resolve variables in all request fields
-      let resolvedPayload = {
+      let resolvedPayload: any = {
         method: state.method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
         url: resolveVariables(state.url, state.activeVariables),
         headers: resolveKeyValuePairs(state.headers, state.activeVariables),
