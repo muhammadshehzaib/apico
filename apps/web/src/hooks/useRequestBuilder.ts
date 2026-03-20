@@ -206,7 +206,7 @@ export function useRequestBuilder() {
     try {
       // Resolve variables in all request fields
       let resolvedPayload = {
-        method: state.method,
+        method: state.method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
         url: resolveVariables(state.url, state.activeVariables),
         headers: resolveKeyValuePairs(state.headers, state.activeVariables),
         params: resolveKeyValuePairs(state.params, state.activeVariables),
@@ -228,12 +228,12 @@ export function useRequestBuilder() {
       // Run pre-request script if provided
       if (state.preRequestScript.trim()) {
         resolvedPayload = await runPreRequestScript(
-          resolvedPayload,
-          state.activeVariables
+          resolvedPayload as any,
+          state.activeVariables as any
         );
       }
 
-      const result = await workspaceService.executeRequest(resolvedPayload);
+      const result = await workspaceService.executeRequest(resolvedPayload as any);
 
       setState((prev) => ({ ...prev, response: result, isLoading: false }));
 
@@ -241,9 +241,9 @@ export function useRequestBuilder() {
       if (state.postResponseScript.trim()) {
         await runTestScript(
           state.postResponseScript,
-          resolvedPayload,
+          resolvedPayload as any,
           result,
-          state.activeVariables
+          state.activeVariables as any
         );
       }
 
