@@ -20,7 +20,7 @@ interface HistorySidebarProps {
   onLoadRequest: (request: RequestHistory | SavedRequest) => void;
   isLoading: boolean;
   currentRequest: { method: string; url: string };
-  onSaveRequest: (collectionId: string, data: SaveRequestInput) => Promise<void>;
+  onSaveRequest: (collectionId: string, data: SaveRequestInput) => Promise<void | SavedRequest>;
 }
 
 const methodColors: Record<HttpMethod, string> = {
@@ -157,7 +157,7 @@ export function HistorySidebar({
         onClose={() => setSaveModalOpen(false)}
         onSave={handleSaveRequest}
         collections={[]} // Will be fetched from CollectionsSidebar
-        currentRequest={currentRequest}
+        currentRequest={currentRequest as { method: HttpMethod; url: string }}
         isLoading={isSaving}
       />
 

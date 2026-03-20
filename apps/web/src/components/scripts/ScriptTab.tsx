@@ -81,22 +81,20 @@ export function ScriptTab({
       <div className="flex border-b border-bg-tertiary bg-bg-secondary">
         <button
           onClick={() => setActiveSubTab('pre-request')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            activeSubTab === 'pre-request'
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeSubTab === 'pre-request'
               ? 'text-text-primary border-accent'
               : 'text-text-muted border-transparent hover:text-text-primary'
-          }`}
+            }`}
         >
           Pre-request Script
         </button>
 
         <button
           onClick={() => setActiveSubTab('tests')}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors relative ${
-            activeSubTab === 'tests'
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors relative ${activeSubTab === 'tests'
               ? 'text-text-primary border-accent'
               : 'text-text-muted border-transparent hover:text-text-primary'
-          }`}
+            }`}
         >
           Tests
           {testsPassed > 0 && (
@@ -132,9 +130,8 @@ export function ScriptTab({
           {/* Divider */}
           <div
             onMouseDown={handleMouseDown}
-            className={`h-1 bg-bg-tertiary hover:bg-accent transition-colors cursor-ns-resize ${
-              isDragging ? 'bg-accent' : ''
-            }`}
+            className={`h-1 bg-bg-tertiary hover:bg-accent transition-colors cursor-ns-resize ${isDragging ? 'bg-accent' : ''
+              }`}
           />
 
           {/* Console */}
@@ -161,7 +158,7 @@ export function ScriptTab({
               <ScriptEditor
                 script={postResponseScript}
                 onChange={onPostResponseChange}
-                eventName="Test"
+                eventName="Post-response"
               />
             )}
           </div>
@@ -169,9 +166,8 @@ export function ScriptTab({
           {/* Divider */}
           <div
             onMouseDown={handleMouseDown}
-            className={`h-1 bg-bg-tertiary hover:bg-accent transition-colors cursor-ns-resize ${
-              isDragging ? 'bg-accent' : ''
-            }`}
+            className={`h-1 bg-bg-tertiary hover:bg-accent transition-colors cursor-ns-resize ${isDragging ? 'bg-accent' : ''
+              }`}
           />
 
           {/* Test Results */}
