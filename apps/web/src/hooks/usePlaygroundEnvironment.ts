@@ -8,7 +8,7 @@ import {
   saveGuestActiveEnv,
   type GuestEnvironment,
 } from '@/utils/playground.storage';
-import { EnvironmentVariable } from '@/types';
+import type { EnvironmentVariable } from '@/services/environment.service';
 import { resolveVariables } from '@/utils/variable.util';
 
 export function usePlaygroundEnvironment() {

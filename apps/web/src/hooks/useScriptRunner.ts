@@ -3,8 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { scriptRunner } from '@/utils/sandbox/script.runner';
 import type { ConsoleLine, PmContext, PmResult, PmTestResult, PmResponse, TestResult } from '@/utils/sandbox/pm.context';
-import type { ExecuteRequestPayload, ExecuteRequestResult } from '@/types/api';
-import type { EnvironmentVariable } from '@/types/environment';
+import type { ExecuteRequestInput } from '@/validations/request.validation';
+import type { ExecuteRequestResult } from '@/types';
+import type { EnvironmentVariable } from '@/services/environment.service';
 
 export function useScriptRunner(preRequestScript: string) {
   const [consoleLogs, setConsoleLogs] = useState<ConsoleLine[]>([]);
@@ -30,9 +31,9 @@ export function useScriptRunner(preRequestScript: string) {
 
   const runPreRequestScript = useCallback(
     async (
-      request: ExecuteRequestPayload,
+      request: ExecuteRequestInput,
       activeVariables: EnvironmentVariable[]
-    ): Promise<ExecuteRequestPayload> => {
+    ): Promise<ExecuteRequestInput> => {
       if (!preRequestScript.trim()) {
         return request;
       }
@@ -48,19 +49,19 @@ export function useScriptRunner(preRequestScript: string) {
         const environmentMap: Record<string, string> = {};
         for (const variable of activeVariables) {
           if (variable.enabled) {
-            environmentMap[variable.name] = variable.value;
+            environmentMap[variable.key] = variable.value;
           }
         }
 
         // Build headers array
         const headers = request.headers
           .filter((h) => h.enabled)
-          .map((h) => ({ key: h.name, value: h.value }));
+          .map((h) => ({ key: h.key, value: h.value }));
 
         // Build params array
         const params = request.params
           .filter((p) => p.enabled)
-          .map((p) => ({ key: p.name, value: p.value }));
+          .map((p) => ({ key: p.key, value: p.value }));
 
         // Build PM context
         const pmContext: PmContext = {
@@ -93,14 +94,14 @@ export function useScriptRunner(preRequestScript: string) {
         }
 
         // Merge script results back into request
-        const modifiedRequest: ExecuteRequestPayload = {
+        const modifiedRequest: ExecuteRequestInput = {
           ...request,
           url: result.request.url,
           body: result.request.body,
           headers: request.headers.map((h) => {
             // Find if script modified this header
             const scriptHeader = result.request.headers.find(
-              (sh) => sh.key.toLowerCase() === h.name.toLowerCase()
+              (sh) => sh.key.toLowerCase() === h.key.toLowerCase()
             );
             return scriptHeader
               ? { ...h, value: scriptHeader.value }
@@ -109,7 +110,7 @@ export function useScriptRunner(preRequestScript: string) {
           params: request.params.map((p) => {
             // Find if script modified this param
             const scriptParam = result.request.params.find(
-              (sp) => sp.key === p.name
+              (sp) => sp.key === p.key
             );
             return scriptParam
               ? { ...p, value: scriptParam.value }
@@ -121,11 +122,11 @@ export function useScriptRunner(preRequestScript: string) {
         for (const scriptHeader of result.request.headers) {
           if (
             !modifiedRequest.headers.some(
-              (h) => h.name.toLowerCase() === scriptHeader.key.toLowerCase()
+              (h) => h.key.toLowerCase() === scriptHeader.key.toLowerCase()
             )
           ) {
             modifiedRequest.headers.push({
-              name: scriptHeader.key,
+              key: scriptHeader.key,
               value: scriptHeader.value,
               enabled: true,
             });
@@ -134,10 +135,10 @@ export function useScriptRunner(preRequestScript: string) {
 
         for (const scriptParam of result.request.params) {
           if (
-            !modifiedRequest.params.some((p) => p.name === scriptParam.key)
+            !modifiedRequest.params.some((p) => p.key === scriptParam.key)
           ) {
             modifiedRequest.params.push({
-              name: scriptParam.key,
+              key: scriptParam.key,
               value: scriptParam.value,
               enabled: true,
             });
@@ -166,7 +167,7 @@ export function useScriptRunner(preRequestScript: string) {
   const runTestScript = useCallback(
     async (
       testScript: string,
-      request: ExecuteRequestPayload,
+      request: ExecuteRequestInput,
       response: ExecuteRequestResult,
       activeVariables: EnvironmentVariable[]
     ): Promise<void> => {
@@ -185,19 +186,19 @@ export function useScriptRunner(preRequestScript: string) {
         const environmentMap: Record<string, string> = {};
         for (const variable of activeVariables) {
           if (variable.enabled) {
-            environmentMap[variable.name] = variable.value;
+            environmentMap[variable.key] = variable.value;
           }
         }
 
         // Build headers array
         const headers = request.headers
           .filter((h) => h.enabled)
-          .map((h) => ({ key: h.name, value: h.value }));
+          .map((h) => ({ key: h.key, value: h.value }));
 
         // Build params array
         const params = request.params
           .filter((p) => p.enabled)
-          .map((p) => ({ key: p.name, value: p.value }));
+          .map((p) => ({ key: p.key, value: p.value }));
 
         // Build response object
         const pmResponse: PmResponse = {
