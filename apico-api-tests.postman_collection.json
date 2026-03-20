@@ -1,0 +1,2274 @@
+{
+  "info": {
+    "name": "Apico API Tests",
+    "description": "Complete test suite for the Apico REST API testing tool backend. Run this collection to verify all endpoints are working correctly.\n\n## Setup\n1. Import this collection\n2. Import the environment file (apico-local.postman_environment.json)\n3. Select the environment\n4. Run folder '01 - Auth' first\n5. Then run remaining folders in order\n\n## Order Matters!\nFolders must be run in numbered order because each folder depends on variables set by previous folders.\n\n## Expected Results\n~51 requests total\n~120+ assertions total\nAll should pass on a fresh database with backend running on localhost:4000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "01 - Auth",
+      "description": "Authentication endpoints for user registration, login, token refresh, and logout",
+      "item": [
+        {
+          "name": "Register User",
+          "description": "Creates a new user account. Automatically saves ACCESS_TOKEN and REFRESH_TOKEN to environment variables.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test User\",\"email\": \"{{USER_EMAIL}}\",\"password\": \"{{USER_PASSWORD}}\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/register",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Response has correct structure', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json).to.have.property('success')",
+                  "  pm.expect(json).to.have.property('data')",
+                  "  pm.expect(json).to.have.property('message')",
+                  "})",
+                  "",
+                  "pm.test('Returns tokens', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.accessToken).to.exist",
+                  "  pm.expect(json.data.refreshToken).to.exist",
+                  "  pm.expect(json.data.user).to.exist",
+                  "  pm.expect(json.data.user.email).to.equal(pm.variables.get('USER_EMAIL'))",
+                  "})",
+                  "",
+                  "pm.test('Returns user object', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.user).to.have.property('id')",
+                  "  pm.expect(json.data.user).to.have.property('email')",
+                  "  pm.expect(json.data.user).to.have.property('name')",
+                  "  pm.expect(json.data.user).to.not.have.property('password')",
+                  "})",
+                  "",
+                  "pm.test('Response time under 2000ms', () => {",
+                  "  pm.expect(pm.response.responseTime).to.be.below(2000)",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data) {",
+                  "  pm.environment.set('ACCESS_TOKEN', json.data.accessToken)",
+                  "  pm.environment.set('REFRESH_TOKEN', json.data.refreshToken)",
+                  "  pm.environment.set('USER_ID', json.data.user.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Duplicate (expect 400)",
+          "description": "Attempts to register with the same email. Should fail with 400.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test User 2\",\"email\": \"{{USER_EMAIL}}\",\"password\": \"{{USER_PASSWORD}}\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/register",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})",
+                  "",
+                  "pm.test('Success is false', () => {",
+                  "  pm.expect(pm.response.json().success).to.equal(false)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "description": "Authenticates a user with email and password. Returns new access and refresh tokens.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{USER_EMAIL}}\",\"password\": \"{{USER_PASSWORD}}\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns valid tokens', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.accessToken).to.be.a('string')",
+                  "  pm.expect(json.data.refreshToken).to.be.a('string')",
+                  "  pm.expect(json.data.accessToken.length).to.be.above(20)",
+                  "})",
+                  "",
+                  "pm.test('Response has correct structure', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json).to.have.property('success')",
+                  "  pm.expect(json.success).to.equal(true)",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data) {",
+                  "  pm.environment.set('ACCESS_TOKEN', json.data.accessToken)",
+                  "  pm.environment.set('REFRESH_TOKEN', json.data.refreshToken)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Wrong Password (expect 401)",
+          "description": "Attempts to login with incorrect password. Should fail with 401.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"{{USER_EMAIL}}\",\"password\": \"wrongpassword\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', () => {",
+                  "  pm.expect(pm.response.code).to.equal(401)",
+                  "})",
+                  "",
+                  "pm.test('Success is false', () => {",
+                  "  pm.expect(pm.response.json().success).to.equal(false)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "description": "Uses refresh token to get a new access token.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refreshToken\": \"{{REFRESH_TOKEN}}\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/refresh",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "refresh"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns new access token', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.accessToken).to.exist",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.accessToken) {",
+                  "  pm.environment.set('ACCESS_TOKEN', json.data.accessToken)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "description": "Logs out the current user and invalidates the access token.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/logout",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "logout"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Success is true', () => {",
+                  "  pm.expect(pm.response.json().success).to.equal(true)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Workspaces",
+      "description": "Workspace management endpoints",
+      "item": [
+        {
+          "name": "Create Workspace",
+          "description": "Creates a new workspace for the current user.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test Workspace\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Workspace has correct structure', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.have.property('id')",
+                  "  pm.expect(json.data).to.have.property('name')",
+                  "  pm.expect(json.data).to.have.property('ownerId')",
+                  "  pm.expect(json.data.name).to.equal('Test Workspace')",
+                  "})",
+                  "",
+                  "pm.test('Response time under 2000ms', () => {",
+                  "  pm.expect(pm.response.responseTime).to.be.below(2000)",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('WORKSPACE_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Workspaces",
+          "description": "Retrieves all workspaces the current user has access to.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data.length).to.be.above(0)",
+                  "})",
+                  "",
+                  "pm.test('Contains created workspace', () => {",
+                  "  const json = pm.response.json()",
+                  "  const workspaceId = pm.environment.get('WORKSPACE_ID')",
+                  "  const found = json.data.find(w => w.id === workspaceId)",
+                  "  pm.expect(found).to.exist",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Workspace By ID",
+          "description": "Retrieves a specific workspace by its ID.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns correct workspace', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.id).to.equal(pm.environment.get('WORKSPACE_ID'))",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Invalid Workspace (expect 403)",
+          "description": "Attempts to access a workspace that doesn't exist or belongs to another user.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/invalid-workspace-id-999",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "invalid-workspace-id-999"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})",
+                  "",
+                  "pm.test('Success is false', () => {",
+                  "  pm.expect(pm.response.json().success).to.equal(false)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invite Member to Workspace",
+          "description": "Invites a user to a workspace with a specified role.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"member@apico.dev\",\"role\": \"EDITOR\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "invite"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 or 404', () => {",
+                  "  pm.expect([201, 404]).to.include(pm.response.code)",
+                  "})",
+                  "",
+                  "pm.test('Response has correct structure', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json).to.have.property('success')",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Collections",
+      "description": "Request collection management endpoints",
+      "item": [
+        {
+          "name": "Create Collection",
+          "description": "Creates a new request collection in a workspace.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test Collection\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Collection created correctly', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.id).to.exist",
+                  "  pm.expect(json.data.name).to.equal('Test Collection')",
+                  "  pm.expect(json.data.workspaceId).to.equal(pm.environment.get('WORKSPACE_ID'))",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('COLLECTION_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Collections in Workspace",
+          "description": "Retrieves all collections in a workspace.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array with our collection', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "  const found = json.data.find(c => c.id === pm.environment.get('COLLECTION_ID'))",
+                  "  pm.expect(found).to.exist",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Collection",
+          "description": "Updates collection metadata like name.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Updated Collection Name\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Name was updated', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.name).to.equal('Updated Collection Name')",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Collection",
+          "description": "Deletes a collection (test with a temporary collection first).",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 204', () => {",
+                  "  pm.expect([200, 204]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Saved Requests",
+      "description": "Saved request endpoints",
+      "item": [
+        {
+          "name": "Create Collection (for requests)",
+          "description": "Temporary collection for saving test requests.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test Collection for Requests\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('COLLECTION_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Save Request to Collection",
+          "description": "Saves an HTTP request to a collection for later reuse.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Get All Posts\",\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [{\"key\": \"Accept\",\"value\": \"application/json\",\"enabled\": true}],\"params\": [{\"key\": \"userId\",\"value\": \"1\",\"enabled\": true}],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/requests",
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}", "requests"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Request saved correctly', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.id).to.exist",
+                  "  pm.expect(json.data.name).to.equal('Get All Posts')",
+                  "  pm.expect(json.data.method).to.equal('GET')",
+                  "  pm.expect(json.data.collectionId).to.equal(pm.environment.get('COLLECTION_ID'))",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('REQUEST_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Saved Requests",
+          "description": "Retrieves all saved requests in a collection.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/requests",
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}", "requests"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Contains our saved request', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "  const found = json.data.find(r => r.id === pm.environment.get('REQUEST_ID'))",
+                  "  pm.expect(found).to.exist",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Saved Request",
+          "description": "Updates a previously saved request.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Get Posts by User\",\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [],\"params\": [{\"key\": \"userId\",\"value\": \"2\",\"enabled\": true}]}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{REQUEST_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Request was updated', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.name).to.equal('Get Posts by User')",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Saved Request",
+          "description": "Deletes a saved request from a collection.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{REQUEST_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 204', () => {",
+                  "  pm.expect([200, 204]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Execute Request",
+      "description": "Request execution endpoints that proxy to external APIs",
+      "item": [
+        {
+          "name": "Execute GET (no auth)",
+          "description": "Executes an HTTP GET request through the Apico proxy. Tests that the backend can successfully make external API calls.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/1\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/execute",
+              "host": ["{{BASE_URL}}"],
+              "path": ["execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Response has execution result', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.statusCode).to.equal(200)",
+                  "  pm.expect(json.data.body).to.exist",
+                  "  pm.expect(json.data.duration).to.be.a('number')",
+                  "  pm.expect(json.data.size).to.be.a('number')",
+                  "})",
+                  "",
+                  "pm.test('External API returned valid data', () => {",
+                  "  const json = pm.response.json()",
+                  "  const body = JSON.parse(json.data.body)",
+                  "  pm.expect(body.id).to.equal(1)",
+                  "  pm.expect(body.title).to.exist",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Execute GET (with token)",
+          "description": "Executes a GET request with authentication token from environment.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/2\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/execute",
+              "host": ["{{BASE_URL}}"],
+              "path": ["execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Response successful', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.statusCode).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Execute POST with Body",
+          "description": "Executes a POST request with JSON body.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"method\": \"POST\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [{\"key\": \"Content-Type\",\"value\": \"application/json\",\"enabled\": true}],\"params\": [],\"body\": \"{\\\"title\\\": \\\"Test Post\\\", \\\"body\\\": \\\"Hello World\\\", \\\"userId\\\": 1}\",\"auth\": {\"type\": \"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/execute",
+              "host": ["{{BASE_URL}}"],
+              "path": ["execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('External API returned 201', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.statusCode).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Response has created post', () => {",
+                  "  const json = pm.response.json()",
+                  "  const body = JSON.parse(json.data.body)",
+                  "  pm.expect(body.id).to.exist",
+                  "  pm.expect(body.title).to.equal('Test Post')",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Execute with Query Params",
+          "description": "Executes a request with query parameters, testing parameter handling.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [],\"params\": [{\"key\": \"userId\",\"value\": \"1\",\"enabled\": true},{\"key\": \"disabled_param\",\"value\": \"should_not_appear\",\"enabled\": false}],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/execute",
+              "host": ["{{BASE_URL}}"],
+              "path": ["execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Filtered by userId', () => {",
+                  "  const json = pm.response.json()",
+                  "  const posts = JSON.parse(json.data.body)",
+                  "  pm.expect(posts).to.be.an('array')",
+                  "  posts.forEach(post => {",
+                  "    pm.expect(post.userId).to.equal(1)",
+                  "  })",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Execute with Bearer Auth",
+          "description": "Executes a request with Bearer token authentication.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"method\": \"GET\",\"url\": \"https://httpbin.org/bearer\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"bearer\",\"token\": \"test-token-123\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/execute",
+              "host": ["{{BASE_URL}}"],
+              "path": ["execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Bearer auth was applied', () => {",
+                  "  const json = pm.response.json()",
+                  "  const body = JSON.parse(json.data.body)",
+                  "  pm.expect(body.authenticated).to.equal(true)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Execute with Basic Auth",
+          "description": "Executes a request with Basic authentication.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"method\": \"GET\",\"url\": \"https://httpbin.org/basic-auth/user/passwd\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"basic\",\"username\": \"user\",\"password\": \"passwd\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/execute",
+              "host": ["{{BASE_URL}}"],
+              "path": ["execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Execute Invalid URL (expect 400)",
+          "description": "Attempts to execute a request with an invalid URL.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"method\": \"GET\",\"url\": \"not-a-valid-url\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/execute",
+              "host": ["{{BASE_URL}}"],
+              "path": ["execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})",
+                  "",
+                  "pm.test('Returns validation error', () => {",
+                  "  pm.expect(pm.response.json().success).to.equal(false)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Execute as Guest (no JWT)",
+          "description": "Tests the /execute endpoint without authentication. Guest users can execute requests but history is not saved.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/1\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/execute",
+              "host": ["{{BASE_URL}}"],
+              "path": ["execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 (guest allowed)', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Response has result', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.statusCode).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Request History",
+      "description": "Request history endpoints",
+      "item": [
+        {
+          "name": "Get History",
+          "description": "Retrieves all request history for the current user.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/history",
+              "host": ["{{BASE_URL}}"],
+              "path": ["history"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array of history', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "})",
+                  "",
+                  "pm.test('History entries have correct structure', () => {",
+                  "  const json = pm.response.json()",
+                  "  if (json.data.length > 0) {",
+                  "    const entry = json.data[0]",
+                  "    pm.expect(entry).to.have.property('id')",
+                  "    pm.expect(entry).to.have.property('method')",
+                  "    pm.expect(entry).to.have.property('url')",
+                  "    pm.environment.set('HISTORY_ID', entry.id)",
+                  "  }",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete History Entry",
+          "description": "Deletes a single history entry.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/history/{{HISTORY_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["history", "{{HISTORY_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 204', () => {",
+                  "  pm.expect([200, 204]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clear All History",
+          "description": "Clears all request history for the current user.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/history",
+              "host": ["{{BASE_URL}}"],
+              "path": ["history"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 204', () => {",
+                  "  pm.expect([200, 204]).to.include(pm.response.code)",
+                  "})",
+                  "",
+                  "pm.test('Success is true', () => {",
+                  "  const json = pm.response.json()",
+                  "  if (json.success !== undefined) {",
+                  "    pm.expect(json.success).to.equal(true)",
+                  "  }",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 - Shared Links",
+      "description": "Request sharing and public access endpoints",
+      "item": [
+        {
+          "name": "Save Request First",
+          "description": "Save a request to use for sharing tests",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Shareable Request\",\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/1\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/requests",
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}", "requests"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('SHARE_REQUEST_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Shared Link",
+          "description": "Creates a shareable link for a request.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{SHARE_REQUEST_ID}}", "share"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Returns share token', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.token).to.exist",
+                  "  pm.expect(json.data.token.length).to.be.above(10)",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.token) {",
+                  "  pm.environment.set('SHARE_TOKEN', json.data.token)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Shared Link with Expiry",
+          "description": "Creates a shareable link with an expiration date.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expiresAt\": \"2099-12-31T23:59:59.000Z\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{SHARE_REQUEST_ID}}", "share"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Has expiry date', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.expiresAt).to.exist",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Shared Request (public)",
+          "description": "Tests the public share endpoint. No Authorization header — simulates a non-logged-in user viewing a shared link.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/share/{{SHARE_TOKEN}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["share", "{{SHARE_TOKEN}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns request data', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.have.property('method')",
+                  "  pm.expect(json.data).to.have.property('url')",
+                  "  pm.expect(json.data.method).to.equal('GET')",
+                  "})",
+                  "",
+                  "pm.test('No auth token exposed', () => {",
+                  "  const json = pm.response.json()",
+                  "  const str = JSON.stringify(json)",
+                  "  pm.expect(str).to.not.include('password')",
+                  "  pm.expect(str).to.not.include('token')",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 - Environments",
+      "description": "Environment and variable management endpoints",
+      "item": [
+        {
+          "name": "Create Environment",
+          "description": "Creates a new environment for storing variables.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Local Development\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "environments"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Environment created', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.id).to.exist",
+                  "  pm.expect(json.data.name).to.equal('Local Development')",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('ENVIRONMENT_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Environments",
+          "description": "Retrieves all environments in a workspace.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "environments"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Environment by ID",
+          "description": "Retrieves a specific environment with all its variables.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns environment', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.id).to.equal(pm.environment.get('ENVIRONMENT_ID'))",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Environment",
+          "description": "Updates environment metadata like name.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Local Dev Updated\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Name was updated', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.name).to.equal('Local Dev Updated')",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bulk Update Variables",
+          "description": "Updates multiple environment variables at once.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"variables\": [{\"key\": \"BASE_URL\",\"value\": \"localhost:4000\",\"enabled\": true,\"isSecret\": false},{\"key\": \"API_TOKEN\",\"value\": \"my-secret-token\",\"enabled\": true,\"isSecret\": true},{\"key\": \"VERSION\",\"value\": \"v1\",\"enabled\": true,\"isSecret\": false}]}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}", "variables"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Variables saved', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.success).to.equal(true)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Environment",
+          "description": "Deletes an environment and all its variables.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 204', () => {",
+                  "  pm.expect([200, 204]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "09 - Documentation",
+      "description": "API documentation generation and viewing endpoints",
+      "item": [
+        {
+          "name": "Create Collection for Docs",
+          "description": "Create a collection to generate documentation from",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Documentation Collection\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('DOC_COLLECTION_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Save Request for Docs",
+          "description": "Save a test request to the documentation collection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Get User\",\"method\": \"GET\",\"url\": \"https://api.example.com/users/1\",\"headers\": [{\"key\": \"Authorization\",\"value\": \"Bearer token\",\"enabled\": true}],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"bearer\",\"token\": \"sample-token\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{DOC_COLLECTION_ID}}/requests",
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{DOC_COLLECTION_ID}}", "requests"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('DOC_REQUEST_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Generate Doc",
+          "description": "Auto-generates API documentation from a collection.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Test API Documentation\",\"description\": \"Auto-generated docs for testing\",\"baseUrl\": \"https://api.example.com\",\"version\": \"v1.0.0\",\"theme\": \"DARK\",\"isPublic\": true}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{DOC_COLLECTION_ID}}/docs",
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{DOC_COLLECTION_ID}}", "docs"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Doc created with token', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.id).to.exist",
+                  "  pm.expect(json.data.token).to.exist",
+                  "  pm.expect(json.data.token.length).to.be.above(10)",
+                  "  pm.expect(json.data.isPublic).to.equal(true)",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.token) {",
+                  "  pm.environment.set('DOC_TOKEN', json.data.token)",
+                  "  pm.environment.set('DOC_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get My Docs",
+          "description": "Retrieves all documentation generated by the current user.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/docs",
+              "host": ["{{BASE_URL}}"],
+              "path": ["docs"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array of docs', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Doc by Token (public)",
+          "description": "Retrieves documentation using a public token. No authentication required.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/docs/{{DOC_TOKEN}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["docs", "{{DOC_TOKEN}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns full doc with requests', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.title).to.exist",
+                  "  pm.expect(json.data.collection).to.exist",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Toggle Doc Visibility",
+          "description": "Makes a public documentation private or vice versa.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/docs/{{DOC_ID}}/visibility",
+              "host": ["{{BASE_URL}}"],
+              "path": ["docs", "{{DOC_ID}}", "visibility"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Visibility was toggled', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.isPublic).to.equal(false)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Doc",
+          "description": "Deletes generated documentation.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/docs/{{DOC_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["docs", "{{DOC_ID}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 204', () => {",
+                  "  pm.expect([200, 204]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10 - Edge Cases",
+      "description": "Error handling and security edge cases",
+      "item": [
+        {
+          "name": "No Auth Header (expect 401)",
+          "description": "Attempts to access protected resource without authentication.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', () => {",
+                  "  pm.expect(pm.response.code).to.equal(401)",
+                  "})",
+                  "",
+                  "pm.test('Error message is clear', () => {",
+                  "  pm.expect(pm.response.json().success).to.equal(false)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid JWT (expect 401)",
+          "description": "Attempts to use a malformed JWT token.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer invalid.jwt.token"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', () => {",
+                  "  pm.expect(pm.response.code).to.equal(401)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Missing Required Fields (expect 400)",
+          "description": "Attempts to register without required fields.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"incomplete@test.com\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/register",
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})",
+                  "",
+                  "pm.test('Validation error returned', () => {",
+                  "  pm.expect(pm.response.json().success).to.equal(false)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Access Other User Data (expect 403)",
+          "description": "Attempts to access workspace belonging to another user.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/some-other-workspace-id",
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "some-other-workspace-id"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{ACCESS_TOKEN}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "const folder = pm.info.requestName;",
+          "const authRequests = ['Register User', 'Register Duplicate', 'Login User', 'Login Wrong Password', 'No Auth Header', 'Invalid JWT', 'Execute as Guest'];",
+          "",
+          "if (!authRequests.includes(folder)) {",
+          "  const token = pm.environment.get('ACCESS_TOKEN');",
+          "  if (!token && folder !== 'Missing Required Fields') {",
+          "    console.warn('⚠️ No ACCESS_TOKEN set. Run Auth folder first.');",
+          "  }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "if (pm.response.code >= 400) {",
+          "  console.log('❌ Failed Request:', pm.info.requestName);",
+          "  console.log('Status:', pm.response.code);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:4000/api"
+    },
+    {
+      "key": "ACCESS_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "REFRESH_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "USER_EMAIL",
+      "value": "test@apico.dev"
+    },
+    {
+      "key": "USER_PASSWORD",
+      "value": "Test1234!"
+    },
+    {
+      "key": "WORKSPACE_ID",
+      "value": ""
+    },
+    {
+      "key": "COLLECTION_ID",
+      "value": ""
+    },
+    {
+      "key": "REQUEST_ID",
+      "value": ""
+    },
+    {
+      "key": "ENVIRONMENT_ID",
+      "value": ""
+    },
+    {
+      "key": "SHARE_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "DOC_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "HISTORY_ID",
+      "value": ""
+    }
+  ]
+}

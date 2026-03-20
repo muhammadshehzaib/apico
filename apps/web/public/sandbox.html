@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Script Sandbox</title>
+</head>
+<body>
+<script>
+// Capture console output
+const logs = [];
+const originalConsole = {
+  log: console.log,
+  warn: console.warn,
+  error: console.error,
+  info: console.info,
+};
+
+['log', 'warn', 'error', 'info'].forEach(type => {
+  console[type] = (...args) => {
+    logs.push({
+      type,
+      message: args.map(a =>
+        typeof a === 'object'
+          ? JSON.stringify(a, null, 2)
+          : String(a)
+      ).join(' '),
+      timestamp: Date.now(),
+    });
+  };
+});
+
+// Listen for script execution request
+window.addEventListener('message', async (event) => {
+  if (event.data.type === 'RUN_SCRIPT') {
+    handleRunScript(event);
+  } else if (event.data.type === 'RUN_TEST_SCRIPT') {
+    handleRunTestScript(event);
+  }
+});
+
+async function handleRunScript(event) {
+  const { script, pmContext, requestId } = event.data;
+  logs.length = 0; // clear logs
+
+  // Build the pm object
+  const pm = buildPmObject(pmContext);
+
+  let error = null;
+
+  try {
+    // Execute the script
+    const AsyncFunction = Object.getPrototypeOf(
+      async function(){}
+    ).constructor;
+
+    const fn = new AsyncFunction('pm', 'console', script);
+    await fn(pm, console);
+  } catch (err) {
+    error = err.message || 'Script error';
+  }
+
+  // Send results back
+  window.parent.postMessage({
+    type: 'SCRIPT_RESULT',
+    requestId,
+    result: {
+      request: pm._getRequest(),
+      variables: pm._getVariables(),
+      logs: [...logs],
+      error,
+    }
+  }, '*');
+}
+
+async function handleRunTestScript(event) {
+  const { script, pmContext, requestId } = event.data;
+  logs.length = 0; // clear logs
+  const tests = [];
+
+  // Build the pm object with response
+  const pm = buildPmTestObject(pmContext, tests);
+
+  let error = null;
+
+  try {
+    // Execute the test script
+    const AsyncFunction = Object.getPrototypeOf(
+      async function(){}
+    ).constructor;
+
+    const fn = new AsyncFunction('pm', 'console', script);
+    await fn(pm, console);
+  } catch (err) {
+    error = err.message || 'Script error';
+  }
+
+  // Send results back
+  window.parent.postMessage({
+    type: 'TEST_SCRIPT_RESULT',
+    requestId,
+    result: {
+      request: pm._getRequest(),
+      variables: pm._getVariables(),
+      logs: [...logs],
+      error,
+      tests: [...tests],
+      testsPassed: tests.filter(t => t.passed).length,
+      testsFailed: tests.filter(t => !t.passed).length,
+    }
+  }, '*');
+}
+
+function buildPmObject(context) {
+  const request = { ...context.request };
+  const headers = [...(request.headers || [])];
+  const params = [...(request.params || [])];
+  const variables = { ...context.variables };
+
+  return {
+    request: {
+      get url() { return request.url; },
+      set url(v) { request.url = v; },
+      get method() { return request.method; },
+      get body() { return request.body; },
+      set body(v) { request.body = v; },
+      headers: {
+        add({ key, value }) {
+          const existing = headers.findIndex(
+            h => h.key.toLowerCase() === key.toLowerCase()
+          );
+          if (existing >= 0) {
+            headers[existing].value = value;
+          } else {
+            headers.push({ key, value });
+          }
+        },
+        get(key) {
+          return headers.find(
+            h => h.key.toLowerCase() === key.toLowerCase()
+          )?.value;
+        },
+        remove(key) {
+          const idx = headers.findIndex(
+            h => h.key.toLowerCase() === key.toLowerCase()
+          );
+          if (idx >= 0) headers.splice(idx, 1);
+        },
+        toArray() { return [...headers]; },
+      },
+      params: {
+        add({ key, value }) {
+          params.push({ key, value });
+        },
+        get(key) {
+          return params.find(p => p.key === key)?.value;
+        },
+        remove(key) {
+          const idx = params.findIndex(p => p.key === key);
+          if (idx >= 0) params.splice(idx, 1);
+        },
+        toArray() { return [...params]; },
+      },
+    },
+    variables: {
+      set(key, value) {
+        variables[key] = String(value);
+      },
+      get(key) {
+        return variables[key]
+          ?? context.environment[key]
+          ?? undefined;
+      },
+    },
+    environment: {
+      get(key) {
+        return context.environment[key] ?? undefined;
+      },
+    },
+    info: {
+      requestName: context.requestName || '',
+      eventName: context.eventName || 'prerequest',
+    },
+    _getRequest() {
+      return {
+        ...request,
+        headers: [...headers],
+        params: [...params],
+      };
+    },
+    _getVariables() {
+      return { ...variables };
+    },
+  };
+}
+
+function buildPmTestObject(context, tests) {
+  const base = buildPmObject(context);
+  const response = context.response;
+
+  // Add response object
+  base.response = {
+    get statusCode() { return response.statusCode; },
+    get statusText() { return response.statusText; },
+    get duration() { return response.duration; },
+    get size() { return response.size; },
+
+    json() {
+      try {
+        return JSON.parse(response.body);
+      } catch {
+        throw new Error('Response body is not valid JSON');
+      }
+    },
+
+    text() {
+      return response.body;
+    },
+
+    headers: {
+      get(key) {
+        const val = response.headers[key.toLowerCase()];
+        if (Array.isArray(val)) return val.join(', ');
+        return val ?? null;
+      },
+      has(key) {
+        return key.toLowerCase() in response.headers;
+      },
+      toObject() {
+        return { ...response.headers };
+      }
+    },
+  };
+
+  // Add pm.test() function
+  base.test = function(name, fn) {
+    const start = Date.now();
+    const result = {
+      name,
+      passed: false,
+      error: null,
+      duration: 0,
+    };
+
+    try {
+      fn();
+      result.passed = true;
+    } catch (err) {
+      result.passed = false;
+      result.error = err.message || 'Assertion failed';
+    } finally {
+      result.duration = Date.now() - start;
+    }
+
+    tests.push(result);
+  };
+
+  // Add pm.expect() assertion library
+  base.expect = function(actual) {
+    return createExpect(actual);
+  };
+
+  return base;
+}
+
+function createExpect(actual) {
+  const chain = {
+    equal(expected) {
+      if (actual !== expected) {
+        throw new Error(
+          `Expected ${JSON.stringify(actual)} to equal ${JSON.stringify(expected)}`
+        );
+      }
+      return chain;
+    },
+
+    eql(expected) {
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+        throw new Error(
+          `Expected ${JSON.stringify(actual)} to deeply equal ${JSON.stringify(expected)}`
+        );
+      }
+      return chain;
+    },
+
+    exist() {
+      if (actual === null || actual === undefined) {
+        throw new Error(`Expected value to exist but got ${JSON.stringify(actual)}`);
+      }
+      return chain;
+    },
+
+    include(expected) {
+      if (typeof actual === 'string') {
+        if (!actual.includes(expected)) {
+          throw new Error(`Expected "${actual}" to include "${expected}"`);
+        }
+      } else if (Array.isArray(actual)) {
+        if (!actual.includes(expected)) {
+          throw new Error(`Expected array to include ${JSON.stringify(expected)}`);
+        }
+      } else {
+        throw new Error('include() only works on strings and arrays');
+      }
+      return chain;
+    },
+
+    contains(expected) {
+      return chain.include(expected);
+    },
+
+    above(expected) {
+      if (typeof actual !== 'number') {
+        throw new Error('above() requires a number');
+      }
+      if (actual <= expected) {
+        throw new Error(`Expected ${actual} to be above ${expected}`);
+      }
+      return chain;
+    },
+
+    below(expected) {
+      if (typeof actual !== 'number') {
+        throw new Error('below() requires a number');
+      }
+      if (actual >= expected) {
+        throw new Error(`Expected ${actual} to be below ${expected}`);
+      }
+      return chain;
+    },
+
+    least(expected) {
+      if (typeof actual !== 'number') {
+        throw new Error('least() requires a number');
+      }
+      if (actual < expected) {
+        throw new Error(`Expected ${actual} to be at least ${expected}`);
+      }
+      return chain;
+    },
+
+    most(expected) {
+      if (typeof actual !== 'number') {
+        throw new Error('most() requires a number');
+      }
+      if (actual > expected) {
+        throw new Error(`Expected ${actual} to be at most ${expected}`);
+      }
+      return chain;
+    },
+
+    ok() {
+      if (!actual) {
+        throw new Error(`Expected ${JSON.stringify(actual)} to be truthy`);
+      }
+      return chain;
+    },
+
+    true() {
+      if (actual !== true) {
+        throw new Error(`Expected ${JSON.stringify(actual)} to be true`);
+      }
+      return chain;
+    },
+
+    false() {
+      if (actual !== false) {
+        throw new Error(`Expected ${JSON.stringify(actual)} to be false`);
+      }
+      return chain;
+    },
+
+    null() {
+      if (actual !== null) {
+        throw new Error(`Expected ${JSON.stringify(actual)} to be null`);
+      }
+      return chain;
+    },
+
+    undefined() {
+      if (actual !== undefined) {
+        throw new Error('Expected value to be undefined');
+      }
+      return chain;
+    },
+
+    type(expected) {
+      const actualType = Array.isArray(actual) ? 'array' : typeof actual;
+      if (actualType !== expected) {
+        throw new Error(`Expected type "${expected}" but got "${actualType}"`);
+      }
+      return chain;
+    },
+
+    property(key, value) {
+      if (typeof actual !== 'object' || actual === null) {
+        throw new Error('property() requires an object');
+      }
+      if (!(key in actual)) {
+        throw new Error(`Expected object to have property "${key}"`);
+      }
+      if (value !== undefined && actual[key] !== value) {
+        throw new Error(
+          `Expected property "${key}" to equal ${JSON.stringify(value)} but got ${JSON.stringify(actual[key])}`
+        );
+      }
+      return chain;
+    },
+
+    length(expected) {
+      if (actual === null || actual === undefined) {
+        throw new Error('length() called on null/undefined');
+      }
+      const len = actual.length;
+      if (len !== expected) {
+        throw new Error(`Expected length ${expected} but got ${len}`);
+      }
+      return chain;
+    },
+
+    lengthOf(expected) {
+      return chain.length(expected);
+    },
+
+    match(regex) {
+      if (typeof actual !== 'string') {
+        throw new Error('match() requires a string');
+      }
+      if (!regex.test(actual)) {
+        throw new Error(`Expected "${actual}" to match ${regex}`);
+      }
+      return chain;
+    },
+
+    get not() {
+      return createNegatedExpect(actual);
+    },
+
+    get to() { return chain; },
+    get be() { return chain; },
+    get have() { return chain; },
+    get a() { return chain; },
+    get an() { return chain; },
+    get that() { return chain; },
+    get which() { return chain; },
+    get and() { return chain; },
+    get has() { return chain; },
+    get with() { return chain; },
+    get at() { return chain; },
+    get of() { return chain; },
+    get same() { return chain; },
+  };
+
+  return chain;
+}
+
+function createNegatedExpect(actual) {
+  const negated = {
+    equal(expected) {
+      if (actual === expected) {
+        throw new Error(
+          `Expected ${JSON.stringify(actual)} not to equal ${JSON.stringify(expected)}`
+        );
+      }
+      return negated;
+    },
+
+    exist() {
+      if (actual !== null && actual !== undefined) {
+        throw new Error(
+          `Expected value not to exist but got ${JSON.stringify(actual)}`
+        );
+      }
+      return negated;
+    },
+
+    include(expected) {
+      if (typeof actual === 'string' && actual.includes(expected)) {
+        throw new Error(`Expected "${actual}" not to include "${expected}"`);
+      }
+      if (Array.isArray(actual) && actual.includes(expected)) {
+        throw new Error(`Expected array not to include ${JSON.stringify(expected)}`);
+      }
+      return negated;
+    },
+
+    above(expected) {
+      if (typeof actual === 'number' && actual > expected) {
+        throw new Error(`Expected ${actual} not to be above ${expected}`);
+      }
+      return negated;
+    },
+
+    below(expected) {
+      if (typeof actual === 'number' && actual < expected) {
+        throw new Error(`Expected ${actual} not to be below ${expected}`);
+      }
+      return negated;
+    },
+
+    ok() {
+      if (actual) {
+        throw new Error(`Expected ${JSON.stringify(actual)} to be falsy`);
+      }
+      return negated;
+    },
+
+    get to() { return negated; },
+    get be() { return negated; },
+    get have() { return negated; },
+    get a() { return negated; },
+    get an() { return negated; },
+  };
+
+  return negated;
+}
+</script>
+</body>
+</html>

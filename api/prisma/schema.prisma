@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  ownerId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceRole @default(VIEWER)
+  createdAt   DateTime      @default(now())
+}
+
+enum WorkspaceRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+model Collection {
+  id          String   @id @default(cuid())
+  name        String
+  workspaceId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SavedRequest {
+  id           String     @id @default(cuid())
+  name         String
+  collectionId String
+  method       HttpMethod
+  url          String
+  headers      Json       @default("[]")
+  params       Json       @default("[]")
+  body         String?
+  auth         Json?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model RequestHistory {
+  id         String     @id @default(cuid())
+  userId     String
+  method     HttpMethod
+  url        String
+  headers    Json       @default("[]")
+  body       String?
+  statusCode Int?
+  response   String?
+  duration   Int?
+  size       Int?
+  createdAt  DateTime   @default(now())
+}
+
+model SharedLink {
+  id             String    @id @default(cuid())
+  savedRequestId String
+  token          String    @unique
+  createdAt      DateTime  @default(now())
+  expiresAt      DateTime?
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+}
+
+model Environment {
+  id        String   @id @default(cuid())
+  name      String
+  workspaceId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EnvironmentVariable {
+  id            String   @id @default(cuid())
+  environmentId String
+  key           String
+  value         String
+  enabled       Boolean  @default(true)
+  isSecret      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
