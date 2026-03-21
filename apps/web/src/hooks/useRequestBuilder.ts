@@ -208,8 +208,8 @@ export function useRequestBuilder() {
       let resolvedPayload: any = {
         method: state.method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
         url: resolveVariables(state.url, state.activeVariables),
-        headers: resolveKeyValuePairs(state.headers, state.activeVariables),
-        params: resolveKeyValuePairs(state.params, state.activeVariables),
+        headers: resolveKeyValuePairs(state.headers, state.activeVariables).filter(h => h.enabled && h.key.trim() !== ''),
+        params: resolveKeyValuePairs(state.params, state.activeVariables).filter(p => p.enabled && p.key.trim() !== ''),
         body: resolveVariables(state.body, state.activeVariables),
         auth: {
           ...state.auth,
