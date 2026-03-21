@@ -40,13 +40,25 @@ export const executeRequest = async (payload: ExecuteRequestPayload): Promise<Ex
     }
   }
 
+  let requestBody: any = payload.body;
+
+  // Auto-detect JSON body and set Content-Type if not already set
+  if (payload.body && !headers['Content-Type'] && !headers['content-type']) {
+    try {
+      requestBody = JSON.parse(payload.body);
+      headers['Content-Type'] = 'application/json';
+    } catch {
+      // Not JSON — send as plain string
+    }
+  }
+
   try {
     const response = await axios({
       method: payload.method.toLowerCase() as any,
       url: payload.url,
       headers,
       params,
-      data: payload.body,
+      data: requestBody,
       timeout: 30000,
       validateStatus: () => true,
     });
