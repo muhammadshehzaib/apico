@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRequestBuilder } from '@/hooks/useRequestBuilder';
 import { useRequestHistory } from '@/hooks/useRequestHistory';
 import { useEnvironment } from '@/hooks/useEnvironment';
@@ -22,6 +22,45 @@ export function RequestBuilder() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [isCurlModalOpen, setIsCurlModalOpen] = useState(false);
   const { showToast } = useToast();
+
+  // Draggable divider state
+  const [requestPanelHeight, setRequestPanelHeight] = useState(192);
+  const isDragging = useRef(false);
+  const dragStartY = useRef(0);
+  const dragStartHeight = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isDragging.current = true;
+    dragStartY.current = e.clientY;
+    dragStartHeight.current = requestPanelHeight;
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+  }, [requestPanelHeight]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const delta = e.clientY - dragStartY.current;
+      const containerHeight = containerRef.current?.clientHeight ?? 600;
+      const maxHeight = Math.floor(containerHeight * 0.8);
+      const newHeight = Math.min(Math.max(dragStartHeight.current + delta, 80), maxHeight);
+      setRequestPanelHeight(newHeight);
+    };
+    const handleMouseUp = () => {
+      if (!isDragging.current) return;
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
   const activeWorkspaceId = useSelector((state: RootState) => state.workspace.activeWorkspaceId);
 
   const {
@@ -152,9 +191,9 @@ export function RequestBuilder() {
           />
         </ErrorBoundary>
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden" ref={containerRef}>
           <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-            <div className="h-48 overflow-hidden border-b border-bg-tertiary">
+            <div className="overflow-hidden" style={{ height: requestPanelHeight, flexShrink: 0 }}>
               <ErrorBoundary>
                 <RequestTabs
                   activeTab={activeTab}
@@ -186,6 +225,16 @@ export function RequestBuilder() {
                   onClearTestResults={clearTestResults}
                 />
               </ErrorBoundary>
+            </div>
+
+            {/* Draggable divider */}
+            <div
+              onMouseDown={handleDividerMouseDown}
+              className="relative flex items-center justify-center bg-bg-tertiary border-t border-b border-bg-tertiary flex-shrink-0 group"
+              style={{ height: 8, cursor: 'row-resize' }}
+              title="Drag to resize"
+            >
+              <div className="w-8 h-1 rounded-full bg-text-muted opacity-40 group-hover:opacity-80 transition-opacity" />
             </div>
 
             <div className="flex-1 overflow-hidden">
