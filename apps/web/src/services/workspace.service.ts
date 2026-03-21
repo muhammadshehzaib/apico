@@ -53,11 +53,14 @@ class WorkspaceService {
   }
 
   async executeRequest(payload: ExecuteRequestInput): Promise<ExecuteRequestResult> {
-    const response = await apiService.post<ExecuteRequestResult>(
+    const response = await apiService.post<any>(
       API_ENDPOINTS.EXECUTE_REQUEST,
       payload
     );
-    return response.data;
+    // Backend wraps result in ApiResponse: { success, data: ExecuteRequestResult }
+    // apiService already unwraps axios response.data → ApiResponse
+    // So response.data is ApiResponse, and response.data.data is the actual result
+    return (response.data?.data ?? response.data) as ExecuteRequestResult;
   }
 
   async saveRequest(collectionId: string, data: SaveRequestInput): Promise<SavedRequest> {
