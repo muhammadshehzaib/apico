@@ -142,15 +142,23 @@ export function PlaygroundSidebar({
                       {formatTimeAgo(entry.createdAt)}
                     </p>
                   </div>
-                  <button
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteHistory(entry.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-text-muted hover:text-danger text-xs flex-shrink-0"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.stopPropagation();
+                        handleDeleteHistory(entry.id);
+                      }
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-text-muted hover:text-danger text-xs flex-shrink-0 cursor-pointer"
                   >
                     ✕
-                  </button>
+                  </div>
                 </div>
               </button>
             ))
