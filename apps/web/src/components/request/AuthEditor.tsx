@@ -22,7 +22,7 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
   };
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-6 h-full overflow-auto">
       <div>
         <label className="block text-sm font-medium text-text-primary mb-3">
           Authentication Type
@@ -32,11 +32,10 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
             <button
               key={type}
               onClick={() => handleTypeChange(type)}
-              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${
-                auth.type === type
+              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${auth.type === type
                   ? 'bg-accent text-white'
                   : 'bg-bg-secondary text-text-muted hover:text-text-primary'
-              }`}
+                }`}
             >
               {type === 'none'
                 ? 'None'

@@ -42,25 +42,23 @@ export function BodyEditor({ body, onChange }: BodyEditorProps) {
   };
 
   return (
-    <div className="p-4 space-y-3">
-      <div className="flex gap-2 items-center">
+    <div className="p-4 space-y-3 h-full flex flex-col">
+      <div className="flex gap-2 items-center flex-shrink-0">
         <button
           onClick={() => setMode('json')}
-          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-            mode === 'json'
+          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${mode === 'json'
               ? 'bg-accent text-white'
               : 'bg-bg-secondary text-text-muted hover:text-text-primary'
-          }`}
+            }`}
         >
           JSON
         </button>
         <button
           onClick={() => setMode('raw')}
-          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-            mode === 'raw'
+          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${mode === 'raw'
               ? 'bg-accent text-white'
               : 'bg-bg-secondary text-text-muted hover:text-text-primary'
-          }`}
+            }`}
         >
           Raw
         </button>
@@ -79,9 +77,8 @@ export function BodyEditor({ body, onChange }: BodyEditorProps) {
         value={body}
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Enter request body..."
-        className={`w-full p-3 bg-bg-primary border rounded font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-accent min-h-[200px] ${
-          isInvalidJson ? 'border-danger' : 'border-bg-tertiary'
-        }`}
+        className={`w-full p-3 bg-bg-primary border rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-accent flex-1 min-h-0 ${isInvalidJson ? 'border-danger' : 'border-bg-tertiary'
+          }`}
       />
 
       {isInvalidJson && (

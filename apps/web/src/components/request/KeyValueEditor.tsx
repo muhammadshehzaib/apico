@@ -41,14 +41,13 @@ export function KeyValueEditor({
   };
 
   return (
-    <div className="p-4 space-y-3">
-      <div className="space-y-2">
+    <div className="p-4 space-y-3 h-full flex flex-col">
+      <div className="space-y-2 flex-1 overflow-auto min-h-0 pr-1">
         {pairs.map((pair, index) => (
           <div
             key={index}
-            className={`flex items-center gap-2 p-2 bg-bg-primary rounded transition-opacity ${
-              !pair.enabled ? 'opacity-40' : ''
-            }`}
+            className={`flex items-center gap-2 p-2 bg-bg-primary rounded transition-opacity ${!pair.enabled ? 'opacity-40' : ''
+              }`}
           >
             <input
               type="checkbox"
@@ -86,7 +85,7 @@ export function KeyValueEditor({
 
       <button
         onClick={handleAddRow}
-        className="px-4 py-2 text-accent hover:text-blue-400 text-sm font-medium transition-colors"
+        className="px-4 py-2 text-accent hover:text-blue-400 text-sm font-medium transition-colors flex-shrink-0 w-fit"
       >
         + Add row
       </button>

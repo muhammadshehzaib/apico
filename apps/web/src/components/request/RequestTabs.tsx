@@ -91,17 +91,16 @@ export function RequestTabs({
   const tabs = getTabs(params, headers, body, auth, preRequestScript);
 
   return (
-    <div className="flex flex-col h-full bg-bg-secondary border-b border-bg-tertiary">
+    <div className="flex flex-col h-full bg-bg-secondary">
       <div className="flex border-b border-bg-tertiary">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id as any)}
-            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors relative ${
-              activeTab === tab.id
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors relative ${activeTab === tab.id
                 ? 'text-text-primary border-accent'
                 : 'text-text-muted border-transparent hover:text-text-primary'
-            }`}
+              }`}
           >
             {tab.label}
             {tab.count && (
@@ -116,7 +115,7 @@ export function RequestTabs({
         ))}
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-hidden">
         {activeTab === 'params' && (
           <KeyValueEditor
             pairs={params}
