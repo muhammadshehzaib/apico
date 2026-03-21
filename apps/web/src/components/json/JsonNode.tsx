@@ -168,35 +168,33 @@ const JsonNode = memo(function JsonNode({
 
           {renderValue()}
 
-          {/* Copy buttons - show on hover */}
-          {isHovered && (
-            <div className="flex items-center gap-1 ml-auto opacity-100 flex-shrink-0">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCopyValue(path, value);
-                }}
-                className={`px-2 py-0.5 text-xs rounded transition-colors flex-shrink-0 ${copiedPath === path
-                    ? 'bg-success text-white'
-                    : 'bg-gray-700 text-gray-300 hover:text-white'
-                  }`}
-              >
-                {copiedPath === path ? '✓' : 'val'}
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCopyPath(path);
-                }}
-                className={`px-2 py-0.5 text-xs rounded transition-colors flex-shrink-0 ${copiedPath === `${path}_path`
-                    ? 'bg-success text-white'
-                    : 'bg-gray-700 text-gray-300 hover:text-white'
-                  }`}
-              >
-                {copiedPath === `${path}_path` ? '✓' : 'path'}
-              </button>
-            </div>
-          )}
+          {/* Copy buttons - always rendered, shown on hover via opacity */}
+          <div className={`flex items-center gap-1 ml-auto flex-shrink-0 transition-opacity duration-100 ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCopyValue(path, value);
+              }}
+              className={`px-2 py-0.5 text-xs rounded transition-colors flex-shrink-0 ${copiedPath === path
+                ? 'bg-success text-white'
+                : 'bg-gray-700 text-gray-300 hover:text-white'
+                }`}
+            >
+              {copiedPath === path ? '✓' : 'val'}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCopyPath(path);
+              }}
+              className={`px-2 py-0.5 text-xs rounded transition-colors flex-shrink-0 ${copiedPath === `${path}_path`
+                ? 'bg-success text-white'
+                : 'bg-gray-700 text-gray-300 hover:text-white'
+                }`}
+            >
+              {copiedPath === `${path}_path` ? '✓' : 'path'}
+            </button>
+          </div>
         </div>
 
         {/* Children */}
@@ -307,35 +305,33 @@ const JsonNode = memo(function JsonNode({
 
         {renderValue()}
 
-        {/* Copy buttons */}
-        {isHovered && (
-          <div className="flex items-center gap-1 ml-auto opacity-100 flex-shrink-0">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onCopyValue(path, value);
-              }}
-              className={`px-2 py-0.5 text-xs rounded transition-colors flex-shrink-0 ${copiedPath === path
-                  ? 'bg-success text-white'
-                  : 'bg-gray-700 text-gray-300 hover:text-white'
-                }`}
-            >
-              {copiedPath === path ? '✓' : 'val'}
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onCopyPath(path);
-              }}
-              className={`px-2 py-0.5 text-xs rounded transition-colors flex-shrink-0 ${copiedPath === `${path}_path`
-                  ? 'bg-success text-white'
-                  : 'bg-gray-700 text-gray-300 hover:text-white'
-                }`}
-            >
-              {copiedPath === `${path}_path` ? '✓' : 'path'}
-            </button>
-          </div>
-        )}
+        {/* Copy buttons - always rendered, shown on hover via opacity */}
+        <div className={`flex items-center gap-1 ml-auto flex-shrink-0 transition-opacity duration-100 ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onCopyValue(path, value);
+            }}
+            className={`px-2 py-0.5 text-xs rounded transition-colors flex-shrink-0 ${copiedPath === path
+              ? 'bg-success text-white'
+              : 'bg-gray-700 text-gray-300 hover:text-white'
+              }`}
+          >
+            {copiedPath === path ? '✓' : 'val'}
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onCopyPath(path);
+            }}
+            className={`px-2 py-0.5 text-xs rounded transition-colors flex-shrink-0 ${copiedPath === `${path}_path`
+              ? 'bg-success text-white'
+              : 'bg-gray-700 text-gray-300 hover:text-white'
+              }`}
+          >
+            {copiedPath === `${path}_path` ? '✓' : 'path'}
+          </button>
+        </div>
 
         <span className="text-gray-500">,</span>
       </div>

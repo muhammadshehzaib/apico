@@ -84,12 +84,12 @@ export function JsonTreeViewer({ body, headers }: JsonTreeViewerProps) {
       <div className="flex flex-col h-full">
         <JsonToolbar
           displayMode="raw"
-          onDisplayModeChange={() => {}}
-          onExpandAll={() => {}}
-          onCollapseAll={() => {}}
-          onToggleSearch={() => {}}
+          onDisplayModeChange={() => { }}
+          onExpandAll={() => { }}
+          onCollapseAll={() => { }}
+          onToggleSearch={() => { }}
           isSearchOpen={false}
-          onCopyAll={() => {}}
+          onCopyAll={() => { }}
           isCopied={false}
         />
 
@@ -121,15 +121,17 @@ export function JsonTreeViewer({ body, headers }: JsonTreeViewerProps) {
         onCyclePathFormat={jsonPath.cycleFormat}
       />
 
-      {displayMode === 'tree' && (jsonPath.activePath || jsonPath.hoveredPath) && (
-        <JsonPathBar
-          path={jsonPath.activePath}
-          hoveredPath={jsonPath.hoveredPath}
-          format={jsonPath.pathFormat}
-          onFormatChange={jsonPath.setPathFormat}
-          onCycleFormat={jsonPath.cycleFormat}
-          copiedPath={jsonPath.copiedPath}
-        />
+      {displayMode === 'tree' && (
+        <div className={jsonPath.activePath || jsonPath.hoveredPath ? 'visible' : 'invisible'}>
+          <JsonPathBar
+            path={jsonPath.activePath}
+            hoveredPath={jsonPath.hoveredPath}
+            format={jsonPath.pathFormat}
+            onFormatChange={jsonPath.setPathFormat}
+            onCycleFormat={jsonPath.cycleFormat}
+            copiedPath={jsonPath.copiedPath}
+          />
+        </div>
       )}
 
       {displayMode === 'tree' && isSearchOpen && (
