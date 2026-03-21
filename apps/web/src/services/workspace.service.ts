@@ -54,7 +54,7 @@ class WorkspaceService {
 
   async executeRequest(payload: ExecuteRequestInput): Promise<ExecuteRequestResult> {
     const response = await apiService.post<ExecuteRequestResult>(
-      '/execute',
+      API_ENDPOINTS.EXECUTE_REQUEST,
       payload
     );
     return response.data;
