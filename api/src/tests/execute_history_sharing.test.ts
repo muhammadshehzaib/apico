@@ -3,9 +3,9 @@ import request from 'supertest';
 import app from '../app';
 
 describe('Execute, History & Sharing API', () => {
-    const testUser = {
+    let testUser = {
         name: 'Test User',
-        email: 'test@apico.dev',
+        email: '',
         password: 'Test1234!'
     };
 
@@ -16,25 +16,33 @@ describe('Execute, History & Sharing API', () => {
     let shareToken: string;
 
     const setupAuth = async () => {
-        await request(app).post('/api/auth/register').send(testUser);
+        const uniqueId = Math.random().toString(36).substring(7);
+        testUser.email = `execute_test_${uniqueId}@apico.dev`;
+
+        const registerRes = await request(app).post('/api/auth/register').send(testUser);
+        expect(registerRes.status, `Registration failed: ${JSON.stringify(registerRes.body)}`).toBe(201);
+
         const loginRes = await request(app)
             .post('/api/auth/login')
             .send({
                 email: testUser.email,
                 password: testUser.password
             });
+        expect(loginRes.status, `Login failed: ${JSON.stringify(loginRes.body)}`).toBe(200);
         accessToken = loginRes.body.data.accessToken;
 
         const createWRes = await request(app)
             .post('/api/workspaces')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Workspace' });
+        expect(createWRes.status, `Workspace creation failed: ${JSON.stringify(createWRes.body)}`).toBe(201);
         workspaceId = createWRes.body.data.id;
 
         const createCRes = await request(app)
             .post(`/api/workspaces/${workspaceId}/collections`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Collection' });
+        expect(createCRes.status, `Collection creation failed: ${JSON.stringify(createCRes.body)}`).toBe(201);
         collectionId = createCRes.body.data.id;
     };
 

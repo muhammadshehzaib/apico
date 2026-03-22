@@ -14,6 +14,7 @@ model User {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  workpaces WorkspaceMember[]
 }
 
 model Workspace {
@@ -22,6 +23,7 @@ model Workspace {
   ownerId   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  members   WorkspaceMember[]
 }
 
 model WorkspaceMember {
@@ -30,6 +32,10 @@ model WorkspaceMember {
   userId      String
   role        WorkspaceRole @default(VIEWER)
   createdAt   DateTime      @default(now())
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
 }
 
 enum WorkspaceRole {
@@ -39,25 +45,28 @@ enum WorkspaceRole {
 }
 
 model Collection {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   workspaceId String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  requests    SavedRequest[]
 }
 
 model SavedRequest {
-  id           String     @id @default(cuid())
+  id           String       @id @default(cuid())
   name         String
   collectionId String
   method       HttpMethod
   url          String
-  headers      Json       @default("[]")
-  params       Json       @default("[]")
+  headers      Json         @default("[]")
+  params       Json         @default("[]")
   body         String?
   auth         Json?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  collection   Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  sharedLinks  SharedLink[]
 }
 
 model RequestHistory {
@@ -68,18 +77,19 @@ model RequestHistory {
   headers    Json       @default("[]")
   body       String?
   statusCode Int?
-  response   String?
+  response   String?    @db.Text
   duration   Int?
   size       Int?
   createdAt  DateTime   @default(now())
 }
 
 model SharedLink {
-  id             String    @id @default(cuid())
+  id             String       @id @default(cuid())
   savedRequestId String
-  token          String    @unique
-  createdAt      DateTime  @default(now())
+  token          String       @unique
+  createdAt      DateTime     @default(now())
   expiresAt      DateTime?
+  savedRequest   SavedRequest @relation(fields: [savedRequestId], references: [id], onDelete: Cascade)
 }
 
 enum HttpMethod {

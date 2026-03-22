@@ -7,6 +7,12 @@ export default defineConfig({
         environment: 'node',
         setupFiles: ['./src/tests/setup.ts'],
         include: ['./src/tests/**/*.test.ts'],
+        fileParallelism: false,
+        poolOptions: {
+            threads: {
+                singleThread: true,
+            },
+        },
     },
     resolve: {
         alias: {

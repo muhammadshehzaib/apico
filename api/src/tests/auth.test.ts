@@ -3,9 +3,10 @@ import request from 'supertest';
 import app from '../app';
 
 describe('Authentication API', () => {
+    const timestamp = Date.now();
     const testUser = {
         name: 'Test User',
-        email: 'test@apico.dev',
+        email: `auth_test_${timestamp}@apico.dev`,
         password: 'Test1234!'
     };
 

@@ -3,9 +3,10 @@ import request from 'supertest';
 import app from '../app';
 
 describe('Workspace & Collection API', () => {
-    const testUser = {
+    const timestamp = Date.now() + Math.floor(Math.random() * 1000);
+    let testUser = {
         name: 'Test User',
-        email: 'test@apico.dev',
+        email: '',
         password: 'Test1234!'
     };
 
@@ -14,13 +15,19 @@ describe('Workspace & Collection API', () => {
     let collectionId: string;
 
     const setupAuth = async () => {
-        await request(app).post('/api/auth/register').send(testUser);
+        const uniqueId = Math.random().toString(36).substring(7);
+        testUser.email = `workspace_test_${uniqueId}@apico.dev`;
+
+        const registerRes = await request(app).post('/api/auth/register').send(testUser);
+        expect(registerRes.status, `Registration failed: ${JSON.stringify(registerRes.body)}`).toBe(201);
+
         const loginRes = await request(app)
             .post('/api/auth/login')
             .send({
                 email: testUser.email,
                 password: testUser.password
             });
+        expect(loginRes.status, `Login failed: ${JSON.stringify(loginRes.body)}`).toBe(200);
         accessToken = loginRes.body.data.accessToken;
     };
 

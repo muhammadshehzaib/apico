@@ -13,7 +13,8 @@ beforeEach(async () => {
         try {
             await (prisma as any)[tableName].deleteMany();
         } catch (e) {
-            // Ignore if table doesn't exist or other errors
+            console.error(`Error deleting table ${tableName}:`, e);
+            throw e;
         }
     };
 

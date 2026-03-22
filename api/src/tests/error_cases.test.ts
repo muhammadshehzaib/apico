@@ -3,10 +3,17 @@ import request from 'supertest';
 import app from '../app';
 
 describe('Error Cases API', () => {
-    const testUser = {
+    let testUser = {
         name: 'Test User',
-        email: 'test@apico.dev',
+        email: '',
         password: 'Test1234!'
+    };
+
+    const setupUniqueUser = async () => {
+        const uniqueId = Math.random().toString(36).substring(7);
+        testUser.email = `error_test_${uniqueId}@apico.dev`;
+        const registerRes = await request(app).post('/api/auth/register').send(testUser);
+        expect(registerRes.status).toBe(201);
     };
 
     it('🔴 Test 1 — should return 401 when accessing protected route without token', async () => {
@@ -16,7 +23,7 @@ describe('Error Cases API', () => {
 
     it('🔴 Test 2 — should return 401 with wrong password', async () => {
         // Register first
-        await request(app).post('/api/auth/register').send(testUser);
+        await setupUniqueUser();
 
         const res = await request(app)
             .post('/api/auth/login')
@@ -45,7 +52,7 @@ describe('Error Cases API', () => {
 
     it('🔴 Test 4 — should return 404 for non-existent workspace', async () => {
         // Register and login
-        await request(app).post('/api/auth/register').send(testUser);
+        await setupUniqueUser();
         const loginRes = await request(app)
             .post('/api/auth/login')
             .send({
