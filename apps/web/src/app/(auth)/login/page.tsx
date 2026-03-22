@@ -30,7 +30,7 @@ export default function LoginPage() {
     try {
       const validatedData = loginSchema.parse(formData);
       const result = await authService.login(validatedData);
-      router.push('/app/workspace');
+      router.push('/workspace');
     } catch (error) {
       if (error instanceof ZodError) {
         const fieldErrors: Record<string, string> = {};

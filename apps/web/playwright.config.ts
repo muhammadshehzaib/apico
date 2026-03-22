@@ -5,7 +5,7 @@ export default defineConfig({
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
-    workers: process.env.CI ? 1 : undefined,
+    workers: 1,
     reporter: 'html',
     use: {
         baseURL: 'http://localhost:3000',
@@ -25,10 +25,19 @@ export default defineConfig({
             use: { ...devices['Desktop Safari'] },
         },
     ],
-    webServer: {
-        command: 'npm run dev',
-        url: 'http://localhost:3000',
-        reuseExistingServer: !process.env.CI,
-        timeout: 120 * 1000,
-    },
+    webServer: [
+        {
+            command: 'npm run dev',
+            cwd: '../../api',
+            url: 'http://localhost:4000/api/health',
+            reuseExistingServer: !process.env.CI,
+            timeout: 120 * 1000,
+        },
+        {
+            command: 'npm run dev',
+            url: 'http://localhost:3000',
+            reuseExistingServer: !process.env.CI,
+            timeout: 120 * 1000,
+        },
+    ],
 });

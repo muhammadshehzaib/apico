@@ -30,7 +30,7 @@ export default function RegisterPage() {
     try {
       const validatedData = registerSchema.parse(formData);
       await authService.register(validatedData);
-      router.push('/app/workspace');
+      router.push('/workspace');
     } catch (error) {
       if (error instanceof ZodError) {
         const fieldErrors: Record<string, string> = {};

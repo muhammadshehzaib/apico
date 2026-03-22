@@ -4,29 +4,46 @@ import { AuthTokens, User } from '@/types';
 import { LoginInput, RegisterInput } from '@/validations/auth.validation';
 
 class AuthService {
-  async register(input: RegisterInput): Promise<AuthTokens> {
+  async register(input: RegisterInput): Promise<AuthTokens | null> {
     const response = await apiService.post<AuthTokens>(API_ENDPOINTS.REGISTER, input);
-    const { accessToken, refreshToken } = response.data;
+    console.log(`[AUTH] Register response:`, response.data);
+    const { accessToken, refreshToken } = response.data.data || {};
 
-    localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
-    localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken);
+    if (accessToken && refreshToken) {
+      console.log(`[AUTH] Saving tokens: ${accessToken.substring(0, 10)}...`);
+      localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
+      localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken);
+      // Set cookie for server-side checks
+      document.cookie = `${TOKEN_KEYS.ACCESS_TOKEN}=${accessToken}; path=/; max-age=604800; SameSite=Lax`;
+    } else {
+      console.warn(`[AUTH] Missing tokens in response!`);
+    }
 
-    return response.data;
+    return response.data.data;
   }
 
-  async login(input: LoginInput): Promise<AuthTokens> {
+  async login(input: LoginInput): Promise<AuthTokens | null> {
     const response = await apiService.post<AuthTokens>(API_ENDPOINTS.LOGIN, input);
-    const { accessToken, refreshToken } = response.data;
+    console.log(`[AUTH] Login response:`, response.data);
+    const { accessToken, refreshToken } = response.data.data || {};
 
-    localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
-    localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken);
+    if (accessToken && refreshToken) {
+      console.log(`[AUTH] Saving tokens: ${accessToken.substring(0, 10)}...`);
+      localStorage.setItem(TOKEN_KEYS.ACCESS_TOKEN, accessToken);
+      localStorage.setItem(TOKEN_KEYS.REFRESH_TOKEN, refreshToken);
+      // Set cookie for server-side checks
+      document.cookie = `${TOKEN_KEYS.ACCESS_TOKEN}=${accessToken}; path=/; max-age=604800; SameSite=Lax`;
+    } else {
+      console.warn(`[AUTH] Missing tokens in response!`);
+    }
 
-    return response.data;
+    return response.data.data;
   }
 
   async logout(): Promise<void> {
     localStorage.removeItem(TOKEN_KEYS.ACCESS_TOKEN);
     localStorage.removeItem(TOKEN_KEYS.REFRESH_TOKEN);
+    document.cookie = `${TOKEN_KEYS.ACCESS_TOKEN}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`;
   }
 
   getAccessToken(): string | null {

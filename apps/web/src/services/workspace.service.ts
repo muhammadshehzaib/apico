@@ -4,19 +4,19 @@ import { Workspace, Collection, SavedRequest, ExecuteRequestResult } from '@/typ
 import { ExecuteRequestInput, SaveRequestInput } from '@/validations/request.validation';
 
 class WorkspaceService {
-  async createWorkspace(name: string): Promise<Workspace> {
+  async createWorkspace(name: string): Promise<Workspace | null> {
     const response = await apiService.post<Workspace>(API_ENDPOINTS.WORKSPACES, { name });
-    return response.data;
+    return response.data.data;
   }
 
   async getWorkspaces(): Promise<Workspace[]> {
     const response = await apiService.get<Workspace[]>(API_ENDPOINTS.WORKSPACES);
-    return response.data;
+    return response.data.data || [];
   }
 
-  async getWorkspace(id: string): Promise<Workspace> {
+  async getWorkspace(id: string): Promise<Workspace | null> {
     const response = await apiService.get<Workspace>(API_ENDPOINTS.WORKSPACE_BY_ID(id));
-    return response.data;
+    return response.data.data;
   }
 
   async inviteToWorkspace(workspaceId: string, email: string, role: string): Promise<void> {
@@ -26,26 +26,26 @@ class WorkspaceService {
     });
   }
 
-  async createCollection(workspaceId: string, name: string): Promise<Collection> {
+  async createCollection(workspaceId: string, name: string): Promise<Collection | null> {
     const response = await apiService.post<Collection>(
       API_ENDPOINTS.COLLECTIONS_BY_WORKSPACE(workspaceId),
       { name }
     );
-    return response.data;
+    return response.data.data;
   }
 
   async getCollections(workspaceId: string): Promise<Collection[]> {
     const response = await apiService.get<Collection[]>(
       API_ENDPOINTS.COLLECTIONS_BY_WORKSPACE(workspaceId)
     );
-    return response.data;
+    return response.data.data || [];
   }
 
-  async updateCollection(id: string, name: string): Promise<Collection> {
+  async updateCollection(id: string, name: string): Promise<Collection | null> {
     const response = await apiService.put<Collection>(API_ENDPOINTS.COLLECTION_BY_ID(id), {
       name,
     });
-    return response.data;
+    return response.data.data;
   }
 
   async deleteCollection(id: string): Promise<void> {
@@ -63,39 +63,39 @@ class WorkspaceService {
     return (response.data?.data ?? response.data) as ExecuteRequestResult;
   }
 
-  async saveRequest(collectionId: string, data: SaveRequestInput): Promise<SavedRequest> {
+  async saveRequest(collectionId: string, data: SaveRequestInput): Promise<SavedRequest | null> {
     const response = await apiService.post<SavedRequest>(
       API_ENDPOINTS.SAVE_REQUEST(collectionId),
       data
     );
-    return response.data;
+    return response.data.data;
   }
 
   async getSavedRequests(collectionId: string): Promise<SavedRequest[]> {
     const response = await apiService.get<SavedRequest[]>(
       API_ENDPOINTS.SAVED_REQUESTS(collectionId)
     );
-    return response.data;
+    return response.data.data || [];
   }
 
-  async updateSavedRequest(id: string, data: Partial<SaveRequestInput>): Promise<SavedRequest> {
+  async updateSavedRequest(id: string, data: Partial<SaveRequestInput>): Promise<SavedRequest | null> {
     const response = await apiService.put<SavedRequest>(
       API_ENDPOINTS.SAVED_REQUEST_BY_ID(id),
       data
     );
-    return response.data;
+    return response.data.data;
   }
 
   async deleteSavedRequest(id: string): Promise<void> {
     await apiService.delete(API_ENDPOINTS.SAVED_REQUEST_BY_ID(id));
   }
 
-  async shareRequest(id: string, expiresAt?: string): Promise<{ token: string }> {
+  async shareRequest(id: string, expiresAt?: string): Promise<{ token: string } | null> {
     const response = await apiService.post<{ token: string }>(
       API_ENDPOINTS.SHARE_REQUEST(id),
       { expiresAt }
     );
-    return response.data;
+    return response.data.data;
   }
 }
 

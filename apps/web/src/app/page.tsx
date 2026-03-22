@@ -6,7 +6,7 @@ export default async function Home() {
   const token = cookieStore.get('accessToken');
 
   if (token) {
-    redirect('/app/workspace');
+    redirect('/workspace');
   } else {
     redirect('/playground');
   }

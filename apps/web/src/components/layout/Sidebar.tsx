@@ -20,34 +20,30 @@ export function Sidebar() {
 
       <nav className="flex-1 p-6 space-y-2">
         <Link
-          href="/app/request"
-          className={`block px-4 py-2 rounded transition-colors font-semibold ${
-            isActive('/app/request') ? 'bg-accent text-white' : 'text-text-primary hover:bg-bg-tertiary'
-          }`}
+          href="/request"
+          className={`block px-4 py-2 rounded transition-colors font-semibold ${isActive('/request') ? 'bg-accent text-white' : 'text-text-primary hover:bg-bg-tertiary'
+            }`}
         >
           + New Request
         </Link>
         <Link
-          href="/app/workspace"
-          className={`block px-4 py-2 rounded transition-colors ${
-            isActive('/app/workspace') ? 'bg-accent text-white' : 'text-text-primary hover:bg-bg-tertiary'
-          }`}
+          href="/workspace"
+          className={`block px-4 py-2 rounded transition-colors ${isActive('/workspace') ? 'bg-accent text-white' : 'text-text-primary hover:bg-bg-tertiary'
+            }`}
         >
           Workspaces
         </Link>
         <Link
-          href="/app/workspace"
-          className={`block px-4 py-2 rounded transition-colors ${
-            isActive('/app/collections') ? 'bg-accent text-white' : 'text-text-primary hover:bg-bg-tertiary'
-          }`}
+          href="/collections"
+          className={`block px-4 py-2 rounded transition-colors ${isActive('/collections') ? 'bg-accent text-white' : 'text-text-primary hover:bg-bg-tertiary'
+            }`}
         >
           Collections
         </Link>
         <Link
-          href="/app/workspace"
-          className={`block px-4 py-2 rounded transition-colors ${
-            isActive('/app/history') ? 'bg-accent text-white' : 'text-text-primary hover:bg-bg-tertiary'
-          }`}
+          href="/history"
+          className={`block px-4 py-2 rounded transition-colors ${isActive('/history') ? 'bg-accent text-white' : 'text-text-primary hover:bg-bg-tertiary'
+            }`}
         >
           History
         </Link>

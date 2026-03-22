@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 import { API_BASE_URL, TOKEN_KEYS } from '@/constants/api.constants';
+import { ApiResponse } from '@/types';
 
 class ApiService {
   private instance: AxiosInstance;
@@ -18,8 +19,11 @@ class ApiService {
   private setupInterceptors() {
     this.instance.interceptors.request.use((config) => {
       const token = localStorage.getItem(TOKEN_KEYS.ACCESS_TOKEN);
-      if (token) {
+      if (token && token !== 'undefined') {
         config.headers.Authorization = `Bearer ${token}`;
+      } else {
+        // Log lack of token for debugging E2E
+        console.warn(`[API] No token found for ${config.method?.toUpperCase()} ${config.url}`);
       }
       return config;
     });
@@ -53,23 +57,23 @@ class ApiService {
   }
 
   get<T>(url: string, config?: any) {
-    return this.instance.get<any, { data: T }>(url, config);
+    return this.instance.get<ApiResponse<T>>(url, config);
   }
 
   post<T>(url: string, data?: any, config?: any) {
-    return this.instance.post<any, { data: T }>(url, data, config);
+    return this.instance.post<ApiResponse<T>>(url, data, config);
   }
 
   put<T>(url: string, data?: any, config?: any) {
-    return this.instance.put<any, { data: T }>(url, data, config);
+    return this.instance.put<ApiResponse<T>>(url, data, config);
   }
 
   patch<T>(url: string, data?: any, config?: any) {
-    return this.instance.patch<any, { data: T }>(url, data, config);
+    return this.instance.patch<ApiResponse<T>>(url, data, config);
   }
 
   delete<T>(url: string, config?: any) {
-    return this.instance.delete<any, { data: T }>(url, config);
+    return this.instance.delete<ApiResponse<T>>(url, config);
   }
 }
 

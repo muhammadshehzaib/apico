@@ -12,7 +12,7 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const showSidebar = !pathname?.startsWith('/app/request') && !pathname?.startsWith('/request');
+  const showSidebar = !pathname?.startsWith('/request');
 
   return (
     <Provider store={store}>

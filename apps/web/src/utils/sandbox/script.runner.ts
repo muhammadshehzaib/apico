@@ -29,7 +29,11 @@ class ScriptRunner {
       this.iframe = document.createElement('iframe');
       this.iframe.src = '/sandbox.html';
       this.iframe.style.display = 'none';
-      this.iframe.sandbox.add('allow-scripts');
+      if (this.iframe.sandbox && typeof this.iframe.sandbox.add === 'function') {
+        this.iframe.sandbox.add('allow-scripts');
+      } else {
+        this.iframe.setAttribute('sandbox', 'allow-scripts');
+      }
 
       // Add message listener
       window.addEventListener('message', this.handleMessage.bind(this));

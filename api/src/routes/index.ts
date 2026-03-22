@@ -8,9 +8,13 @@ import environmentRoutes from './environment.routes';
 
 const router = Router();
 
+// Health check
+router.get('/health', (req, res) => {
+    res.status(200).json({ success: true, message: 'API is running' });
+});
+
 router.use('/auth', authRoutes);
 router.use('/workspaces', workspaceRoutes);
-router.use('/workspaces', environmentRoutes);
 router.use('/workspaces/:workspaceId/collections', collectionRoutes);
 router.use('/collections', collectionRoutes);
 router.use('/requests', requestRoutes);
