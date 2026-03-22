@@ -10,9 +10,15 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
-    "db:seed": "ts-node prisma/seed.ts"
+    "db:seed": "ts-node prisma/seed.ts",
+    "test": "cross-env NODE_ENV=test vitest run"
   },
-  "keywords": ["api", "testing", "rest", "http"],
+  "keywords": [
+    "api",
+    "testing",
+    "rest",
+    "http"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -36,9 +42,13 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.10.6",
+    "@types/supertest": "^7.2.0",
+    "cross-env": "^10.1.0",
     "prisma": "^5.7.1",
+    "supertest": "^7.2.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^4.1.0"
   }
 }
