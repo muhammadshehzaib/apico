@@ -57,7 +57,7 @@ export default function WorkspacesPage() {
           {workspaces.map((workspace) => (
             <Link
               key={workspace.id}
-              href={`/app/workspace/${workspace.id}`}
+              href={`/workspace/${workspace.id}`}
               className="block bg-bg-secondary border border-bg-tertiary rounded-lg p-6 hover:border-accent transition-colors"
             >
               <h2 className="text-xl font-semibold mb-2">{workspace.name}</h2>

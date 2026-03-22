@@ -91,7 +91,7 @@ export default function WorkspaceDetailPage() {
             {collections.map((collection) => (
               <Link
                 key={collection.id}
-                href={`/app/workspace/${id}/collection/${collection.id}`}
+                href={`/workspace/${id}/collection/${collection.id}`}
                 className="block bg-bg-secondary border border-bg-tertiary rounded-lg p-6 hover:border-accent transition-colors"
               >
                 <h3 className="text-lg font-semibold mb-2">{collection.name}</h3>

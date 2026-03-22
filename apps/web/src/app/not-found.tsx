@@ -10,7 +10,7 @@ export default function NotFound() {
         <p className="text-text-muted">
           The page you're looking for doesn't exist or has been moved.
         </p>
-        <Link href="/app/workspace">
+        <Link href="/workspace">
           <Button variant="primary" size="md" className="w-full">
             Go to Dashboard
           </Button>
