@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { RequestHistory, HttpMethod, SavedRequest } from '@/types';
 import { Button } from '@/components/ui/Button';
@@ -77,7 +78,14 @@ export function HistorySidebar({
   return (
     <aside className="w-64 bg-bg-secondary border-r border-bg-tertiary h-screen flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-bg-tertiary flex-shrink-0 space-y-3">
+      <div className="p-6 border-b border-bg-tertiary flex-shrink-0 space-y-4">
+        <Link 
+          href="/workspace" 
+          className="inline-flex items-center gap-2 text-xs font-semibold text-text-muted hover:text-accent transition-colors group"
+        >
+          <span className="text-sm group-hover:-translate-x-1 transition-transform">←</span>
+          Back to Workspaces
+        </Link>
         <h1 className="text-lg font-bold text-accent">Requester</h1>
         <div className="flex gap-2">
           <Button
