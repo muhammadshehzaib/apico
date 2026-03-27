@@ -18,8 +18,8 @@ export const API_ENDPOINTS = {
 
   // Requests
   EXECUTE_REQUEST: '/requests/execute',
-  SAVE_REQUEST: (collectionId: string) => `/collections/${collectionId}/requests`,
-  SAVED_REQUESTS: (collectionId: string) => `/collections/${collectionId}/requests`,
+  SAVE_REQUEST: (collectionId: string) => `/requests/${collectionId}/requests`,
+  SAVED_REQUESTS: (collectionId: string) => `/requests/${collectionId}/requests`,
   SAVED_REQUEST_BY_ID: (id: string) => `/requests/${id}`,
   SHARE_REQUEST: (id: string) => `/requests/${id}/share`,
   GET_SHARED_REQUEST: (token: string) => `/share/${token}`,

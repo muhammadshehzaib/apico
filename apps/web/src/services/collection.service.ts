@@ -7,7 +7,7 @@ class CollectionService {
     const response = await apiService.get<Collection[]>(
       `/workspaces/${workspaceId}/collections`
     );
-    return response.data;
+    return response.data.data || [];
   }
 
   async createCollection(workspaceId: string, name: string): Promise<Collection> {
@@ -15,7 +15,7 @@ class CollectionService {
       `/workspaces/${workspaceId}/collections`,
       { name }
     );
-    return response.data;
+    return response.data.data as Collection;
   }
 
   async updateCollection(id: string, name: string): Promise<Collection> {
@@ -23,7 +23,7 @@ class CollectionService {
       `/collections/${id}`,
       { name }
     );
-    return response.data;
+    return response.data.data as Collection;
   }
 
   async deleteCollection(id: string): Promise<void> {
@@ -32,17 +32,17 @@ class CollectionService {
 
   async getSavedRequests(collectionId: string): Promise<SavedRequest[]> {
     const response = await apiService.get<SavedRequest[]>(
-      `/collections/${collectionId}/requests`
+      `/requests/${collectionId}/requests`
     );
-    return response.data;
+    return response.data.data || [];
   }
 
   async saveRequest(collectionId: string, data: SaveRequestInput): Promise<SavedRequest> {
     const response = await apiService.post<SavedRequest>(
-      `/collections/${collectionId}/requests`,
+      `/requests/${collectionId}/requests`,
       data
     );
-    return response.data;
+    return response.data.data as SavedRequest;
   }
 
   async updateSavedRequest(id: string, data: Partial<SaveRequestInput>): Promise<SavedRequest> {
@@ -50,7 +50,7 @@ class CollectionService {
       `/requests/${id}`,
       data
     );
-    return response.data;
+    return response.data.data as SavedRequest;
   }
 
   async deleteSavedRequest(id: string): Promise<void> {
