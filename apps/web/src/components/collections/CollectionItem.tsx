@@ -82,7 +82,7 @@ export function CollectionItem({
           </button>
 
           {showMenu && !showConfirm && (
-            <div className="absolute right-0 mt-1 bg-bg-secondary border border-bg-tertiary rounded shadow-lg z-50 min-w-max">
+            <div className="absolute right-2 mt-1 bg-bg-secondary border border-bg-tertiary rounded shadow-lg z-50 min-w-max">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -106,7 +106,7 @@ export function CollectionItem({
           )}
 
           {showConfirm && (
-            <div className="absolute right-0 mt-1 bg-bg-secondary border border-danger rounded shadow-lg z-50 p-2 min-w-max">
+            <div className="absolute right-2 mt-1 bg-bg-secondary border border-danger rounded shadow-lg z-50 p-2 min-w-max">
               <div className="text-xs text-text-primary mb-2 whitespace-nowrap">
                 Delete "{collection.name}"?
               </div>

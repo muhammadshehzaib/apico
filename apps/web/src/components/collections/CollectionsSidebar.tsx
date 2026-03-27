@@ -140,7 +140,7 @@ export function CollectionsSidebar({
         </button>
       </div>
 
-      <div className="space-y-2 max-h-96 overflow-y-auto">
+      <div className="space-y-2">
         {isLoading ? (
           <SkeletonGroup type="collection-item" count={2} />
         ) : collections.length === 0 ? (
