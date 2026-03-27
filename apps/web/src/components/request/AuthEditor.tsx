@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { RequestAuth } from '@/types';
 import { Input } from '@/components/ui/Input';
 
@@ -9,6 +10,10 @@ interface AuthEditorProps {
 }
 
 export function AuthEditor({ auth, onChange }: AuthEditorProps) {
+  const [showBearerToken, setShowBearerToken] = useState(false);
+  const [showBasicPassword, setShowBasicPassword] = useState(false);
+  const [showApiKeyValue, setShowApiKeyValue] = useState(false);
+
   const handleTypeChange = (type: RequestAuth['type']) => {
     onChange({
       type,
@@ -50,13 +55,25 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
       </div>
 
       {auth.type === 'bearer' && (
-        <Input
-          label="Token"
-          type="password"
-          value={auth.token || ''}
-          onChange={(e) => onChange({ ...auth, token: e.target.value })}
-          placeholder="Your bearer token"
-        />
+        <div className="w-full">
+          <label className="block text-sm font-medium text-text-primary mb-2">Token</label>
+          <div className="relative">
+            <input
+              type={showBearerToken ? 'text' : 'password'}
+              value={auth.token || ''}
+              onChange={(e) => onChange({ ...auth, token: e.target.value })}
+              placeholder="Your bearer token"
+              className="w-full px-4 py-2 bg-bg-secondary text-text-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent pr-16"
+            />
+            <button
+              type="button"
+              onClick={() => setShowBearerToken((prev) => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-text-muted hover:text-text-primary"
+            >
+              {showBearerToken ? 'Hide' : 'Show'}
+            </button>
+          </div>
+        </div>
       )}
 
       {auth.type === 'basic' && (
@@ -68,13 +85,25 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
             onChange={(e) => onChange({ ...auth, username: e.target.value })}
             placeholder="Username"
           />
-          <Input
-            label="Password"
-            type="password"
-            value={auth.password || ''}
-            onChange={(e) => onChange({ ...auth, password: e.target.value })}
-            placeholder="Password"
-          />
+          <div className="w-full">
+            <label className="block text-sm font-medium text-text-primary mb-2">Password</label>
+            <div className="relative">
+              <input
+                type={showBasicPassword ? 'text' : 'password'}
+                value={auth.password || ''}
+                onChange={(e) => onChange({ ...auth, password: e.target.value })}
+                placeholder="Password"
+                className="w-full px-4 py-2 bg-bg-secondary text-text-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent pr-16"
+              />
+              <button
+                type="button"
+                onClick={() => setShowBasicPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-text-muted hover:text-text-primary"
+              >
+                {showBasicPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </div>
         </>
       )}
 
@@ -87,13 +116,25 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
             onChange={(e) => onChange({ ...auth, apiKey: e.target.value })}
             placeholder="e.g., X-API-Key"
           />
-          <Input
-            label="Key Value"
-            type="password"
-            value={auth.apiValue || ''}
-            onChange={(e) => onChange({ ...auth, apiValue: e.target.value })}
-            placeholder="Your API key"
-          />
+          <div className="w-full">
+            <label className="block text-sm font-medium text-text-primary mb-2">Key Value</label>
+            <div className="relative">
+              <input
+                type={showApiKeyValue ? 'text' : 'password'}
+                value={auth.apiValue || ''}
+                onChange={(e) => onChange({ ...auth, apiValue: e.target.value })}
+                placeholder="Your API key"
+                className="w-full px-4 py-2 bg-bg-secondary text-text-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent pr-16"
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKeyValue((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-text-muted hover:text-text-primary"
+              >
+                {showApiKeyValue ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-medium text-text-primary mb-2">
               Add to
