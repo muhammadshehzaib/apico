@@ -20,6 +20,7 @@ export default function CollectionDetailPage() {
   const [collection, setCollection] = useState<Collection | null>(null);
   const [requests, setRequests] = useState<SavedRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const STORAGE_KEY = 'apico_last_request';
 
   useEffect(() => {
     dispatch(setActiveWorkspace(workspaceId));
@@ -57,6 +58,24 @@ export default function CollectionDetailPage() {
     );
   }
 
+  const handleOpenRequest = (request: SavedRequest) => {
+    try {
+      const toSave = {
+        method: request.method,
+        url: request.url,
+        headers: request.headers || [{ key: '', value: '', enabled: true }],
+        params: request.params || [{ key: '', value: '', enabled: true }],
+        body: request.body || '',
+        auth: request.auth || { type: 'none' },
+        activeTab: 'params',
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    } catch {
+      // Silently fail; still navigate
+    }
+    router.push('/request');
+  };
+
   return (
     <div className="p-8">
       <div className="flex justify-between items-start mb-8">
@@ -84,9 +103,10 @@ export default function CollectionDetailPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {requests.map((request) => (
-            <div
+            <button
               key={request.id}
-              className="block bg-bg-secondary border border-bg-tertiary rounded-lg p-6 hover:border-accent transition-colors"
+              onClick={() => handleOpenRequest(request)}
+              className="text-left bg-bg-secondary border border-bg-tertiary rounded-lg p-6 hover:border-accent transition-colors"
             >
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xs px-2 py-0.5 rounded-full bg-bg-tertiary text-text-muted">
@@ -95,7 +115,7 @@ export default function CollectionDetailPage() {
                 <h3 className="text-lg font-semibold">{request.name}</h3>
               </div>
               <p className="text-text-muted text-sm break-all">{request.url}</p>
-            </div>
+            </button>
           ))}
         </div>
       )}
