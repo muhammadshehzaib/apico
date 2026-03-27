@@ -78,7 +78,7 @@ export function HistorySidebar({
   };
 
   return (
-    <aside className="w-64 bg-bg-secondary border-r border-bg-tertiary h-screen flex flex-col overflow-hidden">
+    <aside className="w-72 bg-bg-secondary border-r border-bg-tertiary h-screen flex flex-col overflow-hidden">
       {/* Header */}
       <div className="p-6 border-b border-bg-tertiary flex-shrink-0 space-y-4">
         <Link 
