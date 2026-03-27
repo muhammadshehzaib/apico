@@ -13,8 +13,8 @@ const router = Router({ mergeParams: true });
 
 router.use(authenticate);
 
-router.post('/:workspaceId/environments', createController);
-router.get('/:workspaceId/environments', getAllController);
+router.post('/', createController);
+router.get('/', getAllController);
 router.get('/:id', getOneController);
 router.put('/:id', updateController);
 router.delete('/:id', deleteController);

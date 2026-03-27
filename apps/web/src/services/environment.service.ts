@@ -22,12 +22,12 @@ class EnvironmentServiceFrontend {
     const response = await apiService.get<Environment[]>(
       `/workspaces/${workspaceId}/environments`
     );
-    return response.data;
+    return response.data.data || [];
   }
 
   async getEnvironment(id: string): Promise<Environment> {
     const response = await apiService.get<Environment>(`/environments/${id}`);
-    return response.data;
+    return response.data.data as Environment;
   }
 
   async createEnvironment(workspaceId: string, name: string): Promise<Environment> {
@@ -35,12 +35,12 @@ class EnvironmentServiceFrontend {
       `/workspaces/${workspaceId}/environments`,
       { name }
     );
-    return response.data;
+    return response.data.data as Environment;
   }
 
   async updateEnvironment(id: string, name: string): Promise<Environment> {
     const response = await apiService.put<Environment>(`/environments/${id}`, { name });
-    return response.data;
+    return response.data.data as Environment;
   }
 
   async deleteEnvironment(id: string): Promise<void> {

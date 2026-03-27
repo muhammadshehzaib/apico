@@ -13,6 +13,7 @@ import { CollectionsSidebar } from '@/components/collections/CollectionsSidebar'
 import { SaveRequestModal } from '@/components/collections/SaveRequestModal';
 import { useToast } from '@/hooks/useToast';
 import { RootState } from '@/store';
+import { useCollections } from '@/hooks/useCollections';
 import type { SaveRequestInput } from '@/validations/request.validation';
 
 interface HistorySidebarProps {
@@ -46,6 +47,7 @@ export function HistorySidebar({
   const activeWorkspaceId = useSelector(
     (state: RootState) => state.workspace.activeWorkspaceId
   );
+  const { collections } = useCollections(activeWorkspaceId);
 
   const handleSaveRequest = async (collectionId: string, name: string) => {
     setIsSaving(true);
@@ -164,7 +166,7 @@ export function HistorySidebar({
         isOpen={saveModalOpen}
         onClose={() => setSaveModalOpen(false)}
         onSave={handleSaveRequest}
-        collections={[]} // Will be fetched from CollectionsSidebar
+        collections={collections}
         currentRequest={currentRequest as { method: HttpMethod; url: string }}
         isLoading={isSaving}
       />

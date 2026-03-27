@@ -2,21 +2,28 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
 import { workspaceService } from '@/services/workspace.service';
 import { Collection, SavedRequest } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { setActiveWorkspace } from '@/store/slices/workspace.slice';
 
 export default function CollectionDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const dispatch = useDispatch();
   const workspaceId = params.id as string;
   const collectionId = params.collectionId as string;
 
   const [collection, setCollection] = useState<Collection | null>(null);
   const [requests, setRequests] = useState<SavedRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    dispatch(setActiveWorkspace(workspaceId));
+  }, [workspaceId, dispatch]);
 
   useEffect(() => {
     const fetchData = async () => {

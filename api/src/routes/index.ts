@@ -16,6 +16,7 @@ router.get('/health', (req, res) => {
 router.use('/auth', authRoutes);
 router.use('/workspaces', workspaceRoutes);
 router.use('/workspaces/:workspaceId/collections', collectionRoutes);
+router.use('/workspaces/:workspaceId/environments', environmentRoutes);
 router.use('/collections', collectionRoutes);
 router.use('/requests', requestRoutes);
 router.use('/history', historyRoutes);
