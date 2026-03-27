@@ -6,11 +6,14 @@ import { Workspace } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { CreateWorkspaceModal } from '@/components/workspace/CreateWorkspaceModal';
 import Link from 'next/link';
 
 export default function WorkspacesPage() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     const fetchWorkspaces = async () => {
@@ -31,11 +34,30 @@ export default function WorkspacesPage() {
     return <SkeletonGroup type="full-page" count={3} />;
   }
 
+  const handleCreateWorkspace = async (name: string) => {
+    setIsCreating(true);
+    try {
+      const created = await workspaceService.createWorkspace(name);
+      if (!created) {
+        throw new Error('Failed to create workspace');
+      }
+      setWorkspaces((prev) => [created, ...prev]);
+    } catch (error) {
+      console.error('Failed to create workspace:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to create workspace');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Workspaces</h1>
-        <Button variant="primary" size="md">
+        <Button variant="primary" size="md" onClick={() => setIsCreateOpen(true)}>
           Create Workspace
         </Button>
       </div>
@@ -48,7 +70,7 @@ export default function WorkspacesPage() {
           action={{
             label: 'Create Workspace',
             onClick: () => {
-              // Handle create workspace
+              setIsCreateOpen(true);
             },
           }}
         />
@@ -68,6 +90,13 @@ export default function WorkspacesPage() {
           ))}
         </div>
       )}
+
+      <CreateWorkspaceModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onConfirm={handleCreateWorkspace}
+        isLoading={isCreating}
+      />
     </div>
   );
 }
