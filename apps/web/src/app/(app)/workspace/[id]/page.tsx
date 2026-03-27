@@ -9,6 +9,7 @@ import { Workspace, Collection } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { CreateCollectionModal } from '@/components/collections/CreateCollectionModal';
 import Link from 'next/link';
 
 export default function WorkspaceDetailPage() {
@@ -19,6 +20,8 @@ export default function WorkspaceDetailPage() {
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     dispatch(setActiveWorkspace(id));
@@ -55,6 +58,25 @@ export default function WorkspaceDetailPage() {
     );
   }
 
+  const handleCreateCollection = async (name: string) => {
+    setIsCreating(true);
+    try {
+      const created = await workspaceService.createCollection(id, name);
+      if (!created) {
+        throw new Error('Failed to create collection');
+      }
+      setCollections((prev) => [created, ...prev]);
+    } catch (error) {
+      console.error('Failed to create collection:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to create collection');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -67,7 +89,7 @@ export default function WorkspaceDetailPage() {
       <div>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">Collections</h2>
-          <Button variant="primary" size="md">
+          <Button variant="primary" size="md" onClick={() => setIsCreateOpen(true)}>
             Create Collection
           </Button>
         </div>
@@ -81,7 +103,7 @@ export default function WorkspaceDetailPage() {
               action={{
                 label: 'Create Collection',
                 onClick: () => {
-                  // Handle create collection
+                  setIsCreateOpen(true);
                 },
               }}
             />
@@ -103,6 +125,13 @@ export default function WorkspaceDetailPage() {
           </div>
         )}
       </div>
+
+      <CreateCollectionModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onConfirm={handleCreateCollection}
+        isLoading={isCreating}
+      />
     </div>
   );
 }
