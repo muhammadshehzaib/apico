@@ -1,6 +1,6 @@
 import { apiService } from './api.service';
 import { API_ENDPOINTS } from '@/constants/api.constants';
-import { Workspace, Collection, SavedRequest, ExecuteRequestResult } from '@/types';
+import { Workspace, Collection, SavedRequest, ExecuteRequestResult, RequestHistory } from '@/types';
 import { ExecuteRequestInput, SaveRequestInput } from '@/validations/request.validation';
 
 class WorkspaceService {
@@ -96,6 +96,22 @@ class WorkspaceService {
       { expiresAt }
     );
     return response.data.data;
+  }
+
+  async getHistory(page: number = 1, limit: number = 50): Promise<RequestHistory[]> {
+    const response = await apiService.get<RequestHistory[]>(
+      API_ENDPOINTS.HISTORY,
+      { params: { page, limit } }
+    );
+    return response.data.data || [];
+  }
+
+  async deleteHistoryEntry(id: string): Promise<void> {
+    await apiService.delete(API_ENDPOINTS.HISTORY_ENTRY(id));
+  }
+
+  async clearHistory(): Promise<void> {
+    await apiService.delete(API_ENDPOINTS.HISTORY);
   }
 }
 

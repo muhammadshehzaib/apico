@@ -138,6 +138,11 @@ export function RequestBuilder() {
     }
   }, [activeEnvironment, setActiveVariables]);
 
+  // Load history on mount
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -156,6 +161,12 @@ export function RequestBuilder() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showShortcuts, resetAll]);
+
+  const handleSendRequest = useCallback(async () => {
+    await sendRequest();
+    // Refresh history after sending (no-op if unauthenticated)
+    fetchHistory();
+  }, [sendRequest, fetchHistory]);
 
   return (
     <div className="flex h-screen bg-bg-primary">
@@ -182,7 +193,7 @@ export function RequestBuilder() {
             isLoading={isLoading}
             onMethodChange={setMethod}
             onUrlChange={setUrl}
-            onSend={sendRequest}
+            onSend={handleSendRequest}
             onCurlImport={() => setIsCurlModalOpen(true)}
             environments={environments}
             activeEnvironment={activeEnvironment}

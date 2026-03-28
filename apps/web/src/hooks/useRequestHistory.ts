@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { RequestHistory } from '@/types';
 import { workspaceService } from '@/services/workspace.service';
 
@@ -8,12 +8,11 @@ export function useRequestHistory() {
   const [history, setHistory] = useState<RequestHistory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchHistory = useCallback(async () => {
+  const fetchHistory = useCallback(async (page: number = 1, limit: number = 50) => {
     setIsLoading(true);
     try {
-      // In a real app, you'd fetch from the API
-      // For now, we'll use a placeholder
-      setHistory([]);
+      const data = await workspaceService.getHistory(page, limit);
+      setHistory(data);
     } catch (error) {
       console.error('Failed to fetch history:', error);
     } finally {
@@ -23,7 +22,7 @@ export function useRequestHistory() {
 
   const deleteEntry = useCallback(async (id: string) => {
     try {
-      // await workspaceService.deleteHistoryEntry(id);
+      await workspaceService.deleteHistoryEntry(id);
       setHistory((prev) => prev.filter((h) => h.id !== id));
     } catch (error) {
       console.error('Failed to delete history entry:', error);
@@ -32,7 +31,7 @@ export function useRequestHistory() {
 
   const clearAll = useCallback(async () => {
     try {
-      // await workspaceService.clearHistory();
+      await workspaceService.clearHistory();
       setHistory([]);
     } catch (error) {
       console.error('Failed to clear history:', error);
