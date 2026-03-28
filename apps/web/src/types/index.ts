@@ -48,6 +48,10 @@ export interface Collection {
   updatedAt: string;
 }
 
+export interface SharedCollection extends Collection {
+  requests: SavedRequest[];
+}
+
 export interface KeyValuePair {
   key: string;
   value: string;

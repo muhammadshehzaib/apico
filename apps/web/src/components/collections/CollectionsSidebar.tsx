@@ -9,7 +9,6 @@ import { CreateCollectionModal } from './CreateCollectionModal';
 import { RenameModal } from './RenameModal';
 import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
-import { workspaceService } from '@/services/workspace.service';
 
 interface CollectionsSidebarProps {
   workspaceId: string | null;
@@ -118,44 +117,6 @@ export function CollectionsSidebar({
     }
   };
 
-  const handleShareRequest = async (request: SavedRequest) => {
-    try {
-      const res = await workspaceService.shareRequest(request.id);
-      const token = res?.token;
-      if (!token) throw new Error('Missing token');
-
-      const link = `${window.location.origin}/share/${token}`;
-
-      let copied = false;
-      try {
-        await navigator.clipboard.writeText(link);
-        copied = true;
-      } catch {
-        const textarea = document.createElement('textarea');
-        textarea.value = link;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.focus();
-        textarea.select();
-        try {
-          copied = document.execCommand('copy');
-        } catch {
-          copied = false;
-        } finally {
-          document.body.removeChild(textarea);
-        }
-      }
-
-      window.open(link, '_blank', 'noopener,noreferrer');
-      showToast(
-        copied ? 'Share link copied and opened' : 'Share link opened',
-        'success'
-      );
-    } catch {
-      showToast('Failed to create share link', 'error');
-    }
-  };
 
   if (!workspaceId) {
     return (
@@ -206,7 +167,6 @@ export function CollectionsSidebar({
               onDelete={() => handleDeleteCollection(collection.id)}
               onLoadRequest={onLoadRequest}
               onRenameRequest={(request) => handleRenameRequest(request, collection.id)}
-              onShareRequest={handleShareRequest}
               onDeleteRequest={(request) => handleDeleteRequest(request, collection.id)}
             />
           ))

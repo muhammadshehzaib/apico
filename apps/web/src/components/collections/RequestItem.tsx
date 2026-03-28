@@ -8,11 +8,10 @@ interface RequestItemProps {
   request: SavedRequest;
   onLoad: () => void;
   onRename: () => void;
-  onShare: () => void;
   onDelete: () => void;
 }
 
-export function RequestItem({ request, onLoad, onRename, onShare, onDelete }: RequestItemProps) {
+export function RequestItem({ request, onLoad, onRename, onDelete }: RequestItemProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -86,16 +85,6 @@ export function RequestItem({ request, onLoad, onRename, onShare, onDelete }: Re
               className="block w-full text-left px-4 py-2 text-text-primary hover:bg-bg-tertiary text-sm transition-colors"
             >
               Rename
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onShare();
-                setShowMenu(false);
-              }}
-              className="block w-full text-left px-4 py-2 text-text-primary hover:bg-bg-tertiary text-sm transition-colors"
-            >
-              Share
             </button>
             <button
               onClick={(e) => {

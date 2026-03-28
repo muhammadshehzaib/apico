@@ -15,6 +15,8 @@ export const API_ENDPOINTS = {
   // Collections
   COLLECTIONS_BY_WORKSPACE: (workspaceId: string) => `/workspaces/${workspaceId}/collections`,
   COLLECTION_BY_ID: (id: string) => `/collections/${id}`,
+  SHARE_COLLECTION: (id: string) => `/collections/${id}/share`,
+  GET_SHARED_COLLECTION: (token: string) => `/collections/share/${token}`,
 
   // Requests
   EXECUTE_REQUEST: '/requests/execute',

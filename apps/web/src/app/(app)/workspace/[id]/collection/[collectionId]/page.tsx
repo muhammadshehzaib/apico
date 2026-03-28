@@ -6,9 +6,11 @@ import { useDispatch } from 'react-redux';
 import { workspaceService } from '@/services/workspace.service';
 import { Collection, SavedRequest } from '@/types';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/hooks/useToast';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { setActiveWorkspace } from '@/store/slices/workspace.slice';
+import { Toast } from '@/components/ui/Toast';
 
 export default function CollectionDetailPage() {
   const params = useParams();
@@ -21,6 +23,7 @@ export default function CollectionDetailPage() {
   const [requests, setRequests] = useState<SavedRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const STORAGE_KEY = 'apico_last_request';
+  const { showToast, ...toastProps } = useToast();
 
   useEffect(() => {
     dispatch(setActiveWorkspace(workspaceId));
@@ -76,6 +79,45 @@ export default function CollectionDetailPage() {
     router.push('/request');
   };
 
+  const handleShareCollection = async () => {
+    try {
+      const res = await workspaceService.shareCollection(collectionId);
+      const token = res?.token;
+      if (!token) throw new Error('Missing token');
+
+      const link = `${window.location.origin}/share/collection/${token}`;
+
+      let copied = false;
+      try {
+        await navigator.clipboard.writeText(link);
+        copied = true;
+      } catch {
+        const textarea = document.createElement('textarea');
+        textarea.value = link;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          copied = document.execCommand('copy');
+        } catch {
+          copied = false;
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      }
+
+      window.open(link, '_blank', 'noopener,noreferrer');
+      showToast(
+        copied ? 'Share link copied and opened' : 'Share link opened',
+        'success'
+      );
+    } catch {
+      showToast('Failed to create share link', 'error');
+    }
+  };
+
   return (
     <div className="p-8">
       <div className="flex justify-between items-start mb-8">
@@ -85,9 +127,14 @@ export default function CollectionDetailPage() {
             Created on {new Date(collection.createdAt).toLocaleDateString()}
           </p>
         </div>
-        <Button variant="secondary" size="md" onClick={() => router.push('/request')}>
-          New Request
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" size="md" onClick={handleShareCollection}>
+            Share Collection
+          </Button>
+          <Button variant="secondary" size="md" onClick={() => router.push('/request')}>
+            New Request
+          </Button>
+        </div>
       </div>
 
       {requests.length === 0 ? (
@@ -112,13 +159,17 @@ export default function CollectionDetailPage() {
                 <span className="text-xs px-2 py-0.5 rounded-full bg-bg-tertiary text-text-muted">
                   {request.method}
                 </span>
-                <h3 className="text-lg font-semibold">{request.name}</h3>
+                <h3 className="text-lg font-semibold flex-1 truncate">
+                  {request.name}
+                </h3>
               </div>
               <p className="text-text-muted text-sm break-all">{request.url}</p>
             </button>
           ))}
         </div>
       )}
+
+      <Toast {...toastProps} />
     </div>
   );
 }

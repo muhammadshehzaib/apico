@@ -1,6 +1,6 @@
 import { apiService } from './api.service';
 import { API_ENDPOINTS } from '@/constants/api.constants';
-import { Workspace, Collection, SavedRequest, ExecuteRequestResult, RequestHistory } from '@/types';
+import { Workspace, Collection, SavedRequest, ExecuteRequestResult, RequestHistory, SharedCollection } from '@/types';
 import { ExecuteRequestInput, SaveRequestInput } from '@/validations/request.validation';
 
 class WorkspaceService {
@@ -98,9 +98,24 @@ class WorkspaceService {
     return response.data.data;
   }
 
+  async shareCollection(id: string, expiresAt?: string): Promise<{ token: string } | null> {
+    const response = await apiService.post<{ token: string }>(
+      API_ENDPOINTS.SHARE_COLLECTION(id),
+      { expiresAt }
+    );
+    return response.data.data;
+  }
+
   async getSharedRequest(token: string): Promise<SavedRequest | null> {
     const response = await apiService.get<SavedRequest>(
       API_ENDPOINTS.GET_SHARED_REQUEST(token)
+    );
+    return response.data.data;
+  }
+
+  async getSharedCollection(token: string): Promise<SharedCollection | null> {
+    const response = await apiService.get<SharedCollection>(
+      API_ENDPOINTS.GET_SHARED_COLLECTION(token)
     );
     return response.data.data;
   }
