@@ -15,7 +15,11 @@ export function Sidebar() {
   return (
     <aside className="w-64 bg-bg-secondary border-r border-bg-tertiary h-screen flex flex-col">
       <div className="p-6 border-b border-bg-tertiary">
-        <h1 className="text-xl font-bold text-accent">{APP_NAME}</h1>
+        <Link href="/workspace" className="inline-block">
+          <h1 className="text-xl font-bold text-accent hover:opacity-90 transition-opacity">
+            {APP_NAME}
+          </h1>
+        </Link>
       </div>
 
       <nav className="flex-1 p-6 space-y-2">
