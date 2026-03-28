@@ -14,6 +14,7 @@ interface CollectionItemProps {
   onDelete: () => void;
   onLoadRequest: (request: SavedRequest) => void;
   onRenameRequest: (request: SavedRequest) => void;
+  onShareRequest: (request: SavedRequest) => void;
   onDeleteRequest: (request: SavedRequest) => void;
 }
 
@@ -25,6 +26,7 @@ export function CollectionItem({
   onDelete,
   onLoadRequest,
   onRenameRequest,
+  onShareRequest,
   onDeleteRequest,
 }: CollectionItemProps) {
   const [showMenu, setShowMenu] = useState(false);
@@ -164,6 +166,7 @@ export function CollectionItem({
                 request={request}
                 onLoad={() => onLoadRequest(request)}
                 onRename={() => onRenameRequest(request)}
+                onShare={() => onShareRequest(request)}
                 onDelete={() => onDeleteRequest(request)}
               />
             ))

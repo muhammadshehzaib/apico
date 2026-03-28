@@ -98,6 +98,13 @@ class WorkspaceService {
     return response.data.data;
   }
 
+  async getSharedRequest(token: string): Promise<SavedRequest | null> {
+    const response = await apiService.get<SavedRequest>(
+      API_ENDPOINTS.GET_SHARED_REQUEST(token)
+    );
+    return response.data.data;
+  }
+
   async getHistory(page: number = 1, limit: number = 50): Promise<RequestHistory[]> {
     const response = await apiService.get<RequestHistory[]>(
       API_ENDPOINTS.HISTORY,

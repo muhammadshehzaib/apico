@@ -22,7 +22,7 @@ export const API_ENDPOINTS = {
   SAVED_REQUESTS: (collectionId: string) => `/requests/${collectionId}/requests`,
   SAVED_REQUEST_BY_ID: (id: string) => `/requests/${id}`,
   SHARE_REQUEST: (id: string) => `/requests/${id}/share`,
-  GET_SHARED_REQUEST: (token: string) => `/share/${token}`,
+  GET_SHARED_REQUEST: (token: string) => `/requests/share/${token}`,
 
   // History
   HISTORY: '/history',
