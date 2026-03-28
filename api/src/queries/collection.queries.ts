@@ -30,3 +30,26 @@ export const deleteCollection = async (id: string) => {
     where: { id },
   });
 };
+
+export const createCollectionShareLink = async (data: {
+  collectionId: string;
+  token: string;
+  expiresAt?: Date;
+}) => {
+  return prisma.sharedCollectionLink.create({
+    data,
+  });
+};
+
+export const findCollectionShareLinkByToken = async (token: string) => {
+  return prisma.sharedCollectionLink.findUnique({
+    where: { token },
+    include: {
+      collection: {
+        include: {
+          requests: true,
+        },
+      },
+    },
+  });
+};

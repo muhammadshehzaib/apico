@@ -6,8 +6,10 @@ import {
   getCollections,
   updateCollectionService,
   deleteCollectionService,
+  shareCollectionService,
+  getSharedCollectionService,
 } from '../services/collection.service';
-import { createCollectionSchema } from '../validations/request.validation';
+import { createCollectionSchema, shareCollectionSchema } from '../validations/request.validation';
 
 export const createController = asyncHandler(async (req: Request, res: Response) => {
   const { workspaceId } = req.params;
@@ -45,4 +47,22 @@ export const deleteController = asyncHandler(async (req: Request, res: Response)
   await deleteCollectionService(id, userId);
 
   success(res, null, 'Collection deleted successfully');
+});
+
+export const shareCollectionController = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const body = shareCollectionSchema.parse(req.body);
+  const userId = req.user!.id;
+
+  const link = await shareCollectionService(id, userId, body.expiresAt);
+
+  success(res, link, 'Collection shared successfully', 201);
+});
+
+export const getSharedCollectionController = asyncHandler(async (req: Request, res: Response) => {
+  const { token } = req.params;
+
+  const collection = await getSharedCollectionService(token);
+
+  success(res, collection, 'Shared collection fetched successfully');
 });

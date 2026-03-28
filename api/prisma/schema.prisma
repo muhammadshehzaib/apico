@@ -51,6 +51,7 @@ model Collection {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   requests    SavedRequest[]
+  sharedLinks SharedCollectionLink[]
 }
 
 model SavedRequest {
@@ -90,6 +91,15 @@ model SharedLink {
   createdAt      DateTime     @default(now())
   expiresAt      DateTime?
   savedRequest   SavedRequest @relation(fields: [savedRequestId], references: [id], onDelete: Cascade)
+}
+
+model SharedCollectionLink {
+  id           String      @id @default(cuid())
+  collectionId String
+  token        String      @unique
+  createdAt    DateTime    @default(now())
+  expiresAt    DateTime?
+  collection   Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 }
 
 enum HttpMethod {

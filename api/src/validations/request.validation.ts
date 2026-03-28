@@ -44,7 +44,12 @@ export const shareRequestSchema = z.object({
   expiresAt: z.string().datetime().optional(),
 });
 
+export const shareCollectionSchema = z.object({
+  expiresAt: z.string().datetime().optional(),
+});
+
 export type ExecuteRequestInput = z.infer<typeof executeRequestSchema>;
 export type SaveRequestInput = z.infer<typeof saveRequestSchema>;
 export type CreateCollectionInput = z.infer<typeof createCollectionSchema>;
 export type ShareRequestInput = z.infer<typeof shareRequestSchema>;
+export type ShareCollectionInput = z.infer<typeof shareCollectionSchema>;
