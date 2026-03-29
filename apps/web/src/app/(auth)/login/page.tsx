@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -11,6 +11,7 @@ import { ZodError } from 'zod';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +31,8 @@ export default function LoginPage() {
     try {
       const validatedData = loginSchema.parse(formData);
       const result = await authService.login(validatedData);
-      router.push('/workspace');
+      const redirectTo = searchParams.get('redirect') || '/workspace';
+      router.push(redirectTo);
     } catch (error) {
       if (error instanceof ZodError) {
         const fieldErrors: Record<string, string> = {};

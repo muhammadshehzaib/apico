@@ -109,16 +109,27 @@ export const inviteUserToWorkspace = async (
       invitedById: inviterId,
       expiresAt,
     });
+  } else {
+    const refreshedExpiresAt = new Date();
+    refreshedExpiresAt.setDate(refreshedExpiresAt.getDate() + 7);
+    invite = await updateWorkspaceInvite(invite.id, {
+      role: role || invite.role,
+      expiresAt: refreshedExpiresAt,
+    });
   }
 
   const inviteLink = `${env.WEB_APP_URL}/invite/${invite.token}`;
-  await sendWorkspaceInviteEmail({
-    to: normalizedEmail,
-    inviterName: inviter.name,
-    workspaceName: workspace.name,
-    inviteLink,
-    expiresAt: invite.expiresAt,
-  });
+  try {
+    await sendWorkspaceInviteEmail({
+      to: normalizedEmail,
+      inviterName: inviter.name,
+      workspaceName: workspace.name,
+      inviteLink,
+      expiresAt: invite.expiresAt,
+    });
+  } catch (err) {
+    console.warn('[Invite] Failed to send email, returning invite link only', err);
+  }
 
   return {
     invite,

@@ -41,6 +41,7 @@ export const findPendingWorkspaceInvite = async (workspaceId: string, email: str
 export const updateWorkspaceInvite = async (
   id: string,
   data: Partial<{
+    role: WorkspaceRole;
     status: 'PENDING' | 'ACCEPTED' | 'REVOKED' | 'EXPIRED';
     acceptedAt: Date | null;
     acceptedById: string | null;

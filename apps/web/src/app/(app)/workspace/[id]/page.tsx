@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { workspaceService } from '@/services/workspace.service';
 import { setActiveWorkspace } from '@/store/slices/workspace.slice';
-import { Workspace, Collection } from '@/types';
+import { Workspace, Collection, WorkspaceRole } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -80,7 +80,7 @@ export default function WorkspaceDetailPage() {
     }
   };
 
-  const handleInvite = async (email: string, role: any) => {
+  const handleInvite = async (email: string, role: WorkspaceRole) => {
     setIsInviting(true);
     try {
       const result = await workspaceService.inviteToWorkspace(id, email, role);
@@ -96,8 +96,8 @@ export default function WorkspaceDetailPage() {
     }
   };
 
-  const canEdit = workspace?.role === 'OWNER' || workspace?.role === 'EDITOR';
-  const canInvite = workspace?.role === 'OWNER';
+  const canEdit = !workspace?.role || workspace?.role === 'OWNER' || workspace?.role === 'EDITOR';
+  const canInvite = !workspace?.role || workspace?.role === 'OWNER';
 
   return (
     <div className="p-8">
