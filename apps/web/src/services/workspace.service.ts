@@ -1,6 +1,14 @@
 import { apiService } from './api.service';
 import { API_ENDPOINTS } from '@/constants/api.constants';
-import { Workspace, Collection, SavedRequest, ExecuteRequestResult, RequestHistory, SharedCollection } from '@/types';
+import {
+  Workspace,
+  Collection,
+  SavedRequest,
+  ExecuteRequestResult,
+  RequestHistory,
+  SharedCollection,
+  WorkspaceInvite,
+} from '@/types';
 import { ExecuteRequestInput, SaveRequestInput } from '@/validations/request.validation';
 
 class WorkspaceService {
@@ -19,11 +27,30 @@ class WorkspaceService {
     return response.data.data;
   }
 
-  async inviteToWorkspace(workspaceId: string, email: string, role: string): Promise<void> {
-    await apiService.post(API_ENDPOINTS.INVITE_TO_WORKSPACE(workspaceId), {
-      email,
-      role,
-    });
+  async inviteToWorkspace(
+    workspaceId: string,
+    email: string,
+    role: string
+  ): Promise<{ invite: any; inviteLink: string } | null> {
+    const response = await apiService.post<{ invite: any; inviteLink: string }>(
+      API_ENDPOINTS.INVITE_TO_WORKSPACE(workspaceId),
+      {
+        email,
+        role,
+      }
+    );
+    return response.data.data;
+  }
+
+  async getWorkspaceInvite(token: string): Promise<WorkspaceInvite | null> {
+    const response = await apiService.get<WorkspaceInvite>(
+      API_ENDPOINTS.WORKSPACE_INVITE_BY_TOKEN(token)
+    );
+    return response.data.data;
+  }
+
+  async acceptWorkspaceInvite(token: string): Promise<void> {
+    await apiService.post(API_ENDPOINTS.ACCEPT_WORKSPACE_INVITE(token));
   }
 
   async createCollection(workspaceId: string, name: string): Promise<Collection | null> {

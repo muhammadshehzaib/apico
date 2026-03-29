@@ -5,8 +5,18 @@ import {
   addWorkspaceMember,
   findWorkspaceMember,
 } from '../queries/workspace.queries';
-import { findUserByEmail } from '../queries/user.queries';
+import {
+  createWorkspaceInvite,
+  findPendingWorkspaceInvite,
+  findWorkspaceInviteByToken,
+  updateWorkspaceInvite,
+} from '../queries/workspaceInvite.queries';
+import { findUserByEmail, findUserById } from '../queries/user.queries';
+import { sendWorkspaceInviteEmail } from '../utils/email.util';
+import { requireWorkspaceMember } from '../utils/workspace-access.util';
 import { WorkspaceRole } from '../types';
+import crypto from 'crypto';
+import { env } from '../config/env.config';
 
 export const createWorkspaceService = async (name: string, userId: string) => {
   const workspace = await createWorkspace({
@@ -25,20 +35,17 @@ export const createWorkspaceService = async (name: string, userId: string) => {
 
 export const getUserWorkspaces = async (userId: string) => {
   const memberships = await findWorkspacesByUserId(userId);
-  return memberships.map((m) => m.workspace);
+  return memberships.map((m) => ({
+    ...m.workspace,
+    role: m.role,
+  }));
 };
 
 export const getWorkspaceById = async (id: string, userId: string) => {
-  const member = await findWorkspaceMember(id, userId);
-
-  if (!member) {
-    const error = new Error('Access denied');
-    (error as any).statusCode = 403;
-    throw error;
-  }
+  const member = await requireWorkspaceMember(id, userId);
 
   const workspace = await findWorkspaceById(id);
-  return workspace;
+  return workspace ? { ...workspace, role: member.role } : workspace;
 };
 
 export const inviteUserToWorkspace = async (
@@ -55,25 +62,137 @@ export const inviteUserToWorkspace = async (
     throw error;
   }
 
-  const user = await findUserByEmail(email);
+  const normalizedEmail = email.trim().toLowerCase();
 
+  const existingUser = await findUserByEmail(normalizedEmail);
+  if (existingUser) {
+    const existingMember = await findWorkspaceMember(workspaceId, existingUser.id);
+    if (existingMember) {
+      const error = new Error('User is already a member of this workspace');
+      (error as any).statusCode = 400;
+      throw error;
+    }
+  }
+
+  const workspace = await findWorkspaceById(workspaceId);
+  if (!workspace) {
+    const error = new Error('Workspace not found');
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  const inviter = await findUserById(inviterId);
+  if (!inviter) {
+    const error = new Error('Inviter not found');
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  const existingInvite = await findPendingWorkspaceInvite(workspaceId, normalizedEmail);
+  const isExpired = existingInvite?.expiresAt ? new Date() > existingInvite.expiresAt : false;
+
+  let invite = existingInvite;
+  if (invite && isExpired) {
+    await updateWorkspaceInvite(invite.id, { status: 'EXPIRED' });
+    invite = null;
+  }
+
+  if (!invite) {
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+    invite = await createWorkspaceInvite({
+      workspaceId,
+      email: normalizedEmail,
+      role: role || WorkspaceRole.VIEWER,
+      token,
+      invitedById: inviterId,
+      expiresAt,
+    });
+  }
+
+  const inviteLink = `${env.WEB_APP_URL}/invite/${invite.token}`;
+  await sendWorkspaceInviteEmail({
+    to: normalizedEmail,
+    inviterName: inviter.name,
+    workspaceName: workspace.name,
+    inviteLink,
+    expiresAt: invite.expiresAt,
+  });
+
+  return {
+    invite,
+    inviteLink,
+  };
+};
+
+export const getWorkspaceInvite = async (token: string) => {
+  const invite = await findWorkspaceInviteByToken(token);
+
+  if (!invite) {
+    const error = new Error('Invite not found');
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  if (invite.status === 'PENDING' && invite.expiresAt && new Date() > invite.expiresAt) {
+    await updateWorkspaceInvite(invite.id, { status: 'EXPIRED' });
+    invite.status = 'EXPIRED';
+  }
+
+  return invite;
+};
+
+export const acceptWorkspaceInvite = async (token: string, userId: string) => {
+  const invite = await findWorkspaceInviteByToken(token);
+
+  if (!invite) {
+    const error = new Error('Invite not found');
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  if (invite.status !== 'PENDING') {
+    const error = new Error('Invite is no longer valid');
+    (error as any).statusCode = 410;
+    throw error;
+  }
+
+  if (invite.expiresAt && new Date() > invite.expiresAt) {
+    await updateWorkspaceInvite(invite.id, { status: 'EXPIRED' });
+    const error = new Error('Invite has expired');
+    (error as any).statusCode = 410;
+    throw error;
+  }
+
+  const user = await findUserById(userId);
   if (!user) {
     const error = new Error('User not found');
     (error as any).statusCode = 404;
     throw error;
   }
 
-  const existingMember = await findWorkspaceMember(workspaceId, user.id);
-
-  if (existingMember) {
-    const error = new Error('User is already a member of this workspace');
-    (error as any).statusCode = 400;
+  if (user.email.toLowerCase() !== invite.email.toLowerCase()) {
+    const error = new Error('This invite is not for your account');
+    (error as any).statusCode = 403;
     throw error;
   }
 
-  return addWorkspaceMember({
-    workspaceId,
-    userId: user.id,
-    role,
+  const existingMember = await findWorkspaceMember(invite.workspaceId, userId);
+
+  const member =
+    existingMember ||
+    (await addWorkspaceMember({
+      workspaceId: invite.workspaceId,
+      userId,
+      role: invite.role,
+    }));
+
+  await updateWorkspaceInvite(invite.id, {
+    status: 'ACCEPTED',
+    acceptedAt: new Date(),
+    acceptedById: userId,
   });
+
+  return member;
 };

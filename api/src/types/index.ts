@@ -12,6 +12,13 @@ export enum WorkspaceRole {
   VIEWER = 'VIEWER',
 }
 
+export enum WorkspaceInviteStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  REVOKED = 'REVOKED',
+  EXPIRED = 'EXPIRED',
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T | null;

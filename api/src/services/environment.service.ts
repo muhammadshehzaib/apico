@@ -10,23 +10,15 @@ import {
   deleteVariable,
   deleteAllVariablesByEnvironmentId,
 } from '../queries/environment.queries';
-import { findWorkspaceMember } from '../queries/workspace.queries';
-
-const verifyWorkspaceAccess = async (workspaceId: string, userId: string) => {
-  const member = await findWorkspaceMember(workspaceId, userId);
-  if (!member) {
-    const error = new Error('Access denied');
-    (error as any).statusCode = 403;
-    throw error;
-  }
-};
+import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
+import { WorkspaceRole } from '../types';
 
 export const createEnvironmentService = async (
   name: string,
   workspaceId: string,
   userId: string
 ) => {
-  await verifyWorkspaceAccess(workspaceId, userId);
+  await requireWorkspaceRole(workspaceId, userId, WorkspaceRole.EDITOR);
 
   return createEnvironment({
     name,
@@ -35,7 +27,7 @@ export const createEnvironmentService = async (
 };
 
 export const getEnvironments = async (workspaceId: string, userId: string) => {
-  await verifyWorkspaceAccess(workspaceId, userId);
+  await requireWorkspaceMember(workspaceId, userId);
 
   const environments = await findEnvironmentsByWorkspaceId(workspaceId);
 
@@ -56,7 +48,7 @@ export const getEnvironmentById = async (id: string, userId: string) => {
     throw error;
   }
 
-  await verifyWorkspaceAccess(environment.workspaceId, userId);
+  await requireWorkspaceMember(environment.workspaceId, userId);
 
   const variables = await findVariablesByEnvironmentId(id);
 
@@ -79,7 +71,7 @@ export const updateEnvironmentService = async (
     throw error;
   }
 
-  await verifyWorkspaceAccess(environment.workspaceId, userId);
+  await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
 
   return updateEnvironment(id, { name });
 };
@@ -93,7 +85,7 @@ export const deleteEnvironmentService = async (id: string, userId: string) => {
     throw error;
   }
 
-  await verifyWorkspaceAccess(environment.workspaceId, userId);
+  await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
 
   await deleteAllVariablesByEnvironmentId(id);
   return deleteEnvironment(id);
@@ -117,7 +109,7 @@ export const createVariableService = async (
     throw error;
   }
 
-  await verifyWorkspaceAccess(environment.workspaceId, userId);
+  await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
 
   return createVariable({
     environmentId,
@@ -144,7 +136,7 @@ export const updateVariableService = async (
     throw error;
   }
 
-  await verifyWorkspaceAccess(environment.workspaceId, userId);
+  await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
 
   return updateVariable(id, data);
 };
@@ -162,7 +154,7 @@ export const deleteVariableService = async (
     throw error;
   }
 
-  await verifyWorkspaceAccess(environment.workspaceId, userId);
+  await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
 
   return deleteVariable(id);
 };
@@ -185,7 +177,7 @@ export const bulkUpdateVariablesService = async (
     throw error;
   }
 
-  await verifyWorkspaceAccess(environment.workspaceId, userId);
+  await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
 
   await deleteAllVariablesByEnvironmentId(environmentId);
 

@@ -8,24 +8,15 @@ import {
   createCollectionShareLink,
   findCollectionShareLinkByToken,
 } from '../queries/collection.queries';
-import { findWorkspaceMember } from '../queries/workspace.queries';
-
-const verifyWorkspaceAccess = async (workspaceId: string, userId: string) => {
-  const member = await findWorkspaceMember(workspaceId, userId);
-
-  if (!member) {
-    const error = new Error('Access denied');
-    (error as any).statusCode = 403;
-    throw error;
-  }
-};
+import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
+import { WorkspaceRole } from '../types';
 
 export const createCollectionService = async (
   name: string,
   workspaceId: string,
   userId: string
 ) => {
-  await verifyWorkspaceAccess(workspaceId, userId);
+  await requireWorkspaceRole(workspaceId, userId, WorkspaceRole.EDITOR);
 
   return createCollection({
     name,
@@ -34,7 +25,7 @@ export const createCollectionService = async (
 };
 
 export const getCollections = async (workspaceId: string, userId: string) => {
-  await verifyWorkspaceAccess(workspaceId, userId);
+  await requireWorkspaceMember(workspaceId, userId);
 
   return findCollectionsByWorkspaceId(workspaceId);
 };
@@ -48,7 +39,7 @@ export const updateCollectionService = async (id: string, name: string, userId: 
     throw error;
   }
 
-  await verifyWorkspaceAccess(collection.workspaceId, userId);
+  await requireWorkspaceRole(collection.workspaceId, userId, WorkspaceRole.EDITOR);
 
   return updateCollection(id, { name });
 };
@@ -62,7 +53,7 @@ export const deleteCollectionService = async (id: string, userId: string) => {
     throw error;
   }
 
-  await verifyWorkspaceAccess(collection.workspaceId, userId);
+  await requireWorkspaceRole(collection.workspaceId, userId, WorkspaceRole.EDITOR);
 
   return deleteCollection(id);
 };
@@ -80,7 +71,7 @@ export const shareCollectionService = async (
     throw error;
   }
 
-  await verifyWorkspaceAccess(collection.workspaceId, userId);
+  await requireWorkspaceRole(collection.workspaceId, userId, WorkspaceRole.EDITOR);
 
   const token = crypto.randomBytes(32).toString('hex');
 

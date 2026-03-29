@@ -9,10 +9,10 @@ import {
   findSharedLinkByToken,
 } from '../queries/request.queries';
 import { findCollectionById } from '../queries/collection.queries';
-import { findWorkspaceMember } from '../queries/workspace.queries';
+import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
 import { createHistoryEntry } from '../queries/history.queries';
 import { executeRequest } from '../proxy/executor';
-import { ExecuteRequestPayload, HttpMethod } from '../types';
+import { ExecuteRequestPayload, HttpMethod, WorkspaceRole } from '../types';
 
 const verifyCollectionAccess = async (collectionId: string, userId: string) => {
   const collection = await findCollectionById(collectionId);
@@ -23,13 +23,19 @@ const verifyCollectionAccess = async (collectionId: string, userId: string) => {
     throw error;
   }
 
-  const member = await findWorkspaceMember(collection.workspaceId, userId);
+  await requireWorkspaceMember(collection.workspaceId, userId);
+};
 
-  if (!member) {
-    const error = new Error('Access denied');
-    (error as any).statusCode = 403;
+const verifyCollectionWriteAccess = async (collectionId: string, userId: string) => {
+  const collection = await findCollectionById(collectionId);
+
+  if (!collection) {
+    const error = new Error('Collection not found');
+    (error as any).statusCode = 404;
     throw error;
   }
+
+  await requireWorkspaceRole(collection.workspaceId, userId, WorkspaceRole.EDITOR);
 };
 
 export const executeAndSave = async (payload: ExecuteRequestPayload, userId?: string) => {
@@ -66,7 +72,7 @@ export const saveRequest = async (
   collectionId: string,
   userId: string
 ) => {
-  await verifyCollectionAccess(collectionId, userId);
+  await verifyCollectionWriteAccess(collectionId, userId);
 
   return createSavedRequest({
     name: data.name,
@@ -107,7 +113,7 @@ export const updateSavedRequestService = async (
     throw error;
   }
 
-  await verifyCollectionAccess(request.collectionId, userId);
+  await verifyCollectionWriteAccess(request.collectionId, userId);
 
   return updateSavedRequest(id, data);
 };
@@ -121,7 +127,7 @@ export const deleteSavedRequestService = async (id: string, userId: string) => {
     throw error;
   }
 
-  await verifyCollectionAccess(request.collectionId, userId);
+  await verifyCollectionWriteAccess(request.collectionId, userId);
 
   return deleteSavedRequest(id);
 };
@@ -139,7 +145,7 @@ export const createSharedLinkService = async (
     throw error;
   }
 
-  await verifyCollectionAccess(request.collectionId, userId);
+  await verifyCollectionWriteAccess(request.collectionId, userId);
 
   const token = crypto.randomBytes(32).toString('hex');
 

@@ -40,7 +40,7 @@ export const inviteController = asyncHandler(async (req: Request, res: Response)
   const body = inviteSchema.parse(req.body);
   const userId = req.user!.id;
 
-  const member = await inviteUserToWorkspace(id, userId, body.email, body.role as any);
+  const invite = await inviteUserToWorkspace(id, userId, body.email, body.role as any);
 
-  success(res, member, 'User invited successfully', 201);
+  success(res, invite, 'User invited successfully', 201);
 });

@@ -11,6 +11,8 @@ export const API_ENDPOINTS = {
   WORKSPACES: '/workspaces',
   WORKSPACE_BY_ID: (id: string) => `/workspaces/${id}`,
   INVITE_TO_WORKSPACE: (id: string) => `/workspaces/${id}/invite`,
+  WORKSPACE_INVITE_BY_TOKEN: (token: string) => `/workspace-invites/${token}`,
+  ACCEPT_WORKSPACE_INVITE: (token: string) => `/workspace-invites/${token}/accept`,
 
   // Collections
   COLLECTIONS_BY_WORKSPACE: (workspaceId: string) => `/workspaces/${workspaceId}/collections`,

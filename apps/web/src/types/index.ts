@@ -12,6 +12,13 @@ export enum WorkspaceRole {
   VIEWER = 'VIEWER',
 }
 
+export enum WorkspaceInviteStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  REVOKED = 'REVOKED',
+  EXPIRED = 'EXPIRED',
+}
+
 export interface User {
   id: string;
   email: string;
@@ -30,6 +37,7 @@ export interface Workspace {
   ownerId: string;
   createdAt: string;
   updatedAt: string;
+  role?: WorkspaceRole;
 }
 
 export interface WorkspaceMember {
@@ -38,6 +46,15 @@ export interface WorkspaceMember {
   userId: string;
   role: WorkspaceRole;
   createdAt: string;
+}
+
+export interface WorkspaceInvite {
+  id: string;
+  status: WorkspaceInviteStatus;
+  role: WorkspaceRole;
+  expiresAt?: string | null;
+  workspace: { id: string; name: string } | null;
+  invitedBy: { id: string; name: string; email: string } | null;
 }
 
 export interface Collection {

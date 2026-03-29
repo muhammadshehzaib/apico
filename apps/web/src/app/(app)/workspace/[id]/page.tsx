@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CreateCollectionModal } from '@/components/collections/CreateCollectionModal';
+import { InviteWorkspaceModal } from '@/components/workspace/InviteWorkspaceModal';
 import Link from 'next/link';
 
 export default function WorkspaceDetailPage() {
@@ -22,6 +23,8 @@ export default function WorkspaceDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
 
   useEffect(() => {
     dispatch(setActiveWorkspace(id));
@@ -77,6 +80,25 @@ export default function WorkspaceDetailPage() {
     }
   };
 
+  const handleInvite = async (email: string, role: any) => {
+    setIsInviting(true);
+    try {
+      const result = await workspaceService.inviteToWorkspace(id, email, role);
+      return result || null;
+    } catch (error) {
+      console.error('Failed to invite user:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to send invite');
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
+  const canEdit = workspace?.role === 'OWNER' || workspace?.role === 'EDITOR';
+  const canInvite = workspace?.role === 'OWNER';
+
   return (
     <div className="p-8">
       <div className="mb-8">
@@ -89,9 +111,18 @@ export default function WorkspaceDetailPage() {
       <div>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">Collections</h2>
-          <Button variant="primary" size="md" onClick={() => setIsCreateOpen(true)}>
-            Create Collection
-          </Button>
+          <div className="flex gap-2">
+            {canInvite && (
+              <Button variant="secondary" size="md" onClick={() => setIsInviteOpen(true)}>
+                Invite
+              </Button>
+            )}
+            {canEdit && (
+              <Button variant="primary" size="md" onClick={() => setIsCreateOpen(true)}>
+                Create Collection
+              </Button>
+            )}
+          </div>
         </div>
 
         {collections.length === 0 ? (
@@ -100,12 +131,16 @@ export default function WorkspaceDetailPage() {
               icon="📂"
               title="No Collections Yet"
               description="Create your first collection to organize your API requests"
-              action={{
-                label: 'Create Collection',
-                onClick: () => {
-                  setIsCreateOpen(true);
-                },
-              }}
+              action={
+                canEdit
+                  ? {
+                      label: 'Create Collection',
+                      onClick: () => {
+                        setIsCreateOpen(true);
+                      },
+                    }
+                  : undefined
+              }
             />
           </div>
         ) : (
@@ -131,6 +166,12 @@ export default function WorkspaceDetailPage() {
         onClose={() => setIsCreateOpen(false)}
         onConfirm={handleCreateCollection}
         isLoading={isCreating}
+      />
+      <InviteWorkspaceModal
+        isOpen={isInviteOpen}
+        onClose={() => setIsInviteOpen(false)}
+        onConfirm={handleInvite}
+        isLoading={isInviting}
       />
     </div>
   );

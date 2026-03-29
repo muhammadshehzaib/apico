@@ -5,6 +5,7 @@ import collectionRoutes from './collection.routes';
 import requestRoutes from './request.routes';
 import historyRoutes from './history.routes';
 import environmentRoutes from './environment.routes';
+import workspaceInviteRoutes from './workspaceInvite.routes';
 
 const router = Router();
 
@@ -21,5 +22,6 @@ router.use('/collections', collectionRoutes);
 router.use('/requests', requestRoutes);
 router.use('/history', historyRoutes);
 router.use('/environments', environmentRoutes);
+router.use('/workspace-invites', workspaceInviteRoutes);
 
 export default router;
