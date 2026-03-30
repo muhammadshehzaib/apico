@@ -11,7 +11,6 @@ export const findCollectionById = async (id: string) => {
     where: { id },
   });
 };
-
 export const findCollectionsByWorkspaceId = async (workspaceId: string) => {
   return prisma.collection.findMany({
     where: { workspaceId },
