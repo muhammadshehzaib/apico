@@ -8,6 +8,9 @@ import {
   RequestHistory,
   SharedCollection,
   WorkspaceInvite,
+  WorkspaceMemberWithUser,
+  WorkspacePendingInvite,
+  PendingInviteForUser,
 } from '@/types';
 import { ExecuteRequestInput, SaveRequestInput } from '@/validations/request.validation';
 
@@ -51,6 +54,47 @@ class WorkspaceService {
 
   async acceptWorkspaceInvite(token: string): Promise<void> {
     await apiService.post(API_ENDPOINTS.ACCEPT_WORKSPACE_INVITE(token));
+  }
+
+  async getWorkspaceMembers(workspaceId: string): Promise<WorkspaceMemberWithUser[]> {
+    const response = await apiService.get<WorkspaceMemberWithUser[]>(
+      API_ENDPOINTS.WORKSPACE_MEMBERS(workspaceId)
+    );
+    return response.data.data || [];
+  }
+
+  async getWorkspaceInvites(workspaceId: string): Promise<WorkspacePendingInvite[]> {
+    const response = await apiService.get<WorkspacePendingInvite[]>(
+      API_ENDPOINTS.WORKSPACE_INVITES(workspaceId)
+    );
+    return response.data.data || [];
+  }
+
+  async revokeInvite(workspaceId: string, inviteId: string): Promise<void> {
+    await apiService.post(API_ENDPOINTS.REVOKE_WORKSPACE_INVITE(workspaceId, inviteId));
+  }
+
+  async removeMember(workspaceId: string, userId: string): Promise<void> {
+    await apiService.delete(API_ENDPOINTS.WORKSPACE_MEMBER(workspaceId, userId));
+  }
+
+  async updateMemberRole(workspaceId: string, userId: string, role: string): Promise<WorkspaceMemberWithUser | null> {
+    const response = await apiService.patch<WorkspaceMemberWithUser>(
+      API_ENDPOINTS.WORKSPACE_MEMBER(workspaceId, userId),
+      { role }
+    );
+    return response.data.data;
+  }
+
+  async getUserPendingInvites(): Promise<PendingInviteForUser[]> {
+    const response = await apiService.get<PendingInviteForUser[]>(
+      API_ENDPOINTS.USER_PENDING_INVITES
+    );
+    return response.data.data || [];
+  }
+
+  async declineWorkspaceInvite(token: string): Promise<void> {
+    await apiService.post(API_ENDPOINTS.DECLINE_WORKSPACE_INVITE(token));
   }
 
   async createCollection(workspaceId: string, name: string): Promise<Collection | null> {

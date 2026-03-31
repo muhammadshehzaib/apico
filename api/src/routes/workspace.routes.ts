@@ -5,6 +5,11 @@ import {
   getAllController,
   getOneController,
   inviteController,
+  getMembersController,
+  getInvitesController,
+  revokeInviteController,
+  removeMemberController,
+  updateMemberRoleController,
 } from '../controllers/workspace.controller';
 
 const router = Router();
@@ -15,5 +20,10 @@ router.post('/', createController);
 router.get('/', getAllController);
 router.get('/:id', getOneController);
 router.post('/:id/invite', inviteController);
+router.get('/:id/members', getMembersController);
+router.get('/:id/invites', getInvitesController);
+router.post('/:id/invites/:inviteId/revoke', revokeInviteController);
+router.delete('/:id/members/:userId', removeMemberController);
+router.patch('/:id/members/:userId', updateMemberRoleController);
 
 export default router;

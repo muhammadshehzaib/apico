@@ -13,6 +13,12 @@ export const API_ENDPOINTS = {
   INVITE_TO_WORKSPACE: (id: string) => `/workspaces/${id}/invite`,
   WORKSPACE_INVITE_BY_TOKEN: (token: string) => `/workspace-invites/${token}`,
   ACCEPT_WORKSPACE_INVITE: (token: string) => `/workspace-invites/${token}/accept`,
+  DECLINE_WORKSPACE_INVITE: (token: string) => `/workspace-invites/${token}/decline`,
+  USER_PENDING_INVITES: '/workspace-invites/pending',
+  WORKSPACE_MEMBERS: (id: string) => `/workspaces/${id}/members`,
+  WORKSPACE_MEMBER: (id: string, userId: string) => `/workspaces/${id}/members/${userId}`,
+  WORKSPACE_INVITES: (id: string) => `/workspaces/${id}/invites`,
+  REVOKE_WORKSPACE_INVITE: (id: string, inviteId: string) => `/workspaces/${id}/invites/${inviteId}/revoke`,
 
   // Collections
   COLLECTIONS_BY_WORKSPACE: (workspaceId: string) => `/workspaces/${workspaceId}/collections`,

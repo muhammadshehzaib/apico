@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/async.util';
 import { success } from '../utils/response.util';
-import { acceptWorkspaceInvite, getWorkspaceInvite } from '../services/workspace.service';
+import {
+  acceptWorkspaceInvite,
+  getWorkspaceInvite,
+  getUserPendingInvites,
+  declineWorkspaceInvite,
+} from '../services/workspace.service';
 
 export const getInviteController = asyncHandler(async (req: Request, res: Response) => {
   const { token } = req.params;
@@ -29,4 +34,21 @@ export const acceptInviteController = asyncHandler(async (req: Request, res: Res
   const membership = await acceptWorkspaceInvite(token, userId);
 
   success(res, membership, 'Invite accepted successfully');
+});
+
+export const getPendingInvitesController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+
+  const invites = await getUserPendingInvites(userId);
+
+  success(res, invites, 'Pending invites fetched successfully');
+});
+
+export const declineInviteController = asyncHandler(async (req: Request, res: Response) => {
+  const { token } = req.params;
+  const userId = req.user!.id;
+
+  await declineWorkspaceInvite(token, userId);
+
+  success(res, null, 'Invite declined successfully');
 });

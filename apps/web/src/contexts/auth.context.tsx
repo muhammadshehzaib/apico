@@ -21,8 +21,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initAuth = () => {
       const token = authService.getAccessToken();
       if (token) {
-        // In a real app, you'd verify the token or fetch user data
-        setUser({ id: '', email: '', name: '' });
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          setUser({ id: payload.id, email: payload.email, name: payload.name });
+        } catch {
+          setUser({ id: '', email: '', name: '' });
+        }
       }
       setIsLoading(false);
     };

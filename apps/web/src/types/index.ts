@@ -130,6 +130,34 @@ export interface SharedLink {
   expiresAt?: string;
 }
 
+export interface WorkspaceMemberWithUser {
+  id: string;
+  workspaceId: string;
+  userId: string;
+  role: WorkspaceRole;
+  createdAt: string;
+  user: { id: string; name: string; email: string };
+}
+
+export interface WorkspacePendingInvite {
+  id: string;
+  email: string;
+  role: WorkspaceRole;
+  status: string;
+  createdAt: string;
+  expiresAt: string | null;
+  invitedBy: { id: string; name: string; email: string };
+}
+
+export interface PendingInviteForUser {
+  id: string;
+  role: WorkspaceRole;
+  expiresAt: string | null;
+  token: string;
+  workspace: { id: string; name: string };
+  invitedBy: { id: string; name: string; email: string };
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data: T | null;
