@@ -99,7 +99,7 @@ export default function WorkspaceInvitePage() {
             </div>
 
             <div className="text-sm text-text-muted">
-              Invited by {invite.invitedBy?.name || 'Unknown'} ({invite.invitedBy?.email || '—'})
+              Invited by {invite.invitedBy?.name || 'Unknown'} ({invite.invitedBy?.email || 'ï¿½'})
             </div>
 
             <div className="text-sm text-text-muted">
@@ -107,6 +107,10 @@ export default function WorkspaceInvitePage() {
             </div>
 
             <div className="text-sm text-text-muted">Status: {renderStatus()}</div>
+
+            <div className="text-xs text-accent">
+              No time limits. Collaborate for free, forever.
+            </div>
 
             {invite.status === WorkspaceInviteStatus.PENDING ? (
               isAuthenticated ? (

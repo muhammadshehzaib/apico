@@ -57,7 +57,12 @@ export default function WorkspacesPage() {
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Workspaces</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Workspaces</h1>
+          <p className="text-text-muted text-sm mt-1">
+            Collaborate with unlimited members, no time limits. Free forever.
+          </p>
+        </div>
         <Button variant="primary" size="md" onClick={() => setIsCreateOpen(true)}>
           Create Workspace
         </Button>
@@ -91,9 +96,14 @@ export default function WorkspacesPage() {
               className="block bg-bg-secondary border border-bg-tertiary rounded-lg p-6 hover:border-accent transition-colors"
             >
               <h2 className="text-xl font-semibold mb-2">{workspace.name}</h2>
-              <p className="text-text-muted text-sm">
-                Created {new Date(workspace.createdAt).toLocaleDateString()}
-              </p>
+              <div className="flex items-center gap-3 text-text-muted text-sm">
+                <span>Created {new Date(workspace.createdAt).toLocaleDateString()}</span>
+                {workspace.memberCount !== undefined && (
+                  <span>
+                    {workspace.memberCount} {workspace.memberCount === 1 ? 'member' : 'members'}
+                  </span>
+                )}
+              </div>
             </Link>
           ))}
         </div>

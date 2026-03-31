@@ -11,6 +11,7 @@ import {
   revokeWorkspaceInviteService,
   removeWorkspaceMemberService,
   updateMemberRoleService,
+  leaveWorkspaceService,
 } from '../services/workspace.service';
 import { createWorkspaceSchema, inviteSchema, updateMemberRoleSchema } from '../validations/workspace.validation';
 
@@ -94,4 +95,13 @@ export const updateMemberRoleController = asyncHandler(async (req: Request, res:
   const updatedMember = await updateMemberRoleService(id, targetUserId, requesterId, body.role as any);
 
   success(res, updatedMember, 'Role updated successfully');
+});
+
+export const leaveWorkspaceController = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+
+  await leaveWorkspaceService(id, userId);
+
+  success(res, null, 'You have left the workspace');
 });

@@ -38,6 +38,7 @@ export interface Workspace {
   createdAt: string;
   updatedAt: string;
   role?: WorkspaceRole;
+  memberCount?: number;
 }
 
 export interface WorkspaceMember {

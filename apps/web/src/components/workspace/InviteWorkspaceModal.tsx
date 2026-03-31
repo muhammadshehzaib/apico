@@ -73,6 +73,7 @@ export function InviteWorkspaceModal({
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-bg-secondary border border-bg-tertiary rounded-lg p-6 w-96 space-y-4">
         <h2 className="text-lg font-semibold text-text-primary">Invite to Workspace</h2>
+        <p className="text-xs text-text-muted">Unlimited collaborators, no time limits. Free forever.</p>
 
         <div>
           <label className="block text-sm font-medium text-text-primary mb-2">

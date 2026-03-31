@@ -14,6 +14,7 @@ interface WorkspaceMembersModalProps {
   workspaceId: string;
   currentUserRole: WorkspaceRole;
   currentUserId: string;
+  onLeave?: () => void;
 }
 
 const roleBadgeVariant = (role: WorkspaceRole) => {
@@ -33,6 +34,7 @@ export function WorkspaceMembersModal({
   workspaceId,
   currentUserRole,
   currentUserId,
+  onLeave,
 }: WorkspaceMembersModalProps) {
   const [activeTab, setActiveTab] = useState<'members' | 'invites'>('members');
   const [members, setMembers] = useState<WorkspaceMemberWithUser[]>([]);
@@ -106,6 +108,19 @@ export function WorkspaceMembersModal({
       showToast('Invite revoked successfully', 'success');
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Failed to revoke invite', 'error');
+    }
+  };
+
+  const handleLeaveWorkspace = async () => {
+    if (!confirm('Are you sure you want to leave this workspace? You will lose access to all collections.')) return;
+
+    try {
+      await workspaceService.leaveWorkspace(workspaceId);
+      showToast('You have left the workspace', 'success');
+      onClose();
+      onLeave?.();
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Failed to leave workspace', 'error');
     }
   };
 
@@ -254,7 +269,14 @@ export function WorkspaceMembersModal({
           )}
         </div>
 
-        <div className="flex justify-end mt-4 pt-4 border-t border-bg-tertiary">
+        <div className="flex justify-between mt-4 pt-4 border-t border-bg-tertiary">
+          <div>
+            {!isOwner && (
+              <Button variant="danger" size="md" onClick={handleLeaveWorkspace}>
+                Leave Workspace
+              </Button>
+            )}
+          </div>
           <Button onClick={onClose} variant="secondary" size="md">
             Close
           </Button>

@@ -41,10 +41,14 @@ export const createWorkspaceService = async (name: string, userId: string) => {
 
 export const getUserWorkspaces = async (userId: string) => {
   const memberships = await findWorkspacesByUserId(userId);
-  return memberships.map((m) => ({
-    ...m.workspace,
-    role: m.role,
-  }));
+  return memberships.map((m) => {
+    const { _count, ...workspace } = m.workspace;
+    return {
+      ...workspace,
+      role: m.role,
+      memberCount: _count.members,
+    };
+  });
 };
 
 export const getWorkspaceById = async (id: string, userId: string) => {
@@ -334,6 +338,23 @@ export const getUserPendingInvites = async (userId: string) => {
   }
 
   return validInvites;
+};
+
+export const leaveWorkspaceService = async (workspaceId: string, userId: string) => {
+  const member = await findWorkspaceMember(workspaceId, userId);
+  if (!member) {
+    const error = new Error('You are not a member of this workspace');
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  if (member.role === WorkspaceRole.OWNER) {
+    const error = new Error('Owners cannot leave their workspace. Transfer ownership first or delete the workspace.');
+    (error as any).statusCode = 400;
+    throw error;
+  }
+
+  await removeWorkspaceMemberQuery(workspaceId, userId);
 };
 
 export const declineWorkspaceInvite = async (token: string, userId: string) => {

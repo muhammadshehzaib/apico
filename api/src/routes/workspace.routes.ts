@@ -10,6 +10,7 @@ import {
   revokeInviteController,
   removeMemberController,
   updateMemberRoleController,
+  leaveWorkspaceController,
 } from '../controllers/workspace.controller';
 
 const router = Router();
@@ -25,5 +26,6 @@ router.get('/:id/invites', getInvitesController);
 router.post('/:id/invites/:inviteId/revoke', revokeInviteController);
 router.delete('/:id/members/:userId', removeMemberController);
 router.patch('/:id/members/:userId', updateMemberRoleController);
+router.post('/:id/leave', leaveWorkspaceController);
 
 export default router;

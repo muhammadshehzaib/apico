@@ -97,6 +97,10 @@ class WorkspaceService {
     await apiService.post(API_ENDPOINTS.DECLINE_WORKSPACE_INVITE(token));
   }
 
+  async leaveWorkspace(workspaceId: string): Promise<void> {
+    await apiService.post(API_ENDPOINTS.LEAVE_WORKSPACE(workspaceId));
+  }
+
   async createCollection(workspaceId: string, name: string): Promise<Collection | null> {
     const response = await apiService.post<Collection>(
       API_ENDPOINTS.COLLECTIONS_BY_WORKSPACE(workspaceId),

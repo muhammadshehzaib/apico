@@ -17,7 +17,13 @@ export const findWorkspacesByUserId = async (userId: string) => {
   return prisma.workspaceMember.findMany({
     where: { userId },
     include: {
-      workspace: true,
+      workspace: {
+        include: {
+          _count: {
+            select: { members: true },
+          },
+        },
+      },
     },
   });
 };

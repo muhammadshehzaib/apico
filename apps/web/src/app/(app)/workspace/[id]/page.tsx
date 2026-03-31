@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { workspaceService } from '@/services/workspace.service';
 import { setActiveWorkspace } from '@/store/slices/workspace.slice';
@@ -17,6 +17,7 @@ import Link from 'next/link';
 
 export default function WorkspaceDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useAuth();
   const id = params.id as string;
@@ -186,6 +187,7 @@ export default function WorkspaceDetailPage() {
         workspaceId={id}
         currentUserRole={workspace.role || WorkspaceRole.OWNER}
         currentUserId={user?.id || ''}
+        onLeave={() => router.push('/workspace')}
       />
     </div>
   );
