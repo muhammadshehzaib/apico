@@ -38,6 +38,45 @@ export const findPendingWorkspaceInvite = async (workspaceId: string, email: str
   });
 };
 
+export const findWorkspaceInviteById = async (id: string) => {
+  return prisma.workspaceInvite.findUnique({
+    where: { id },
+  });
+};
+
+export const findWorkspaceInvitesByWorkspaceId = async (workspaceId: string) => {
+  return prisma.workspaceInvite.findMany({
+    where: {
+      workspaceId,
+      status: 'PENDING',
+    },
+    include: {
+      invitedBy: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+};
+
+export const findPendingInvitesByEmail = async (email: string) => {
+  return prisma.workspaceInvite.findMany({
+    where: {
+      email,
+      status: 'PENDING',
+    },
+    include: {
+      workspace: {
+        select: { id: true, name: true },
+      },
+      invitedBy: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+};
+
 export const updateWorkspaceInvite = async (
   id: string,
   data: Partial<{

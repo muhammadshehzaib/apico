@@ -44,5 +44,37 @@ export const findWorkspaceMember = async (workspaceId: string, userId: string) =
 export const findWorkspaceMembers = async (workspaceId: string) => {
   return prisma.workspaceMember.findMany({
     where: { workspaceId },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
+    orderBy: { createdAt: 'asc' },
+  });
+};
+
+export const removeWorkspaceMember = async (workspaceId: string, userId: string) => {
+  return prisma.workspaceMember.delete({
+    where: {
+      workspaceId_userId: { workspaceId, userId },
+    },
+  });
+};
+
+export const updateWorkspaceMemberRole = async (
+  workspaceId: string,
+  userId: string,
+  role: WorkspaceRole
+) => {
+  return prisma.workspaceMember.update({
+    where: {
+      workspaceId_userId: { workspaceId, userId },
+    },
+    data: { role },
+    include: {
+      user: {
+        select: { id: true, name: true, email: true },
+      },
+    },
   });
 };

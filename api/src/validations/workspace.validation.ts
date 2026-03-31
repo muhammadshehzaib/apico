@@ -12,5 +12,12 @@ export const inviteSchema = z.object({
   }),
 });
 
+export const updateMemberRoleSchema = z.object({
+  role: z.enum(['EDITOR', 'VIEWER'] as const, {
+    errorMap: () => ({ message: 'Invalid role. Cannot assign OWNER.' }),
+  }),
+});
+
 export type CreateWorkspaceInput = z.infer<typeof createWorkspaceSchema>;
 export type InviteInput = z.infer<typeof inviteSchema>;
+export type UpdateMemberRoleInput = z.infer<typeof updateMemberRoleSchema>;
