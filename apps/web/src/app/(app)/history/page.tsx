@@ -10,11 +10,11 @@ import { HTTP_METHOD_TAILWIND } from '@/constants/app.constants';
 import { HttpMethod } from '@/types';
 
 const methodColors: Record<HttpMethod, string> = {
-  GET: 'bg-success',
-  POST: 'bg-accent',
-  PUT: 'bg-warning',
-  PATCH: 'bg-info',
-  DELETE: 'bg-danger',
+  GET: 'bg-success/20 text-success border-success/40',
+  POST: 'bg-accent/20 text-accent border-accent/40',
+  PUT: 'bg-warning/20 text-warning border-warning/40',
+  PATCH: 'bg-info/20 text-info border-info/40',
+  DELETE: 'bg-danger/20 text-danger border-danger/40',
 };
 
 export default function HistoryPage() {
@@ -70,7 +70,7 @@ export default function HistoryPage() {
                   className="flex items-center gap-4 flex-1 text-left"
                 >
                   <span
-                    className={`${methodColors[item.method]} text-white text-xs font-bold px-2 py-1 rounded min-w-[50px] text-center`}
+                    className={`${methodColors[item.method]} border text-xs font-bold px-2 py-1 rounded-md min-w-[50px] text-center`}
                   >
                     {item.method}
                   </span>
