@@ -129,12 +129,12 @@ export function CollectionsSidebar({
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider">
+        <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em]">
           Collections
         </h3>
         <button
           onClick={() => setCreateModalOpen(true)}
-          className="text-accent hover:text-blue-400 font-bold text-lg transition-colors"
+          className="text-accent hover:text-accentSoft font-bold text-lg transition-colors"
           title="Create collection"
         >
           +

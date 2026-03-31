@@ -19,7 +19,7 @@ export default function AppLayout({
       <AuthProvider>
         <div className="flex h-screen">
           {showSidebar && <Sidebar />}
-          <main className={`flex-1 overflow-auto bg-bg-primary ${!showSidebar ? 'w-full' : ''}`}>
+          <main className={`flex-1 overflow-auto bg-bg-primary/90 ${!showSidebar ? 'w-full' : ''}`}>
             {children}
           </main>
         </div>

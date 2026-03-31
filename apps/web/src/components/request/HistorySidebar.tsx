@@ -26,11 +26,11 @@ interface HistorySidebarProps {
 }
 
 const methodColors: Record<HttpMethod, string> = {
-  GET: 'bg-success',
-  POST: 'bg-accent',
-  PUT: 'bg-warning',
-  PATCH: 'bg-info',
-  DELETE: 'bg-danger',
+  GET: 'bg-success/20 text-success border-success/40',
+  POST: 'bg-accent/20 text-accent border-accent/40',
+  PUT: 'bg-warning/20 text-warning border-warning/40',
+  PATCH: 'bg-info/20 text-info border-info/40',
+  DELETE: 'bg-danger/20 text-danger border-danger/40',
 };
 
 export function HistorySidebar({
@@ -78,9 +78,9 @@ export function HistorySidebar({
   };
 
   return (
-    <aside className="w-72 bg-bg-secondary border-r border-bg-tertiary h-screen flex flex-col overflow-hidden">
+    <aside className="w-72 bg-bg-secondary/90 border-r border-bg-tertiary/60 h-screen flex flex-col overflow-hidden backdrop-blur">
       {/* Header */}
-      <div className="p-6 border-b border-bg-tertiary flex-shrink-0 space-y-4">
+      <div className="p-6 border-b border-bg-tertiary/60 flex-shrink-0 space-y-4">
         <Link 
           href="/workspace" 
           className="inline-flex items-center gap-2 text-xs font-semibold text-text-muted hover:text-accent transition-colors group"
@@ -88,7 +88,7 @@ export function HistorySidebar({
           <span className="text-sm group-hover:-translate-x-1 transition-transform">←</span>
           Back to Workspaces
         </Link>
-        <h1 className="text-lg font-bold text-accent">Requester</h1>
+        <h1 className="text-lg font-semibold text-text-primary">Requester</h1>
         <div className="flex gap-2">
           <Button
             onClick={onNewRequest}
@@ -111,9 +111,9 @@ export function HistorySidebar({
       </div>
 
       {/* History Section */}
-      <div className="flex-1 overflow-auto border-b border-bg-tertiary">
+      <div className="flex-1 overflow-auto border-b border-bg-tertiary/60">
         <div className="p-4">
-          <h2 className="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">
+          <h2 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em] mb-3">
             History
           </h2>
 
@@ -127,11 +127,11 @@ export function HistorySidebar({
                 <button
                   key={item.id}
                   onClick={() => onLoadRequest(item)}
-                  className="w-full text-left p-2 rounded hover:bg-bg-tertiary transition-colors group"
+                  className="w-full text-left p-2 rounded-lg hover:bg-bg-tertiary/60 transition-colors group border border-transparent hover:border-stroke/60"
                 >
                   <div className="flex items-start gap-2">
                     <span
-                      className={`${methodColors[item.method]} text-white text-xs font-bold px-2 py-0.5 rounded flex-shrink-0 mt-0.5`}
+                      className={`${methodColors[item.method]} border text-xs font-bold px-2 py-0.5 rounded flex-shrink-0 mt-0.5`}
                     >
                       {item.method}
                     </span>

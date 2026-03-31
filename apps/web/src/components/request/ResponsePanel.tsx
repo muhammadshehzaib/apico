@@ -15,7 +15,7 @@ interface ResponsePanelProps {
 export function ResponsePanel({ response, isLoading, error }: ResponsePanelProps) {
   if (isLoading) {
     return (
-      <div className="h-full bg-bg-primary">
+      <div className="h-full bg-bg-primary/90">
         <SkeletonGroup type="response-panel" />
       </div>
     );
@@ -23,8 +23,8 @@ export function ResponsePanel({ response, isLoading, error }: ResponsePanelProps
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full bg-bg-primary p-4">
-        <div className="bg-danger/10 border border-danger text-danger px-6 py-4 rounded max-w-md text-center">
+      <div className="flex items-center justify-center h-full bg-bg-primary/90 p-4">
+        <div className="bg-danger/10 border border-danger/60 text-danger px-6 py-4 rounded-lg max-w-md text-center shadow-[0_18px_40px_rgba(239,68,68,0.15)]">
           <p className="font-medium mb-2">Request Failed</p>
           <p className="text-sm">{error}</p>
         </div>
@@ -34,15 +34,15 @@ export function ResponsePanel({ response, isLoading, error }: ResponsePanelProps
 
   if (!response) {
     return (
-      <div className="flex items-center justify-center h-full bg-bg-primary">
+      <div className="flex items-center justify-center h-full bg-bg-primary/90">
         <p className="text-text-muted text-center">Send a request to see the response</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-bg-primary">
-      <div className="border-b border-bg-tertiary px-4 py-3 bg-bg-secondary flex items-center gap-6">
+    <div className="flex flex-col h-full bg-bg-primary/90">
+      <div className="border-b border-bg-tertiary/60 px-4 py-3 bg-bg-secondary/90 flex items-center gap-6">
         <StatusBadge statusCode={response.statusCode} />
         <span className="text-text-muted text-sm font-mono">
           {formatDuration(response.duration)}

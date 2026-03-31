@@ -58,7 +58,7 @@ export default function WorkspacesPage() {
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Workspaces</h1>
+          <h1 className="text-3xl font-semibold">Workspaces</h1>
           <p className="text-text-muted text-sm mt-1">
             Collaborate with unlimited members, no time limits. Free forever.
           </p>
@@ -93,7 +93,7 @@ export default function WorkspacesPage() {
             <Link
               key={workspace.id}
               href={`/workspace/${workspace.id}`}
-              className="block bg-bg-secondary border border-bg-tertiary rounded-lg p-6 hover:border-accent transition-colors"
+              className="block bg-bg-secondary/80 border border-bg-tertiary/60 rounded-xl p-6 hover:border-accent/60 hover:shadow-[0_18px_45px_rgba(0,0,0,0.35)] transition-all"
             >
               <h2 className="text-xl font-semibold mb-2">{workspace.name}</h2>
               <div className="flex items-center gap-3 text-text-muted text-sm">

@@ -71,12 +71,15 @@ export function InviteWorkspaceModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-bg-secondary border border-bg-tertiary rounded-lg p-6 w-96 space-y-4">
-        <h2 className="text-lg font-semibold text-text-primary">Invite to Workspace</h2>
-        <p className="text-xs text-text-muted">Unlimited collaborators, no time limits. Free forever.</p>
+      <div className="bg-bg-secondary/95 border border-stroke rounded-2xl p-6 w-96 space-y-4 shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur">
+        <div>
+          <div className="text-xs uppercase tracking-[0.3em] text-text-muted">Workspace</div>
+          <h2 className="text-lg font-semibold text-text-primary mt-1">Invite Members</h2>
+          <p className="text-xs text-text-muted mt-2">Unlimited collaborators, no time limits. Free forever.</p>
+        </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
             Email
           </label>
           <input
@@ -89,18 +92,18 @@ export function InviteWorkspaceModal({
             }}
             onKeyDown={handleKeyDown}
             placeholder="user@example.com"
-            className="w-full px-4 py-2 bg-bg-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent text-text-primary"
+            className="w-full px-4 py-2 bg-bg-primary/80 border border-stroke rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 text-text-primary placeholder:text-text-muted/60"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
             Role
           </label>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as WorkspaceRole)}
-            className="w-full px-4 py-2 bg-bg-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent text-text-primary"
+            className="w-full px-4 py-2 bg-bg-primary/80 border border-stroke rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 text-text-primary"
           >
             <option value={WorkspaceRole.VIEWER}>Viewer</option>
             <option value={WorkspaceRole.EDITOR}>Editor</option>
@@ -109,7 +112,7 @@ export function InviteWorkspaceModal({
         </div>
 
         {inviteLink ? (
-          <div className="bg-bg-primary border border-bg-tertiary rounded p-3 text-sm text-text-primary">
+          <div className="bg-bg-primary/80 border border-stroke rounded-md p-3 text-sm text-text-primary">
             <div className="mb-2">Invite link ready to share:</div>
             <div className="break-all text-text-muted">{inviteLink}</div>
             <div className="flex justify-end mt-3">

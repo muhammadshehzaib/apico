@@ -43,9 +43,9 @@ export function PlaygroundSidebar({
   };
 
   return (
-    <aside className="w-64 bg-bg-secondary border-r border-bg-tertiary h-[calc(100vh-48px)] flex flex-col overflow-hidden">
+    <aside className="w-72 bg-bg-secondary/90 border-r border-bg-tertiary/60 h-[calc(100vh-56px)] flex flex-col overflow-hidden backdrop-blur">
       {/* Header */}
-      <div className="p-4 border-b border-bg-tertiary flex-shrink-0">
+      <div className="p-4 border-b border-bg-tertiary/60 flex-shrink-0">
         <Button
           onClick={onNewRequest}
           variant="primary"
@@ -57,9 +57,9 @@ export function PlaygroundSidebar({
       </div>
 
       {/* Environment Section */}
-      <div className="p-4 border-b border-bg-tertiary flex-shrink-0">
+      <div className="p-4 border-b border-bg-tertiary/60 flex-shrink-0">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider">
+          <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em]">
             Environment
           </h3>
           <button
@@ -79,9 +79,9 @@ export function PlaygroundSidebar({
 
       {/* History Section */}
       <div className="flex-1 overflow-auto flex flex-col">
-        <div className="p-4 border-b border-bg-tertiary flex-shrink-0">
+        <div className="p-4 border-b border-bg-tertiary/60 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider">
+            <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em]">
               History
             </h3>
             {history.length > 0 && (
@@ -95,12 +95,12 @@ export function PlaygroundSidebar({
           </div>
 
           {showConfirmClear && (
-            <div className="p-2 bg-danger/10 border border-danger rounded text-xs space-y-2 mb-2">
+            <div className="p-2 bg-danger/10 border border-danger/50 rounded-md text-xs space-y-2 mb-2">
               <p className="text-danger">Clear all history?</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowConfirmClear(false)}
-                  className="flex-1 px-2 py-1 bg-bg-tertiary text-text-primary rounded hover:bg-bg-secondary transition-colors text-xs"
+                  className="flex-1 px-2 py-1 bg-bg-tertiary/70 text-text-primary rounded-md hover:bg-bg-tertiary transition-colors text-xs"
                 >
                   No
                 </button>
@@ -109,7 +109,7 @@ export function PlaygroundSidebar({
                     onClearHistory();
                     setShowConfirmClear(false);
                   }}
-                  className="flex-1 px-2 py-1 bg-danger text-white rounded hover:bg-red-600 transition-colors text-xs"
+                  className="flex-1 px-2 py-1 bg-danger text-white rounded-md hover:bg-danger/90 transition-colors text-xs"
                 >
                   Yes
                 </button>
@@ -128,10 +128,10 @@ export function PlaygroundSidebar({
               <button
                 key={entry.id}
                 onClick={() => onLoadRequest(entry)}
-                className="w-full text-left p-2 rounded hover:bg-bg-tertiary transition-colors group relative"
+                className="w-full text-left p-2 rounded-lg hover:bg-bg-tertiary/60 transition-colors group relative border border-transparent hover:border-stroke/60"
               >
                 <div className="flex items-start gap-2">
-                  <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-success text-white flex-shrink-0">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-success/20 text-success border border-success/40 flex-shrink-0">
                     {entry.method}
                   </span>
                   <div className="flex-1 min-w-0">

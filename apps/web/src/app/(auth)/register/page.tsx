@@ -52,8 +52,11 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-bg-secondary rounded-lg p-8 border border-bg-tertiary">
-        <h1 className="text-2xl font-bold text-center mb-6">Create Account</h1>
+      <div className="w-full max-w-md bg-bg-secondary/80 rounded-2xl p-8 border border-bg-tertiary/60 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur">
+        <div className="mb-6">
+          <div className="text-xs uppercase tracking-[0.3em] text-text-muted text-center">Get Started</div>
+          <h1 className="text-2xl font-semibold text-center mt-2">Create Your Account</h1>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -88,7 +91,7 @@ export default function RegisterPage() {
           />
 
           {errors.submit && (
-            <div className="bg-danger/10 border border-danger text-danger px-4 py-2 rounded text-sm">
+            <div className="bg-danger/10 border border-danger/60 text-danger px-4 py-2 rounded-md text-sm">
               {errors.submit}
             </div>
           )}
@@ -105,7 +108,7 @@ export default function RegisterPage() {
           </Link>
         </p>
 
-        <div className="border-t border-bg-tertiary mt-6 pt-6">
+        <div className="border-t border-bg-tertiary/60 mt-6 pt-6">
           <p className="text-center text-text-muted text-sm mb-3">
             Just want to test an API?
           </p>

@@ -1,17 +1,19 @@
 export const colors = {
   background: {
-    primary: '#0f0f0f',
-    secondary: '#1a1a1a',
-    tertiary: '#2a2a2a',
+    primary: '#0b0d10',
+    secondary: '#12141a',
+    tertiary: '#181c25',
+    elevated: '#1e2430',
   },
   text: {
-    primary: '#f1f1f1',
-    muted: '#6b7280',
+    primary: '#e6e9ef',
+    muted: '#9aa4b2',
   },
-  border: '#2a2a2a',
-  accent: '#3b82f6',
+  border: '#232a36',
+  accent: '#3a86ff',
+  accentSoft: '#5cc8ff',
   success: '#22c55e',
-  warning: '#f97316',
-  info: '#eab308',
+  warning: '#f59e0b',
+  info: '#22d3ee',
   danger: '#ef4444',
 };

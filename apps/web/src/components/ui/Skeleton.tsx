@@ -29,12 +29,12 @@ export const Skeleton: React.FC<SkeletonProps> = ({
           animation: shimmer 2s infinite;
           background: linear-gradient(
             90deg,
-            #1a1a1a 0%,
-            #2a2a2a 50%,
-            #1a1a1a 100%
+            #12141a 0%,
+            #1e2430 50%,
+            #12141a 100%
           );
           background-size: 1000px 100%;
-          background-color: #1a1a1a;
+          background-color: #12141a;
         }
       `}</style>
       <div

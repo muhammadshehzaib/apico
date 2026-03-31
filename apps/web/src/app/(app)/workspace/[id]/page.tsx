@@ -107,7 +107,7 @@ export default function WorkspaceDetailPage() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{workspace.name}</h1>
+        <h1 className="text-3xl font-semibold mb-2">{workspace.name}</h1>
         <p className="text-text-muted">
           Created on {new Date(workspace.createdAt).toLocaleDateString()}
         </p>
@@ -134,7 +134,7 @@ export default function WorkspaceDetailPage() {
         </div>
 
         {collections.length === 0 ? (
-          <div className="bg-bg-secondary border border-bg-tertiary rounded-lg">
+          <div className="bg-bg-secondary/80 border border-bg-tertiary/60 rounded-xl">
             <EmptyState
               icon="📂"
               title="No Collections Yet"
@@ -157,7 +157,7 @@ export default function WorkspaceDetailPage() {
               <Link
                 key={collection.id}
                 href={`/workspace/${id}/collection/${collection.id}`}
-                className="block bg-bg-secondary border border-bg-tertiary rounded-lg p-6 hover:border-accent transition-colors"
+                className="block bg-bg-secondary/80 border border-bg-tertiary/60 rounded-xl p-6 hover:border-accent/60 hover:shadow-[0_18px_45px_rgba(0,0,0,0.35)] transition-all"
               >
                 <h3 className="text-lg font-semibold mb-2">{collection.name}</h3>
                 <p className="text-text-muted text-sm">

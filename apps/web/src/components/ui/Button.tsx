@@ -8,19 +8,19 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = '', variant = 'primary', size = 'md', isLoading = false, children, disabled, ...props }, ref) => {
-    const baseStyles = 'font-medium rounded transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
+    const baseStyles = 'inline-flex items-center justify-center gap-2 font-medium rounded-md border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary';
 
     const variantStyles = {
-      primary: 'bg-accent text-white hover:bg-blue-600 focus:ring-accent',
-      secondary: 'bg-bg-tertiary text-text-primary hover:bg-gray-700 focus:ring-accent',
-      danger: 'bg-danger text-white hover:bg-red-600 focus:ring-danger',
-      ghost: 'text-text-primary hover:bg-bg-tertiary focus:ring-accent',
+      primary: 'bg-accent text-white border-accent/50 shadow-[0_10px_30px_rgba(58,134,255,0.25)] hover:bg-accent/90 hover:shadow-[0_12px_34px_rgba(58,134,255,0.32)] active:bg-accent/80',
+      secondary: 'bg-bg-tertiary/70 text-text-primary border-stroke hover:bg-bg-tertiary hover:border-accent/40',
+      danger: 'bg-danger text-white border-danger/60 shadow-[0_8px_24px_rgba(239,68,68,0.2)] hover:bg-danger/90',
+      ghost: 'bg-transparent text-text-primary border-transparent hover:bg-bg-tertiary/60 hover:border-stroke',
     };
 
     const sizeStyles = {
       sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-base',
-      lg: 'px-6 py-3 text-lg',
+      md: 'px-4 py-2 text-sm',
+      lg: 'px-6 py-3 text-base',
     };
 
     return (

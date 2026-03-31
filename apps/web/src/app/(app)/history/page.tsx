@@ -33,7 +33,7 @@ export default function HistoryPage() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold font-heading">History</h1>
+        <h1 className="text-3xl font-semibold font-heading">History</h1>
         <button
           onClick={clearAll}
           className="text-text-muted hover:text-danger text-sm font-medium transition-colors"
@@ -43,7 +43,7 @@ export default function HistoryPage() {
         </button>
       </div>
 
-      <div className="bg-bg-secondary border border-bg-tertiary rounded-xl overflow-hidden shadow-glass">
+      <div className="bg-bg-secondary/80 border border-bg-tertiary/60 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
         {isLoading ? (
           <div className="p-6">
             <SkeletonGroup type="list-item" count={5} />
@@ -59,11 +59,11 @@ export default function HistoryPage() {
             }}
           />
         ) : (
-          <div className="divide-y divide-bg-tertiary">
+          <div className="divide-y divide-bg-tertiary/60">
             {history.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-4 hover:bg-bg-tertiary/50 transition-colors group"
+                className="flex items-center justify-between p-4 hover:bg-bg-tertiary/40 transition-colors group"
               >
                 <button
                   onClick={() => handleLoadRequest(item)}

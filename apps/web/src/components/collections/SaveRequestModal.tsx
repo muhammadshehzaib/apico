@@ -77,11 +77,14 @@ export function SaveRequestModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-bg-secondary border border-bg-tertiary rounded-lg p-6 w-96 space-y-4">
-        <h2 className="text-lg font-semibold text-text-primary">Save Request</h2>
+      <div className="bg-bg-secondary/95 border border-stroke rounded-2xl p-6 w-96 space-y-4 shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur">
+        <div>
+          <div className="text-xs uppercase tracking-[0.3em] text-text-muted">Request</div>
+          <h2 className="text-lg font-semibold text-text-primary mt-1">Save Request</h2>
+        </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
             Request Name
           </label>
           <input
@@ -94,16 +97,16 @@ export function SaveRequestModal({
             }}
             onKeyDown={handleKeyDown}
             placeholder="Request name"
-            className="w-full px-4 py-2 bg-bg-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent text-text-primary"
+            className="w-full px-4 py-2 bg-bg-primary/80 border border-stroke rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 text-text-primary placeholder:text-text-muted/60"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-primary mb-2">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
             Collection
           </label>
           {collections.length === 0 ? (
-            <div className="text-text-muted text-sm p-3 bg-bg-primary rounded border border-bg-tertiary">
+            <div className="text-text-muted text-sm p-3 bg-bg-primary/80 rounded-md border border-stroke">
               No collections yet. Create one first.
             </div>
           ) : (
@@ -113,7 +116,7 @@ export function SaveRequestModal({
                 setSelectedCollectionId(e.target.value);
                 setError('');
               }}
-              className="w-full px-4 py-2 bg-bg-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent text-text-primary"
+              className="w-full px-4 py-2 bg-bg-primary/80 border border-stroke rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 text-text-primary"
             >
               <option value="">Select a collection...</option>
               {collections.map((c) => (

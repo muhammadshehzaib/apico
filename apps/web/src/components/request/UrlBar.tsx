@@ -67,7 +67,7 @@ export function UrlBar({
   }, [onSend]);
 
   return (
-    <div className="bg-bg-secondary border-b border-bg-tertiary p-4 space-y-2">
+    <div className="bg-bg-secondary/90 border-b border-bg-tertiary/60 p-4 space-y-2 backdrop-blur">
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
@@ -88,7 +88,7 @@ export function UrlBar({
           value={url}
           onChange={(e) => onUrlChange(e.target.value)}
           placeholder="Enter request URL"
-          className={`flex-1 px-4 py-2 bg-bg-primary border rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-accent ${urlError ? 'border-danger' : 'border-bg-tertiary focus:border-accent'
+          className={`flex-1 px-4 py-2 bg-bg-primary/80 border rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 ${urlError ? 'border-danger/80' : 'border-stroke focus:border-accent/60'
             }`}
         />
 
@@ -122,7 +122,7 @@ export function UrlBar({
       </div>
 
       {hasVariables && (
-        <div className="text-xs text-text-muted px-4 py-1 bg-bg-primary rounded border border-bg-tertiary">
+        <div className="text-xs text-text-muted px-4 py-1 bg-bg-primary/80 rounded-md border border-stroke">
           Resolves to:{' '}
           <span className="text-text-primary font-mono">{resolvedUrl}</span>
         </div>

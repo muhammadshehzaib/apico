@@ -50,9 +50,9 @@ export default function CollectionsPage() {
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+      <div className="p-8 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold font-heading">Collections</h1>
+        <h1 className="text-3xl font-semibold font-heading">Collections</h1>
         <Button 
           variant="primary" 
           size="md"
@@ -65,7 +65,7 @@ export default function CollectionsPage() {
         </Button>
       </div>
 
-      <div className="bg-bg-secondary border border-bg-tertiary rounded-xl overflow-hidden shadow-glass">
+      <div className="bg-bg-secondary/80 border border-bg-tertiary/60 rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
         {isLoading ? (
           <div className="p-6">
             <SkeletonGroup type="collection-item" count={5} />
@@ -83,9 +83,9 @@ export default function CollectionsPage() {
             }}
           />
         ) : (
-          <div className="divide-y divide-bg-tertiary">
+          <div className="divide-y divide-bg-tertiary/60">
             {collections.map((collection) => (
-              <div key={collection.id} className="p-4 hover:bg-bg-tertiary/50 transition-colors">
+              <div key={collection.id} className="p-4 hover:bg-bg-tertiary/40 transition-colors">
                 <CollectionItem
                   collection={collection}
                   isExpanded={expandedIds.has(collection.id)}

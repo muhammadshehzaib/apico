@@ -38,7 +38,7 @@ export function EnvironmentSelector({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-bg-primary border border-bg-tertiary rounded hover:border-accent transition-colors text-text-primary text-sm font-medium"
+        className="flex items-center gap-2 px-3 py-2 bg-bg-primary/80 border border-stroke rounded-md hover:border-accent/60 transition-colors text-text-primary text-sm font-medium"
         title="Select environment"
       >
         <span>🌍</span>
@@ -47,7 +47,7 @@ export function EnvironmentSelector({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1 bg-bg-secondary border border-bg-tertiary rounded shadow-lg z-50 min-w-[180px]">
+        <div className="absolute right-0 mt-2 bg-bg-secondary/95 border border-stroke rounded-md shadow-[0_20px_50px_rgba(0,0,0,0.45)] z-50 min-w-[180px] backdrop-blur">
           <div className="py-1">
             {environments.map((env) => (
               <button
@@ -56,34 +56,34 @@ export function EnvironmentSelector({
                   onSelect(env.id);
                   setIsOpen(false);
                 }}
-                className="w-full text-left px-4 py-2 text-text-primary hover:bg-bg-tertiary transition-colors flex items-center justify-between text-sm"
+                className="w-full text-left px-4 py-2 text-text-primary hover:bg-bg-tertiary/60 transition-colors flex items-center justify-between text-sm"
               >
                 <span>{env.name}</span>
                 {activeEnvironment?.id === env.id && <span>✓</span>}
               </button>
             ))}
 
-            <div className="border-t border-bg-tertiary my-1" />
+            <div className="border-t border-bg-tertiary/60 my-1" />
 
             <button
               onClick={() => {
                 onSelect(null);
                 setIsOpen(false);
               }}
-              className="w-full text-left px-4 py-2 text-text-muted hover:bg-bg-tertiary hover:text-text-primary transition-colors text-sm flex items-center justify-between"
+              className="w-full text-left px-4 py-2 text-text-muted hover:bg-bg-tertiary/60 hover:text-text-primary transition-colors text-sm flex items-center justify-between"
             >
               <span>✕ No Environment</span>
               {!activeEnvironment && <span>✓</span>}
             </button>
 
-            <div className="border-t border-bg-tertiary my-1" />
+            <div className="border-t border-bg-tertiary/60 my-1" />
 
             <button
               onClick={() => {
                 onManage();
                 setIsOpen(false);
               }}
-              className="w-full text-left px-4 py-2 text-accent hover:bg-bg-tertiary transition-colors text-sm"
+              className="w-full text-left px-4 py-2 text-accent hover:bg-bg-tertiary/60 transition-colors text-sm"
             >
               ⚙ Manage Environments
             </button>

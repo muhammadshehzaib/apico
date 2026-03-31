@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -14,10 +14,30 @@ html {
   scroll-behavior: smooth;
 }
 
+:root {
+  --bg-primary: #0b0d10;
+  --bg-secondary: #12141a;
+  --bg-tertiary: #181c25;
+  --bg-elevated: #1e2430;
+  --text-primary: #e6e9ef;
+  --text-muted: #9aa4b2;
+  --border: #232a36;
+  --accent: #3a86ff;
+  --accent-soft: #5cc8ff;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --info: #22d3ee;
+  --danger: #ef4444;
+}
+
 body {
-  background-color: #0f0f0f;
-  color: #f1f1f1;
-  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Space Grotesk', sans-serif;
+  background-image:
+    radial-gradient(1200px 600px at 10% -20%, rgba(58, 134, 255, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 90% -10%, rgba(34, 197, 94, 0.12), transparent 55%);
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -31,7 +51,7 @@ body {
 
 /* Focus visible styles */
 :focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -40,7 +60,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -50,14 +70,14 @@ select:focus-visible {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
+  background: var(--bg-tertiary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a3a3a;
+  background: var(--bg-elevated);
 }

@@ -63,8 +63,11 @@ export function RenameModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-bg-secondary border border-bg-tertiary rounded-lg p-6 w-96 space-y-4">
-        <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
+      <div className="bg-bg-secondary/95 border border-stroke rounded-2xl p-6 w-96 space-y-4 shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur">
+        <div>
+          <div className="text-xs uppercase tracking-[0.3em] text-text-muted">Rename</div>
+          <h2 className="text-lg font-semibold text-text-primary mt-1">{title}</h2>
+        </div>
 
         <input
           ref={inputRef}
@@ -75,7 +78,7 @@ export function RenameModal({
             setError('');
           }}
           onKeyDown={handleKeyDown}
-          className="w-full px-4 py-2 bg-bg-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent text-text-primary"
+          className="w-full px-4 py-2 bg-bg-primary/80 border border-stroke rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 text-text-primary"
         />
 
         {error && <div className="text-danger text-sm">{error}</div>}

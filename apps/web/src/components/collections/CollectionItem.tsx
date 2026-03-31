@@ -53,7 +53,7 @@ export function CollectionItem({
 
   return (
     <div className="space-y-1" ref={menuRef}>
-      <div className="flex items-center gap-2 h-8 rounded hover:bg-bg-tertiary transition-colors group">
+      <div className="flex items-center gap-2 h-9 rounded-md hover:bg-bg-tertiary/60 transition-colors group border border-transparent hover:border-stroke/60 px-1">
         <button
           onClick={handleToggle}
           className="px-1 text-text-muted hover:text-text-primary transition-colors flex-shrink-0"
@@ -71,7 +71,7 @@ export function CollectionItem({
         </button>
 
         {collection.requests.length > 0 && (
-          <span className="text-xs px-1.5 py-0.5 bg-bg-tertiary text-text-muted rounded-full flex-shrink-0">
+          <span className="text-xs px-1.5 py-0.5 bg-bg-tertiary/70 text-text-muted rounded-full border border-stroke flex-shrink-0">
             {collection.requests.length}
           </span>
         )}
@@ -91,14 +91,14 @@ export function CollectionItem({
 
       {showMenu && !showConfirm && (
         <div className="flex justify-end pr-1">
-          <div className="bg-bg-secondary border border-bg-tertiary rounded shadow-lg min-w-max">
+          <div className="bg-bg-secondary/95 border border-stroke rounded-md shadow-[0_20px_50px_rgba(0,0,0,0.45)] min-w-max backdrop-blur">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onRename();
                 setShowMenu(false);
               }}
-              className="block w-full text-left px-4 py-2 text-text-primary hover:bg-bg-tertiary text-sm transition-colors"
+              className="block w-full text-left px-4 py-2 text-text-primary hover:bg-bg-tertiary/60 text-sm transition-colors"
             >
               Rename
             </button>
@@ -107,7 +107,7 @@ export function CollectionItem({
                 e.stopPropagation();
                 setShowConfirm(true);
               }}
-              className="block w-full text-left px-4 py-2 text-danger hover:bg-bg-tertiary text-sm transition-colors"
+              className="block w-full text-left px-4 py-2 text-danger hover:bg-bg-tertiary/60 text-sm transition-colors"
             >
               Delete
             </button>
@@ -117,7 +117,7 @@ export function CollectionItem({
 
       {showConfirm && (
         <div className="flex justify-end pr-1">
-          <div className="bg-bg-secondary border border-danger rounded shadow-lg p-2 min-w-max">
+          <div className="bg-bg-secondary/95 border border-danger/60 rounded-md shadow-[0_20px_50px_rgba(0,0,0,0.45)] p-2 min-w-max backdrop-blur">
             <div className="text-xs text-text-primary mb-2 whitespace-nowrap">
               Delete "{collection.name}"?
             </div>
@@ -127,7 +127,7 @@ export function CollectionItem({
                   e.stopPropagation();
                   setShowConfirm(false);
                 }}
-                className="px-2 py-1 text-xs bg-bg-tertiary text-text-primary rounded hover:bg-bg-primary transition-colors"
+                className="px-2 py-1 text-xs bg-bg-tertiary/70 text-text-primary rounded-md hover:bg-bg-tertiary transition-colors"
               >
                 No
               </button>
@@ -138,7 +138,7 @@ export function CollectionItem({
                   setShowMenu(false);
                   setShowConfirm(false);
                 }}
-                className="px-2 py-1 text-xs bg-danger text-white rounded hover:bg-red-600 transition-colors"
+                className="px-2 py-1 text-xs bg-danger text-white rounded-md hover:bg-danger/90 transition-colors"
               >
                 Yes
               </button>
@@ -148,7 +148,7 @@ export function CollectionItem({
       )}
 
       {isExpanded && (
-        <div className="space-y-1 pl-6 border-l border-bg-tertiary">
+        <div className="space-y-1 pl-6 border-l border-bg-tertiary/60">
           {collection.isLoadingRequests ? (
             <div className="py-2">
               <SkeletonGroup type="collection-item" count={2} />

@@ -241,7 +241,7 @@ export function RequestBuilder() {
             {/* Draggable divider */}
             <div
               onMouseDown={handleDividerMouseDown}
-              className="relative flex items-center justify-center bg-bg-tertiary border-t border-b border-bg-tertiary flex-shrink-0 group"
+              className="relative flex items-center justify-center bg-bg-tertiary/70 border-t border-b border-bg-tertiary/60 flex-shrink-0 group"
               style={{ height: 8, cursor: 'row-resize' }}
               title="Drag to resize"
             >

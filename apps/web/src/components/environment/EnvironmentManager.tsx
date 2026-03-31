@@ -119,16 +119,19 @@ export function EnvironmentManager({
     <>
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-black/40 z-40"
+        className="fixed inset-0 bg-black/50 z-40"
       />
 
       <div
         ref={panelRef}
-        className="fixed right-0 top-0 h-screen w-full max-w-2xl bg-bg-secondary border-l border-bg-tertiary z-50 flex flex-col overflow-hidden transform transition-transform duration-300"
+        className="fixed right-0 top-0 h-screen w-full max-w-2xl bg-bg-secondary/95 border-l border-stroke z-50 flex flex-col overflow-hidden transform transition-transform duration-300 shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-bg-tertiary flex-shrink-0">
-          <h2 className="text-xl font-bold text-text-primary">Environments</h2>
+        <div className="flex items-center justify-between p-6 border-b border-bg-tertiary/60 flex-shrink-0">
+          <div>
+            <div className="text-xs uppercase tracking-[0.3em] text-text-muted">Environment</div>
+            <h2 className="text-xl font-semibold text-text-primary mt-1">Environments</h2>
+          </div>
           <button
             onClick={onClose}
             className="text-text-muted hover:text-text-primary text-2xl font-bold transition-colors"
@@ -139,17 +142,17 @@ export function EnvironmentManager({
 
         <div className="flex flex-1 overflow-hidden">
           {/* Environment list (left) */}
-          <div className="w-48 bg-bg-primary border-r border-bg-tertiary overflow-auto p-4 space-y-2">
-            <h3 className="text-xs font-bold text-text-muted uppercase mb-3">
+          <div className="w-52 bg-bg-primary/80 border-r border-bg-tertiary/60 overflow-auto p-4 space-y-2">
+            <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em] mb-3">
               Your Environments
             </h3>
 
             {environments.map((env) => (
               <div
                 key={env.id}
-                className={`p-2 rounded transition-colors group ${selectedEnvId === env.id
-                  ? 'bg-bg-secondary border-l-2 border-accent'
-                  : 'hover:bg-bg-secondary'
+                className={`p-2 rounded-md transition-colors group border ${selectedEnvId === env.id
+                  ? 'bg-bg-secondary/80 border-accent/50'
+                  : 'border-transparent hover:bg-bg-secondary/70 hover:border-stroke/60'
                   }`}
               >
                 <button
@@ -169,31 +172,31 @@ export function EnvironmentManager({
                       setRenameTarget({ id: env.id, name: env.name });
                       setRenameModalOpen(true);
                     }}
-                    className="text-xs px-2 py-1 bg-bg-tertiary text-text-muted hover:text-text-primary rounded transition-colors"
+                    className="text-xs px-2 py-1 bg-bg-tertiary/70 text-text-muted hover:text-text-primary rounded-md transition-colors"
                   >
                     Rename
                   </button>
                   <button
                     onClick={() => setDeleteConfirm(env.id)}
-                    className="text-xs px-2 py-1 bg-danger/20 text-danger hover:bg-danger/30 rounded transition-colors"
+                    className="text-xs px-2 py-1 bg-danger/20 text-danger hover:bg-danger/30 rounded-md transition-colors"
                   >
                     Delete
                   </button>
                 </div>
 
                 {deleteConfirm === env.id && (
-                  <div className="mt-2 p-2 bg-danger/10 border border-danger rounded text-xs space-y-2">
+                  <div className="mt-2 p-2 bg-danger/10 border border-danger/60 rounded-md text-xs space-y-2">
                     <p className="text-danger">Delete "{env.name}"?</p>
                     <div className="flex gap-1">
                       <button
                         onClick={() => setDeleteConfirm(null)}
-                        className="flex-1 px-2 py-1 bg-bg-tertiary text-text-primary rounded hover:bg-bg-secondary transition-colors"
+                        className="flex-1 px-2 py-1 bg-bg-tertiary/70 text-text-primary rounded-md hover:bg-bg-tertiary transition-colors"
                       >
                         No
                       </button>
                       <button
                         onClick={() => handleDeleteEnvironment(env.id)}
-                        className="flex-1 px-2 py-1 bg-danger text-white rounded hover:bg-red-600 transition-colors"
+                        className="flex-1 px-2 py-1 bg-danger text-white rounded-md hover:bg-danger/90 transition-colors"
                       >
                         Yes
                       </button>
@@ -214,7 +217,7 @@ export function EnvironmentManager({
           </div>
 
           {/* Variable editor (right) */}
-          <div className="flex-1 overflow-auto bg-bg-primary p-6">
+          <div className="flex-1 overflow-auto bg-bg-primary/80 p-6">
             {selectedEnv ? (
               <div>
                 <h3 className="text-lg font-semibold text-text-primary mb-4">

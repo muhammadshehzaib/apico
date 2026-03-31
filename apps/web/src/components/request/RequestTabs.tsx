@@ -91,25 +91,25 @@ export function RequestTabs({
   const tabs = getTabs(params, headers, body, auth, preRequestScript);
 
   return (
-    <div className="flex flex-col h-full bg-bg-secondary">
-      <div className="flex border-b border-bg-tertiary">
+    <div className="flex flex-col h-full bg-bg-secondary/90">
+      <div className="flex border-b border-bg-tertiary/60">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id as any)}
-            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors relative ${activeTab === tab.id
+            className={`px-4 py-3 text-sm font-semibold border-b-2 transition-all relative ${activeTab === tab.id
                 ? 'text-text-primary border-accent'
                 : 'text-text-muted border-transparent hover:text-text-primary'
               }`}
           >
             {tab.label}
             {tab.count && (
-              <span className="ml-2 inline-block bg-bg-tertiary text-text-muted text-xs px-1.5 py-0.5 rounded">
+              <span className="ml-2 inline-block bg-bg-tertiary/70 text-text-muted text-xs px-1.5 py-0.5 rounded-full border border-stroke">
                 {tab.count}
               </span>
             )}
             {tab.hasContent && !tab.count && (
-              <span className="ml-2 inline-block w-2 h-2 bg-accent rounded-full" />
+              <span className="ml-2 inline-block w-2 h-2 bg-accent rounded-full shadow-[0_0_10px_rgba(58,134,255,0.6)]" />
             )}
           </button>
         ))}

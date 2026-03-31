@@ -7,7 +7,7 @@ interface ToastProps {
 }
 
 export function Toast({ message, type, isVisible }: ToastProps) {
-  const bgColor = type === 'success' ? 'bg-success' : 'bg-danger';
+  const bgColor = type === 'success' ? 'bg-success/15 text-success border-success/40' : 'bg-danger/15 text-danger border-danger/40';
 
   return (
     <div
@@ -15,7 +15,7 @@ export function Toast({ message, type, isVisible }: ToastProps) {
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
       }`}
     >
-      <div className={`${bgColor} text-white px-4 py-3 rounded text-sm font-medium shadow-lg`}>
+      <div className={`${bgColor} border px-4 py-3 rounded-md text-sm font-semibold shadow-[0_16px_40px_rgba(0,0,0,0.35)]`}>
         {message}
       </div>
     </div>
