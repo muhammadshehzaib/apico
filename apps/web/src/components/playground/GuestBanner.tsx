@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/Button';
 
 export function GuestBanner() {
   return (
-    <div className="m-4 p-4 bg-bg-primary border border-bg-tertiary rounded-lg">
+    <div className="m-4 p-4 bg-bg-primary/80 border border-stroke rounded-xl">
       <h3 className="text-sm font-semibold text-text-primary mb-1">
-        💾 Save your work
+        Save your work
       </h3>
       <p className="text-xs text-text-muted mb-3">
         Create a free account to save requests, share links, and more.
@@ -23,7 +23,7 @@ export function GuestBanner() {
         <span className="text-xs text-text-muted">Already have an account? </span>
         <Link
           href="/login"
-          className="text-xs text-accent hover:text-blue-400 transition-colors font-medium"
+          className="text-xs text-accent hover:text-accentSoft transition-colors font-medium"
         >
           Login
         </Link>

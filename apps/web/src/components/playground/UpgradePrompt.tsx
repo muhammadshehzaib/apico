@@ -42,7 +42,7 @@ export function UpgradePrompt({
 
       <div
         ref={promptRef}
-        className="fixed z-40 bg-bg-secondary border-2 border-accent rounded-lg p-4 w-72 shadow-lg animate-in fade-in slide-in-from-bottom-2"
+        className="fixed z-40 bg-bg-secondary/95 border border-accent/50 rounded-xl p-4 w-72 shadow-[0_24px_60px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-bottom-2 backdrop-blur"
         style={{
           top: '50%',
           left: '50%',
@@ -51,7 +51,7 @@ export function UpgradePrompt({
       >
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-sm font-semibold text-text-primary">
-            🔒 Sign up to {feature}
+            Sign up to {feature}
           </h3>
           <button
             onClick={onClose}

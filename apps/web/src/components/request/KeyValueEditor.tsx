@@ -46,7 +46,7 @@ export function KeyValueEditor({
         {pairs.map((pair, index) => (
           <div
             key={index}
-            className={`flex items-center gap-2 p-2 bg-bg-primary rounded transition-opacity ${!pair.enabled ? 'opacity-40' : ''
+            className={`flex items-center gap-2 p-2 bg-bg-primary/80 border border-stroke rounded-md transition-opacity ${!pair.enabled ? 'opacity-40' : ''
               }`}
           >
             <input
@@ -61,7 +61,7 @@ export function KeyValueEditor({
               value={pair.key}
               onChange={(e) => handleKeyChange(index, e.target.value)}
               placeholder={placeholder.key}
-              className="flex-1 px-3 py-1.5 bg-bg-secondary border border-bg-tertiary rounded text-sm focus:outline-none focus:border-accent"
+              className="flex-1 px-3 py-1.5 bg-bg-secondary/80 border border-stroke rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/60"
             />
 
             <input
@@ -69,7 +69,7 @@ export function KeyValueEditor({
               value={pair.value}
               onChange={(e) => handleValueChange(index, e.target.value)}
               placeholder={placeholder.value}
-              className="flex-1 px-3 py-1.5 bg-bg-secondary border border-bg-tertiary rounded text-sm focus:outline-none focus:border-accent"
+              className="flex-1 px-3 py-1.5 bg-bg-secondary/80 border border-stroke rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/60"
             />
 
             <button
@@ -85,7 +85,7 @@ export function KeyValueEditor({
 
       <button
         onClick={handleAddRow}
-        className="px-4 py-2 text-accent hover:text-blue-400 text-sm font-medium transition-colors flex-shrink-0 w-fit"
+        className="px-4 py-2 text-accent hover:text-accentSoft text-sm font-medium transition-colors flex-shrink-0 w-fit"
       >
         + Add row
       </button>
