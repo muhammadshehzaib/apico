@@ -72,6 +72,20 @@ describe('Environment CRUD API', () => {
     expect(res.body.data.id).toBe(envId);
   });
 
+  it('should fetch an environment by id via workspace route', async () => {
+    const owner = await createUser();
+    const workspaceId = await createWorkspace(owner.accessToken);
+    const envId = await createEnvironment(owner.accessToken, workspaceId);
+
+    const res = await request(app)
+      .get(`/api/workspaces/${workspaceId}/environments/${envId}`)
+      .set('Authorization', `Bearer ${owner.accessToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(envId);
+  });
+
   it('should update an environment name', async () => {
     const owner = await createUser();
     const workspaceId = await createWorkspace(owner.accessToken);
@@ -87,6 +101,21 @@ describe('Environment CRUD API', () => {
     expect(res.body.data.name).toBe('Env Updated');
   });
 
+  it('should update an environment name via workspace route', async () => {
+    const owner = await createUser();
+    const workspaceId = await createWorkspace(owner.accessToken);
+    const envId = await createEnvironment(owner.accessToken, workspaceId);
+
+    const res = await request(app)
+      .put(`/api/workspaces/${workspaceId}/environments/${envId}`)
+      .set('Authorization', `Bearer ${owner.accessToken}`)
+      .send({ name: 'Env Updated (Workspace Route)' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.name).toBe('Env Updated (Workspace Route)');
+  });
+
   it('should delete an environment', async () => {
     const owner = await createUser();
     const workspaceId = await createWorkspace(owner.accessToken);
@@ -98,5 +127,41 @@ describe('Environment CRUD API', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
+  });
+
+  it('should delete an environment via workspace route', async () => {
+    const owner = await createUser();
+    const workspaceId = await createWorkspace(owner.accessToken);
+    const envId = await createEnvironment(owner.accessToken, workspaceId);
+
+    const res = await request(app)
+      .delete(`/api/workspaces/${workspaceId}/environments/${envId}`)
+      .set('Authorization', `Bearer ${owner.accessToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should reject creating environment without workspaceId on base route', async () => {
+    const owner = await createUser();
+
+    const res = await request(app)
+      .post('/api/environments')
+      .set('Authorization', `Bearer ${owner.accessToken}`)
+      .send({ name: 'Env Base Route' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('should reject listing environments without workspaceId on base route', async () => {
+    const owner = await createUser();
+
+    const res = await request(app)
+      .get('/api/environments')
+      .set('Authorization', `Bearer ${owner.accessToken}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
   });
 });
