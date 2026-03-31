@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CreateWorkspaceModal } from '@/components/workspace/CreateWorkspaceModal';
+import { PendingInvitesBanner } from '@/components/workspace/PendingInvitesBanner';
 import Link from 'next/link';
 
 export default function WorkspacesPage() {
@@ -61,6 +62,13 @@ export default function WorkspacesPage() {
           Create Workspace
         </Button>
       </div>
+
+      <PendingInvitesBanner
+        onInviteAccepted={async () => {
+          const data = await workspaceService.getWorkspaces();
+          setWorkspaces(data);
+        }}
+      />
 
       {workspaces.length === 0 ? (
         <EmptyState

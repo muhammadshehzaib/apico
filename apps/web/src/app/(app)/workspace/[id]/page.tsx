@@ -11,11 +11,14 @@ import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { CreateCollectionModal } from '@/components/collections/CreateCollectionModal';
 import { InviteWorkspaceModal } from '@/components/workspace/InviteWorkspaceModal';
+import { WorkspaceMembersModal } from '@/components/workspace/WorkspaceMembersModal';
+import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 
 export default function WorkspaceDetailPage() {
   const params = useParams();
   const dispatch = useDispatch();
+  const { user } = useAuth();
   const id = params.id as string;
 
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
@@ -25,6 +28,7 @@ export default function WorkspaceDetailPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isInviting, setIsInviting] = useState(false);
+  const [isMembersOpen, setIsMembersOpen] = useState(false);
 
   useEffect(() => {
     dispatch(setActiveWorkspace(id));
@@ -112,6 +116,9 @@ export default function WorkspaceDetailPage() {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">Collections</h2>
           <div className="flex gap-2">
+            <Button variant="secondary" size="md" onClick={() => setIsMembersOpen(true)}>
+              Members
+            </Button>
             {canInvite && (
               <Button variant="secondary" size="md" onClick={() => setIsInviteOpen(true)}>
                 Invite
@@ -172,6 +179,13 @@ export default function WorkspaceDetailPage() {
         onClose={() => setIsInviteOpen(false)}
         onConfirm={handleInvite}
         isLoading={isInviting}
+      />
+      <WorkspaceMembersModal
+        isOpen={isMembersOpen}
+        onClose={() => setIsMembersOpen(false)}
+        workspaceId={id}
+        currentUserRole={workspace.role || WorkspaceRole.OWNER}
+        currentUserId={user?.id || ''}
       />
     </div>
   );
