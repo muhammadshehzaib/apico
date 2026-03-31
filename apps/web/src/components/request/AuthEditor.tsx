@@ -29,7 +29,7 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
   return (
     <div className="p-4 space-y-6 h-full overflow-auto">
       <div>
-        <label className="block text-sm font-medium text-text-primary mb-3">
+        <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
           Authentication Type
         </label>
         <div className="flex gap-3 flex-wrap">
@@ -37,9 +37,9 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
             <button
               key={type}
               onClick={() => handleTypeChange(type)}
-              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${auth.type === type
-                  ? 'bg-accent text-white'
-                  : 'bg-bg-secondary text-text-muted hover:text-text-primary'
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors border ${auth.type === type
+                  ? 'bg-accent/15 text-accent border-accent/40'
+                  : 'bg-bg-secondary/80 text-text-muted border-stroke hover:text-text-primary'
                 }`}
             >
               {type === 'none'
@@ -56,14 +56,14 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
 
       {auth.type === 'bearer' && (
         <div className="w-full">
-          <label className="block text-sm font-medium text-text-primary mb-2">Token</label>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Token</label>
           <div className="relative">
             <input
               type={showBearerToken ? 'text' : 'password'}
               value={auth.token || ''}
               onChange={(e) => onChange({ ...auth, token: e.target.value })}
               placeholder="Your bearer token"
-              className="w-full px-4 py-2 bg-bg-secondary text-text-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent pr-16"
+              className="w-full px-4 py-2 bg-bg-secondary/80 text-text-primary border border-stroke rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 pr-16"
             />
             <button
               type="button"
@@ -86,14 +86,14 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
             placeholder="Username"
           />
           <div className="w-full">
-            <label className="block text-sm font-medium text-text-primary mb-2">Password</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Password</label>
             <div className="relative">
               <input
                 type={showBasicPassword ? 'text' : 'password'}
                 value={auth.password || ''}
                 onChange={(e) => onChange({ ...auth, password: e.target.value })}
                 placeholder="Password"
-                className="w-full px-4 py-2 bg-bg-secondary text-text-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent pr-16"
+                className="w-full px-4 py-2 bg-bg-secondary/80 text-text-primary border border-stroke rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 pr-16"
               />
               <button
                 type="button"
@@ -117,14 +117,14 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
             placeholder="e.g., X-API-Key"
           />
           <div className="w-full">
-            <label className="block text-sm font-medium text-text-primary mb-2">Key Value</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Key Value</label>
             <div className="relative">
               <input
                 type={showApiKeyValue ? 'text' : 'password'}
                 value={auth.apiValue || ''}
                 onChange={(e) => onChange({ ...auth, apiValue: e.target.value })}
                 placeholder="Your API key"
-                className="w-full px-4 py-2 bg-bg-secondary text-text-primary border border-bg-tertiary rounded focus:outline-none focus:ring-2 focus:ring-accent pr-16"
+                className="w-full px-4 py-2 bg-bg-secondary/80 text-text-primary border border-stroke rounded-md focus:outline-none focus:ring-2 focus:ring-accent/30 pr-16"
               />
               <button
                 type="button"
@@ -136,7 +136,7 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-text-primary mb-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">
               Add to
             </label>
             <div className="flex gap-4">

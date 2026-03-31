@@ -46,18 +46,18 @@ export function BodyEditor({ body, onChange }: BodyEditorProps) {
       <div className="flex gap-2 items-center flex-shrink-0">
         <button
           onClick={() => setMode('json')}
-          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${mode === 'json'
-              ? 'bg-accent text-white'
-              : 'bg-bg-secondary text-text-muted hover:text-text-primary'
+          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors border ${mode === 'json'
+              ? 'bg-accent/15 text-accent border-accent/40'
+              : 'bg-bg-secondary/80 text-text-muted border-stroke hover:text-text-primary'
             }`}
         >
           JSON
         </button>
         <button
           onClick={() => setMode('raw')}
-          className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${mode === 'raw'
-              ? 'bg-accent text-white'
-              : 'bg-bg-secondary text-text-muted hover:text-text-primary'
+          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors border ${mode === 'raw'
+              ? 'bg-accent/15 text-accent border-accent/40'
+              : 'bg-bg-secondary/80 text-text-muted border-stroke hover:text-text-primary'
             }`}
         >
           Raw
@@ -66,7 +66,7 @@ export function BodyEditor({ body, onChange }: BodyEditorProps) {
         {mode === 'json' && (
           <button
             onClick={handleFormat}
-            className="ml-auto px-3 py-1.5 rounded text-sm font-medium bg-bg-secondary text-text-muted hover:text-text-primary transition-colors"
+            className="ml-auto px-3 py-1.5 rounded-md text-sm font-medium bg-bg-secondary/80 text-text-muted hover:text-text-primary transition-colors border border-stroke"
           >
             Format
           </button>
@@ -77,7 +77,7 @@ export function BodyEditor({ body, onChange }: BodyEditorProps) {
         value={body}
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Enter request body..."
-        className={`w-full p-3 bg-bg-primary border rounded font-mono text-sm focus:outline-none focus:ring-2 focus:ring-accent flex-1 min-h-0 ${isInvalidJson ? 'border-danger' : 'border-bg-tertiary'
+        className={`w-full p-3 bg-bg-primary/80 border rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 flex-1 min-h-0 ${isInvalidJson ? 'border-danger/80' : 'border-stroke'
           }`}
       />
 
