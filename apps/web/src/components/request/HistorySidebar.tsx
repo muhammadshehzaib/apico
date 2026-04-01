@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { RequestHistory, HttpMethod, SavedRequest } from '@/types';
@@ -43,11 +43,43 @@ export function HistorySidebar({
 }: HistorySidebarProps) {
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [methodFilters, setMethodFilters] = useState<Set<HttpMethod>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<'all' | '2xx' | '3xx' | '4xx' | '5xx'>('all');
+  const [timeFilter, setTimeFilter] = useState<'all' | '24h' | '7d' | '30d'>('all');
   const { showToast, ...toastProps } = useToast();
   const activeWorkspaceId = useSelector(
     (state: RootState) => state.workspace.activeWorkspaceId
   );
   const { collections } = useCollections(activeWorkspaceId);
+
+  const filteredHistory = useMemo(() => {
+    const now = Date.now();
+    const timeWindowMs = (() => {
+      if (timeFilter === '24h') return 24 * 60 * 60 * 1000;
+      if (timeFilter === '7d') return 7 * 24 * 60 * 60 * 1000;
+      if (timeFilter === '30d') return 30 * 24 * 60 * 60 * 1000;
+      return null;
+    })();
+
+    return history.filter((item) => {
+      if (methodFilters.size > 0 && !methodFilters.has(item.method)) {
+        return false;
+      }
+
+      if (statusFilter !== 'all') {
+        if (!item.statusCode) return false;
+        const bucket = `${Math.floor(item.statusCode / 100)}xx`;
+        if (bucket !== statusFilter) return false;
+      }
+
+      if (timeWindowMs) {
+        const ts = new Date(item.createdAt).getTime();
+        if (!ts || now - ts > timeWindowMs) return false;
+      }
+
+      return true;
+    });
+  }, [history, methodFilters, statusFilter, timeFilter]);
 
   const handleSaveRequest = async (collectionId: string, name: string) => {
     setIsSaving(true);
@@ -117,13 +149,82 @@ export function HistorySidebar({
             History
           </h2>
 
+          <div className="space-y-3 mb-4">
+            <div className="flex flex-wrap gap-2">
+              {Object.values(HttpMethod).map((method) => {
+                const active = methodFilters.has(method);
+                return (
+                  <button
+                    key={method}
+                    onClick={() =>
+                      setMethodFilters((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(method)) {
+                          next.delete(method);
+                        } else {
+                          next.add(method);
+                        }
+                        return next;
+                      })
+                    }
+                    className={`text-[10px] px-2 py-1 rounded-full border ${
+                      active
+                        ? 'bg-accent/20 text-accent border-accent/40'
+                        : 'bg-bg-tertiary/60 text-text-muted border-stroke'
+                    }`}
+                  >
+                    {method}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="text-[11px] px-2 py-1 bg-bg-secondary border border-stroke rounded-md text-text-primary"
+              >
+                <option value="all">All Status</option>
+                <option value="2xx">2xx</option>
+                <option value="3xx">3xx</option>
+                <option value="4xx">4xx</option>
+                <option value="5xx">5xx</option>
+              </select>
+
+              <select
+                value={timeFilter}
+                onChange={(e) => setTimeFilter(e.target.value as any)}
+                className="text-[11px] px-2 py-1 bg-bg-secondary border border-stroke rounded-md text-text-primary"
+              >
+                <option value="all">All Time</option>
+                <option value="24h">Last 24h</option>
+                <option value="7d">Last 7d</option>
+                <option value="30d">Last 30d</option>
+              </select>
+
+              {(methodFilters.size > 0 || statusFilter !== 'all' || timeFilter !== 'all') && (
+                <button
+                  onClick={() => {
+                    setMethodFilters(new Set());
+                    setStatusFilter('all');
+                    setTimeFilter('all');
+                  }}
+                  className="text-[11px] text-text-muted hover:text-text-primary"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
           {isLoading ? (
             <SkeletonGroup type="list-item" count={2} />
-          ) : history.length === 0 ? (
+          ) : filteredHistory.length === 0 ? (
             <p className="text-xs text-text-muted text-center py-4">No history yet</p>
           ) : (
             <div className="space-y-1">
-              {history.map((item) => (
+              {filteredHistory.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onLoadRequest(item)}

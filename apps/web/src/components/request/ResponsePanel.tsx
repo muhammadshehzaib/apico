@@ -8,11 +8,12 @@ import { formatDuration, formatBytes } from '@/utils/format.util';
 
 interface ResponsePanelProps {
   response: ExecuteRequestResult | null;
+  previousResponse?: ExecuteRequestResult | null;
   isLoading: boolean;
   error: string | null;
 }
 
-export function ResponsePanel({ response, isLoading, error }: ResponsePanelProps) {
+export function ResponsePanel({ response, previousResponse, isLoading, error }: ResponsePanelProps) {
   if (isLoading) {
     return (
       <div className="h-full bg-bg-primary/90">
@@ -53,7 +54,12 @@ export function ResponsePanel({ response, isLoading, error }: ResponsePanelProps
       </div>
 
       <div className="flex-1 overflow-auto">
-        <ResponseViewer body={response.body} headers={response.headers} />
+        <ResponseViewer
+          body={response.body}
+          headers={response.headers}
+          previousBody={previousResponse?.body || null}
+          previousHeaders={previousResponse?.headers || null}
+        />
       </div>
     </div>
   );

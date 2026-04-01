@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useRequestBuilder } from '@/hooks/useRequestBuilder';
 import { useRequestHistory } from '@/hooks/useRequestHistory';
 import { useEnvironment } from '@/hooks/useEnvironment';
@@ -17,11 +18,21 @@ import { RequestTabs } from './RequestTabs';
 import { ResponsePanel } from './ResponsePanel';
 import { HistorySidebar } from './HistorySidebar';
 import { useToast } from '@/hooks/useToast';
+import { useCollections } from '@/hooks/useCollections';
+import { CommandPalette, CommandPaletteItem } from '@/components/ui/CommandPalette';
+import { PinnedTabs } from '@/components/request/PinnedTabs';
 
 export function RequestBuilder() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [isCurlModalOpen, setIsCurlModalOpen] = useState(false);
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  const [paletteQuery, setPaletteQuery] = useState('');
+  const [paletteResults, setPaletteResults] = useState<SavedRequest[]>([]);
+  const [isPaletteSearching, setIsPaletteSearching] = useState(false);
+  const [pinnedRequests, setPinnedRequests] = useState<SavedRequest[]>([]);
+  const [activeSavedRequestId, setActiveSavedRequestId] = useState<string | null>(null);
   const { showToast } = useToast();
+  const router = useRouter();
 
   // Draggable divider state
   const [requestPanelHeight, setRequestPanelHeight] = useState(192);
@@ -63,6 +74,8 @@ export function RequestBuilder() {
   }, []);
   const activeWorkspaceId = useSelector((state: RootState) => state.workspace.activeWorkspaceId);
 
+  const { collections, searchRequests } = useCollections(activeWorkspaceId);
+
   const {
     method,
     url,
@@ -75,6 +88,7 @@ export function RequestBuilder() {
     activeTab,
     isLoading,
     response,
+    previousResponse,
     error,
     urlError,
     activeVariables,
@@ -125,6 +139,11 @@ export function RequestBuilder() {
     if ('auth' in request) {
       setAuth((request as SavedRequest).auth || { type: 'none' });
     }
+    if ('collectionId' in request) {
+      setActiveSavedRequestId(request.id);
+    } else {
+      setActiveSavedRequestId(null);
+    }
   };
 
   const handleSaveRequest = async (collectionId: string, data: SaveRequestInput) => {
@@ -143,6 +162,55 @@ export function RequestBuilder() {
     fetchHistory();
   }, [fetchHistory]);
 
+  useEffect(() => {
+    if (!activeWorkspaceId) return;
+    const key = `apico_pinned_requests_${activeWorkspaceId}`;
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw) as SavedRequest[];
+        setPinnedRequests(parsed);
+      } else {
+        setPinnedRequests([]);
+      }
+    } catch {
+      setPinnedRequests([]);
+    }
+  }, [activeWorkspaceId]);
+
+  useEffect(() => {
+    if (!activeWorkspaceId) return;
+    const key = `apico_pinned_requests_${activeWorkspaceId}`;
+    try {
+      localStorage.setItem(key, JSON.stringify(pinnedRequests));
+    } catch {
+      // ignore
+    }
+  }, [activeWorkspaceId, pinnedRequests]);
+
+  useEffect(() => {
+    if (!isPaletteOpen) return;
+    const query = paletteQuery.trim();
+    if (!query) {
+      setPaletteResults([]);
+      return;
+    }
+
+    setIsPaletteSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const results = await searchRequests({ q: query });
+        setPaletteResults(results || []);
+      } catch {
+        setPaletteResults([]);
+      } finally {
+        setIsPaletteSearching(false);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [isPaletteOpen, paletteQuery, searchRequests]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -156,6 +224,11 @@ export function RequestBuilder() {
         e.preventDefault();
         resetAll();
       }
+      // Command palette
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsPaletteOpen(true);
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -167,6 +240,47 @@ export function RequestBuilder() {
     // Refresh history after sending (no-op if unauthenticated)
     fetchHistory();
   }, [sendRequest, fetchHistory]);
+
+  const pinRequest = (request: SavedRequest) => {
+    setPinnedRequests((prev) => {
+      if (prev.find((item) => item.id === request.id)) return prev;
+      return [request, ...prev];
+    });
+  };
+
+  const unpinRequest = (id: string) => {
+    setPinnedRequests((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const paletteItems: CommandPaletteItem[] = (() => {
+    const query = paletteQuery.trim().toLowerCase();
+    const pinnedMap = new Set(pinnedRequests.map((item) => item.id));
+
+    const requestItems = (query ? paletteResults : pinnedRequests).map((request) => ({
+      id: request.id,
+      type: 'request' as const,
+      title: request.name,
+      subtitle: `${request.method} ${request.url}`,
+      pinned: pinnedMap.has(request.id),
+      data: request,
+    }));
+
+    const collectionItems = collections
+      .filter((collection) => {
+        if (!query) return false;
+        return collection.name.toLowerCase().includes(query);
+      })
+      .slice(0, 10)
+      .map((collection) => ({
+        id: collection.id,
+        type: 'collection' as const,
+        title: collection.name,
+        subtitle: 'Collection',
+        data: collection,
+      }));
+
+    return [...requestItems, ...collectionItems];
+  })();
 
   return (
     <div className="flex h-screen bg-bg-primary">
@@ -201,6 +315,16 @@ export function RequestBuilder() {
             onManageEnvironments={openEnvironmentManager}
           />
         </ErrorBoundary>
+
+        <PinnedTabs
+          items={pinnedRequests}
+          activeId={activeSavedRequestId}
+          onSelect={(request) => {
+            handleLoadRequest(request);
+            setActiveSavedRequestId(request.id);
+          }}
+          onUnpin={unpinRequest}
+        />
 
         <div className="flex-1 flex overflow-hidden" ref={containerRef}>
           <div className="flex-1 flex flex-col overflow-hidden min-w-0">
@@ -252,6 +376,7 @@ export function RequestBuilder() {
               <ErrorBoundary>
                 <ResponsePanel
                   response={response}
+                  previousResponse={previousResponse}
                   isLoading={isLoading}
                   error={error}
                 />
@@ -270,6 +395,38 @@ export function RequestBuilder() {
           loadFromCurl(parsed);
           setIsCurlModalOpen(false);
           showToast('Request imported from curl!', 'success');
+        }}
+      />
+
+      <CommandPalette
+        isOpen={isPaletteOpen}
+        query={paletteQuery}
+        items={isPaletteSearching ? [] : paletteItems}
+        isLoading={isPaletteSearching}
+        onQueryChange={setPaletteQuery}
+        onClose={() => {
+          setIsPaletteOpen(false);
+          setPaletteQuery('');
+        }}
+        onSelect={(item) => {
+          if (item.type === 'request') {
+            handleLoadRequest(item.data as SavedRequest);
+            setActiveSavedRequestId(item.id);
+          } else {
+            if (activeWorkspaceId) {
+              router.push(`/workspace/${activeWorkspaceId}/collection/${item.id}`);
+            }
+          }
+          setIsPaletteOpen(false);
+        }}
+        onTogglePin={(item) => {
+          if (item.type !== 'request') return;
+          const request = item.data as SavedRequest;
+          if (pinnedRequests.find((r) => r.id === request.id)) {
+            unpinRequest(request.id);
+          } else {
+            pinRequest(request);
+          }
         }}
       />
     </div>

@@ -72,6 +72,7 @@ export default function PlaygroundPage() {
     activeTab,
     isLoading,
     response,
+    previousResponse,
     error,
     urlError,
     setMethod,
@@ -232,6 +233,7 @@ export default function PlaygroundPage() {
                 <ErrorBoundary>
                   <ResponsePanel
                     response={response}
+                    previousResponse={previousResponse}
                     isLoading={isLoading}
                     error={error}
                   />

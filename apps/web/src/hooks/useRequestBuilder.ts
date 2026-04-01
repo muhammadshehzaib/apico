@@ -57,6 +57,11 @@ const defaultState: RequestState = {
 
 export function useRequestBuilder() {
   const [state, setState] = useState<RequestState>(defaultState);
+  const [responseHistory, setResponseHistory] = useState<Record<string, ExecuteRequestResult[]>>({});
+
+  const getResponseKey = useCallback((method: HttpMethod, url: string) => {
+    return `${method}::${url.trim()}`;
+  }, []);
 
   const {
     runPreRequestScript,
@@ -237,6 +242,12 @@ export function useRequestBuilder() {
 
       setState((prev) => ({ ...prev, response: result, isLoading: false }));
 
+      const responseKey = getResponseKey(state.method, state.url);
+      setResponseHistory((prev) => {
+        const list = [...(prev[responseKey] || []), result].slice(-2);
+        return { ...prev, [responseKey]: list };
+      });
+
       // Run test script if provided
       if (state.postResponseScript.trim()) {
         await runTestScript(
@@ -254,10 +265,17 @@ export function useRequestBuilder() {
       const errorMessage = err instanceof Error ? err.message : 'Request failed';
       setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
     }
-  }, [state, runPreRequestScript, runTestScript]);
+  }, [state, runPreRequestScript, runTestScript, getResponseKey]);
+
+  const responseKey = getResponseKey(state.method, state.url);
+  const previousResponse =
+    responseHistory[responseKey] && responseHistory[responseKey].length > 1
+      ? responseHistory[responseKey][0]
+      : null;
 
   return {
     ...state,
+    previousResponse,
     setMethod,
     setUrl,
     setHeaders,
