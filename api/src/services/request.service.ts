@@ -136,7 +136,13 @@ export const updateSavedRequestService = async (
     }
   }
 
-  return updateSavedRequest(id, data);
+  await updateSavedRequest(id, data);
+  const updated = await findSavedRequestById(id);
+  if (!updated) return updated;
+  return {
+    ...updated,
+    tags: updated.tags.map((tagLink) => tagLink.tag),
+  };
 };
 
 export const deleteSavedRequestService = async (id: string, userId: string) => {

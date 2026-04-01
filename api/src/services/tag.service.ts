@@ -1,4 +1,10 @@
-import { createTag, findTagsByWorkspaceId, updateTag, deleteTag } from '../queries/tag.queries';
+import {
+  createTag,
+  findTagsByWorkspaceId,
+  updateTag,
+  deleteTag,
+  findTagById,
+} from '../queries/tag.queries';
 import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
 import { WorkspaceRole } from '../types';
 
@@ -14,10 +20,22 @@ export const createTagService = async (workspaceId: string, userId: string, name
 
 export const updateTagService = async (workspaceId: string, userId: string, id: string, name: string) => {
   await requireWorkspaceRole(workspaceId, userId, WorkspaceRole.EDITOR);
+  const tag = await findTagById(id);
+  if (!tag || tag.workspaceId !== workspaceId) {
+    const error = new Error('Tag not found');
+    (error as any).statusCode = 404;
+    throw error;
+  }
   return updateTag(id, name);
 };
 
 export const deleteTagService = async (workspaceId: string, userId: string, id: string) => {
   await requireWorkspaceRole(workspaceId, userId, WorkspaceRole.EDITOR);
+  const tag = await findTagById(id);
+  if (!tag || tag.workspaceId !== workspaceId) {
+    const error = new Error('Tag not found');
+    (error as any).statusCode = 404;
+    throw error;
+  }
   return deleteTag(id);
 };

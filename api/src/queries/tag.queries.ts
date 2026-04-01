@@ -12,6 +12,10 @@ export const upsertTag = async (workspaceId: string, name: string) => {
   });
 };
 
+export const findTagById = async (id: string) => {
+  return prisma.tag.findUnique({ where: { id } });
+};
+
 export const findTagsByWorkspaceId = async (workspaceId: string) => {
   return prisma.tag.findMany({
     where: { workspaceId },
