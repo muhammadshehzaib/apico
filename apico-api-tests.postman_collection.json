@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Apico API Tests",
-    "description": "Complete test suite for the Apico REST API testing tool backend. Run this collection to verify all endpoints are working correctly.\n\n## Setup\n1. Import this collection\n2. Import the environment file (apico-local.postman_environment.json)\n3. Select the environment\n4. Run folder '01 - Auth' first\n5. Then run remaining folders in order\n\n## Order Matters!\nFolders must be run in numbered order because each folder depends on variables set by previous folders.\n\n## Expected Results\n~51 requests total\n~120+ assertions total\nAll should pass on a fresh database with backend running on localhost:4000",
+    "description": "Complete test suite for the Apico REST API testing tool backend. Run this collection to verify all endpoints are working correctly.\n\n## Setup\n1. Import this collection\n2. Import the environment file (apico-local.postman_environment.json)\n3. Select the environment\n4. Run folder '01 - Auth' first\n5. Then run remaining folders in order\n\n## Order Matters!\nFolders must be run in numbered order because each folder depends on variables set by previous folders.\n\n## Expected Results\n~72 requests total\nAssertions depend on enabled tests\nAll should pass on a fresh database with backend running on localhost:4000",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "version": "1.0.0"
   },
@@ -27,8 +27,13 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": ["{{BASE_URL}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           },
           "event": [
@@ -95,8 +100,13 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": ["{{BASE_URL}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           },
           "event": [
@@ -133,8 +143,13 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/login",
-              "host": ["{{BASE_URL}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           },
           "event": [
@@ -186,8 +201,13 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/login",
-              "host": ["{{BASE_URL}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           },
           "event": [
@@ -224,8 +244,13 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/refresh",
-              "host": ["{{BASE_URL}}"],
-              "path": ["auth", "refresh"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
             }
           },
           "event": [
@@ -264,8 +289,13 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/auth/logout",
-              "host": ["{{BASE_URL}}"],
-              "path": ["auth", "logout"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
             }
           },
           "event": [
@@ -312,8 +342,12 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces"
+              ]
             }
           },
           "event": [
@@ -359,8 +393,12 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces"
+              ]
             }
           },
           "event": [
@@ -402,8 +440,13 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "{{WORKSPACE_ID}}"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}"
+              ]
             }
           },
           "event": [
@@ -437,8 +480,13 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/invalid-workspace-id-999",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "invalid-workspace-id-999"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "invalid-workspace-id-999"
+              ]
             }
           },
           "event": [
@@ -479,8 +527,14 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "{{WORKSPACE_ID}}", "invite"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "invite"
+              ]
             }
           },
           "event": [
@@ -500,6 +554,202 @@
               }
             }
           ]
+        },
+        {
+          "name": "Get Workspace Members",
+          "description": "Retrieves all members for a workspace.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "members"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Workspace Invites",
+          "description": "Retrieves all invites for a workspace.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invites",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "invites"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Revoke Workspace Invite",
+          "description": "Revokes a pending workspace invite.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invites/{{INVITE_ID}}/revoke",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "invites",
+                "{{INVITE_ID}}",
+                "revoke"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Workspace Member",
+          "description": "Removes a member from the workspace.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "members",
+                "{{MEMBER_USER_ID}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Workspace Member Role",
+          "description": "Updates a workspace member role.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "members",
+                "{{MEMBER_USER_ID}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"role\": \"EDITOR\"}"
+            }
+          }
+        },
+        {
+          "name": "Leave Workspace",
+          "description": "Leaves the current workspace.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/leave",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "leave"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Import Workspace (Apico)",
+          "description": "Imports Apico export payload into the workspace.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/import",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "import"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"format\": \"apico\", \"version\": 1, \"collections\": []}"
+            }
+          }
         }
       ]
     },
@@ -528,8 +778,14 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "collections"
+              ]
             }
           },
           "event": [
@@ -570,8 +826,14 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "collections"
+              ]
             }
           },
           "event": [
@@ -615,8 +877,13 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["collections", "{{COLLECTION_ID}}"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections",
+                "{{COLLECTION_ID}}"
+              ]
             }
           },
           "event": [
@@ -650,8 +917,13 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["collections", "{{COLLECTION_ID}}"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections",
+                "{{COLLECTION_ID}}"
+              ]
             }
           },
           "event": [
@@ -666,6 +938,37 @@
               }
             }
           ]
+        },
+        {
+          "name": "Reorder Collections",
+          "description": "Reorders collections by updating order and folder placement.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/collections/reorder",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections",
+                "reorder"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"items\": [{\"id\": \"{{COLLECTION_ID}}\", \"order\": 1, \"folderId\": null}]}"
+            }
+          }
         }
       ]
     },
@@ -694,8 +997,14 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "collections"
+              ]
             }
           },
           "event": [
@@ -732,9 +1041,15 @@
               "raw": "{\"name\": \"Get All Posts\",\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [{\"key\": \"Accept\",\"value\": \"application/json\",\"enabled\": true}],\"params\": [{\"key\": \"userId\",\"value\": \"1\",\"enabled\": true}],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/requests",
-              "host": ["{{BASE_URL}}"],
-              "path": ["collections", "{{COLLECTION_ID}}", "requests"]
+              "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{COLLECTION_ID}}",
+                "requests"
+              ]
             }
           },
           "event": [
@@ -775,9 +1090,15 @@
               }
             ],
             "url": {
-              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/requests",
-              "host": ["{{BASE_URL}}"],
-              "path": ["collections", "{{COLLECTION_ID}}", "requests"]
+              "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{COLLECTION_ID}}",
+                "requests"
+              ]
             }
           },
           "event": [
@@ -821,8 +1142,13 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["requests", "{{REQUEST_ID}}"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{REQUEST_ID}}"
+              ]
             }
           },
           "event": [
@@ -856,8 +1182,13 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["requests", "{{REQUEST_ID}}"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{REQUEST_ID}}"
+              ]
             }
           },
           "event": [
@@ -872,6 +1203,98 @@
               }
             }
           ]
+        },
+        {
+          "name": "Search Requests",
+          "description": "Searches saved requests by query string.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/requests/search?query={{SEARCH_QUERY}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "{{SEARCH_QUERY}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reorder Requests",
+          "description": "Reorders requests within a collection.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/requests/reorder",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "reorder"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"items\": [{\"id\": \"{{REQUEST_ID}}\", \"order\": 1}]}"
+            }
+          }
+        },
+        {
+          "name": "Update Request Tags",
+          "description": "Replaces tags for a request.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}/tags",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{REQUEST_ID}}",
+                "tags"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"tags\": [\"tag1\", \"tag2\"]}"
+            }
+          }
         }
       ]
     },
@@ -899,9 +1322,14 @@
               "raw": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/1\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/execute",
-              "host": ["{{BASE_URL}}"],
-              "path": ["execute"]
+              "raw": "{{BASE_URL}}/requests/execute",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -952,9 +1380,14 @@
               "raw": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/2\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/execute",
-              "host": ["{{BASE_URL}}"],
-              "path": ["execute"]
+              "raw": "{{BASE_URL}}/requests/execute",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -995,9 +1428,14 @@
               "raw": "{\"method\": \"POST\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [{\"key\": \"Content-Type\",\"value\": \"application/json\",\"enabled\": true}],\"params\": [],\"body\": \"{\\\"title\\\": \\\"Test Post\\\", \\\"body\\\": \\\"Hello World\\\", \\\"userId\\\": 1}\",\"auth\": {\"type\": \"none\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/execute",
-              "host": ["{{BASE_URL}}"],
-              "path": ["execute"]
+              "raw": "{{BASE_URL}}/requests/execute",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -1045,9 +1483,14 @@
               "raw": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [],\"params\": [{\"key\": \"userId\",\"value\": \"1\",\"enabled\": true},{\"key\": \"disabled_param\",\"value\": \"should_not_appear\",\"enabled\": false}],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/execute",
-              "host": ["{{BASE_URL}}"],
-              "path": ["execute"]
+              "raw": "{{BASE_URL}}/requests/execute",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -1092,9 +1535,14 @@
               "raw": "{\"method\": \"GET\",\"url\": \"https://httpbin.org/bearer\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"bearer\",\"token\": \"test-token-123\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/execute",
-              "host": ["{{BASE_URL}}"],
-              "path": ["execute"]
+              "raw": "{{BASE_URL}}/requests/execute",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -1136,9 +1584,14 @@
               "raw": "{\"method\": \"GET\",\"url\": \"https://httpbin.org/basic-auth/user/passwd\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"basic\",\"username\": \"user\",\"password\": \"passwd\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/execute",
-              "host": ["{{BASE_URL}}"],
-              "path": ["execute"]
+              "raw": "{{BASE_URL}}/requests/execute",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -1174,9 +1627,14 @@
               "raw": "{\"method\": \"GET\",\"url\": \"not-a-valid-url\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/execute",
-              "host": ["{{BASE_URL}}"],
-              "path": ["execute"]
+              "raw": "{{BASE_URL}}/requests/execute",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -1212,9 +1670,14 @@
               "raw": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/1\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/execute",
-              "host": ["{{BASE_URL}}"],
-              "path": ["execute"]
+              "raw": "{{BASE_URL}}/requests/execute",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -1254,8 +1717,12 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/history",
-              "host": ["{{BASE_URL}}"],
-              "path": ["history"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "history"
+              ]
             }
           },
           "event": [
@@ -1300,8 +1767,13 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/history/{{HISTORY_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["history", "{{HISTORY_ID}}"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "history",
+                "{{HISTORY_ID}}"
+              ]
             }
           },
           "event": [
@@ -1330,8 +1802,12 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/history",
-              "host": ["{{BASE_URL}}"],
-              "path": ["history"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "history"
+              ]
             }
           },
           "event": [
@@ -1380,9 +1856,15 @@
               "raw": "{\"name\": \"Shareable Request\",\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/1\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}"
             },
             "url": {
-              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/requests",
-              "host": ["{{BASE_URL}}"],
-              "path": ["collections", "{{COLLECTION_ID}}", "requests"]
+              "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{COLLECTION_ID}}",
+                "requests"
+              ]
             }
           },
           "event": [
@@ -1420,8 +1902,14 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
-              "host": ["{{BASE_URL}}"],
-              "path": ["requests", "{{SHARE_REQUEST_ID}}", "share"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{SHARE_REQUEST_ID}}",
+                "share"
+              ]
             }
           },
           "event": [
@@ -1469,8 +1957,14 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
-              "host": ["{{BASE_URL}}"],
-              "path": ["requests", "{{SHARE_REQUEST_ID}}", "share"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{SHARE_REQUEST_ID}}",
+                "share"
+              ]
             }
           },
           "event": [
@@ -1498,9 +1992,15 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{BASE_URL}}/share/{{SHARE_TOKEN}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["share", "{{SHARE_TOKEN}}"]
+              "raw": "{{BASE_URL}}/requests/share/{{SHARE_TOKEN}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "share",
+                "{{SHARE_TOKEN}}"
+              ]
             }
           },
           "event": [
@@ -1529,6 +2029,56 @@
               }
             }
           ]
+        },
+        {
+          "name": "Create Collection Share Link",
+          "description": "Creates a shareable link for a collection.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/share",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections",
+                "{{COLLECTION_ID}}",
+                "share"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expiresAt\": \"2026-12-31T00:00:00.000Z\"}"
+            }
+          }
+        },
+        {
+          "name": "Get Shared Collection (public)",
+          "description": "Retrieves a shared collection by public token.",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{BASE_URL}}/collections/share/{{COLLECTION_SHARE_TOKEN}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections",
+                "share",
+                "{{COLLECTION_SHARE_TOKEN}}"
+              ]
+            }
+          }
         }
       ]
     },
@@ -1557,8 +2107,14 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "{{WORKSPACE_ID}}", "environments"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "environments"
+              ]
             }
           },
           "event": [
@@ -1598,8 +2154,14 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "{{WORKSPACE_ID}}", "environments"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "environments"
+              ]
             }
           },
           "event": [
@@ -1633,8 +2195,13 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["environments", "{{ENVIRONMENT_ID}}"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "environments",
+                "{{ENVIRONMENT_ID}}"
+              ]
             }
           },
           "event": [
@@ -1676,8 +2243,13 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["environments", "{{ENVIRONMENT_ID}}"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "environments",
+                "{{ENVIRONMENT_ID}}"
+              ]
             }
           },
           "event": [
@@ -1719,8 +2291,14 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
-              "host": ["{{BASE_URL}}"],
-              "path": ["environments", "{{ENVIRONMENT_ID}}", "variables"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "environments",
+                "{{ENVIRONMENT_ID}}",
+                "variables"
+              ]
             }
           },
           "event": [
@@ -1754,8 +2332,13 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["environments", "{{ENVIRONMENT_ID}}"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "environments",
+                "{{ENVIRONMENT_ID}}"
+              ]
             }
           },
           "event": [
@@ -1774,12 +2357,12 @@
       ]
     },
     {
-      "name": "09 - Documentation",
-      "description": "API documentation generation and viewing endpoints",
+      "name": "09 - Folders",
+      "description": "Folder management endpoints",
       "item": [
         {
-          "name": "Create Collection for Docs",
-          "description": "Create a collection to generate documentation from",
+          "name": "Create Folder",
+          "description": "Creates a new folder in a workspace.",
           "request": {
             "method": "POST",
             "header": [
@@ -1792,124 +2375,26 @@
                 "value": "application/json"
               }
             ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "folders"
+              ]
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\"name\": \"Documentation Collection\"}"
-            },
-            "url": {
-              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
+              "raw": "{\"name\": \"Test Folder\"}"
             }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const json = pm.response.json()",
-                  "if (json.data?.id) {",
-                  "  pm.environment.set('DOC_COLLECTION_ID', json.data.id)",
-                  "}"
-                ]
-              }
-            }
-          ]
+          }
         },
         {
-          "name": "Save Request for Docs",
-          "description": "Save a test request to the documentation collection",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"name\": \"Get User\",\"method\": \"GET\",\"url\": \"https://api.example.com/users/1\",\"headers\": [{\"key\": \"Authorization\",\"value\": \"Bearer token\",\"enabled\": true}],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"bearer\",\"token\": \"sample-token\"}}"
-            },
-            "url": {
-              "raw": "{{BASE_URL}}/collections/{{DOC_COLLECTION_ID}}/requests",
-              "host": ["{{BASE_URL}}"],
-              "path": ["collections", "{{DOC_COLLECTION_ID}}", "requests"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const json = pm.response.json()",
-                  "if (json.data?.id) {",
-                  "  pm.environment.set('DOC_REQUEST_ID', json.data.id)",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Generate Doc",
-          "description": "Auto-generates API documentation from a collection.",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\"title\": \"Test API Documentation\",\"description\": \"Auto-generated docs for testing\",\"baseUrl\": \"https://api.example.com\",\"version\": \"v1.0.0\",\"theme\": \"DARK\",\"isPublic\": true}"
-            },
-            "url": {
-              "raw": "{{BASE_URL}}/collections/{{DOC_COLLECTION_ID}}/docs",
-              "host": ["{{BASE_URL}}"],
-              "path": ["collections", "{{DOC_COLLECTION_ID}}", "docs"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 201', () => {",
-                  "  pm.expect(pm.response.code).to.equal(201)",
-                  "})",
-                  "",
-                  "pm.test('Doc created with token', () => {",
-                  "  const json = pm.response.json()",
-                  "  pm.expect(json.data.id).to.exist",
-                  "  pm.expect(json.data.token).to.exist",
-                  "  pm.expect(json.data.token.length).to.be.above(10)",
-                  "  pm.expect(json.data.isPublic).to.equal(true)",
-                  "})",
-                  "",
-                  "const json = pm.response.json()",
-                  "if (json.data?.token) {",
-                  "  pm.environment.set('DOC_TOKEN', json.data.token)",
-                  "  pm.environment.set('DOC_ID', json.data.id)",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Get My Docs",
-          "description": "Retrieves all documentation generated by the current user.",
+          "name": "Get Folders",
+          "description": "Retrieves all folders in a workspace.",
           "request": {
             "method": "GET",
             "header": [
@@ -1919,63 +2404,21 @@
               }
             ],
             "url": {
-              "raw": "{{BASE_URL}}/docs",
-              "host": ["{{BASE_URL}}"],
-              "path": ["docs"]
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "folders"
+              ]
             }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "  pm.expect(pm.response.code).to.equal(200)",
-                  "})",
-                  "",
-                  "pm.test('Returns array of docs', () => {",
-                  "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
-                  "})"
-                ]
-              }
-            }
-          ]
+          }
         },
         {
-          "name": "Get Doc by Token (public)",
-          "description": "Retrieves documentation using a public token. No authentication required.",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{BASE_URL}}/docs/{{DOC_TOKEN}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["docs", "{{DOC_TOKEN}}"]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "  pm.expect(pm.response.code).to.equal(200)",
-                  "})",
-                  "",
-                  "pm.test('Returns full doc with requests', () => {",
-                  "  const json = pm.response.json()",
-                  "  pm.expect(json.data.title).to.exist",
-                  "  pm.expect(json.data.collection).to.exist",
-                  "})"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Toggle Doc Visibility",
-          "description": "Makes a public documentation private or vice versa.",
+          "name": "Reorder Folders",
+          "description": "Reorders folders within a workspace.",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1988,37 +2431,60 @@
                 "value": "application/json"
               }
             ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/reorder",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "folders",
+                "reorder"
+              ]
+            },
             "body": {
               "mode": "raw",
-              "raw": "{}"
-            },
-            "url": {
-              "raw": "{{BASE_URL}}/docs/{{DOC_ID}}/visibility",
-              "host": ["{{BASE_URL}}"],
-              "path": ["docs", "{{DOC_ID}}", "visibility"]
+              "raw": "{\"items\": [{\"id\": \"{{FOLDER_ID}}\", \"order\": 1, \"parentId\": null}]}"
             }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200', () => {",
-                  "  pm.expect(pm.response.code).to.equal(200)",
-                  "})",
-                  "",
-                  "pm.test('Visibility was toggled', () => {",
-                  "  const json = pm.response.json()",
-                  "  pm.expect(json.data.isPublic).to.equal(false)",
-                  "})"
-                ]
-              }
-            }
-          ]
+          }
         },
         {
-          "name": "Delete Doc",
-          "description": "Deletes generated documentation.",
+          "name": "Update Folder",
+          "description": "Updates folder name or parent.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "folders",
+                "{{FOLDER_ID}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Updated Folder\"}"
+            }
+          }
+        },
+        {
+          "name": "Delete Folder",
+          "description": "Deletes a folder.",
           "request": {
             "method": "DELETE",
             "header": [
@@ -2028,23 +2494,18 @@
               }
             ],
             "url": {
-              "raw": "{{BASE_URL}}/docs/{{DOC_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["docs", "{{DOC_ID}}"]
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "folders",
+                "{{FOLDER_ID}}"
+              ]
             }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200 or 204', () => {",
-                  "  pm.expect([200, 204]).to.include(pm.response.code)",
-                  "})"
-                ]
-              }
-            }
-          ]
+          }
         }
       ]
     },
@@ -2060,8 +2521,12 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/workspaces",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces"
+              ]
             }
           },
           "event": [
@@ -2094,8 +2559,12 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces"
+              ]
             }
           },
           "event": [
@@ -2128,8 +2597,13 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": ["{{BASE_URL}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           },
           "event": [
@@ -2162,8 +2636,13 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/some-other-workspace-id",
-              "host": ["{{BASE_URL}}"],
-              "path": ["workspaces", "some-other-workspace-id"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "some-other-workspace-id"
+              ]
             }
           },
           "event": [
@@ -2178,6 +2657,242 @@
               }
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "11 - Tags",
+      "description": "Tag management endpoints",
+      "item": [
+        {
+          "name": "Create Tag",
+          "description": "Creates a new tag in a workspace.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "tags"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test Tag\"}"
+            }
+          }
+        },
+        {
+          "name": "Get Tags",
+          "description": "Retrieves all tags in a workspace.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "tags"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Tag",
+          "description": "Updates a tag name.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "tags",
+                "{{TAG_ID}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Updated Tag\"}"
+            }
+          }
+        },
+        {
+          "name": "Delete Tag",
+          "description": "Deletes a tag.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "tags",
+                "{{TAG_ID}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Workspace Invites",
+      "description": "Workspace invite endpoints",
+      "item": [
+        {
+          "name": "Get Pending Invites",
+          "description": "Gets pending invites for the current user.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspace-invites/pending",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspace-invites",
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Invite by Token",
+          "description": "Gets invite details by public token.",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspace-invites",
+                "{{INVITE_TOKEN}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Accept Invite",
+          "description": "Accepts a workspace invite.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}/accept",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspace-invites",
+                "{{INVITE_TOKEN}}",
+                "accept"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Decline Invite",
+          "description": "Declines a workspace invite.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}/decline",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspace-invites",
+                "{{INVITE_TOKEN}}",
+                "decline"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Health",
+      "description": "Health check",
+      "item": [
+        {
+          "name": "Health Check",
+          "description": "Basic API health check.",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{BASE_URL}}/health",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
         }
       ]
     }
