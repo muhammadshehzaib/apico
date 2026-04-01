@@ -62,6 +62,8 @@ export interface Collection {
   id: string;
   name: string;
   workspaceId: string;
+  folderId?: string | null;
+  order?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -96,6 +98,26 @@ export interface SavedRequest {
   params: KeyValuePair[];
   body?: string;
   auth?: RequestAuth;
+  order?: number;
+  tags?: Tag[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Folder {
+  id: string;
+  name: string;
+  workspaceId: string;
+  parentId?: string | null;
+  order?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  workspaceId: string;
   createdAt: string;
   updatedAt: string;
 }

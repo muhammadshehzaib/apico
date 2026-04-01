@@ -1,17 +1,36 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
+import type { DragEvent } from 'react';
 import { SavedRequest } from '@/types';
-import { HTTP_METHOD_TAILWIND } from '@/constants/app.constants';
 
 interface RequestItemProps {
   request: SavedRequest;
   onLoad: () => void;
   onRename: () => void;
   onDelete: () => void;
+  onTags?: () => void;
+  showSelect?: boolean;
+  isSelected?: boolean;
+  onSelect?: (selected: boolean) => void;
+  onDragStart?: (e: DragEvent<HTMLDivElement>) => void;
+  onDragOver?: (e: DragEvent<HTMLDivElement>) => void;
+  onDrop?: (e: DragEvent<HTMLDivElement>) => void;
 }
 
-export function RequestItem({ request, onLoad, onRename, onDelete }: RequestItemProps) {
+export function RequestItem({
+  request,
+  onLoad,
+  onRename,
+  onDelete,
+  onTags,
+  showSelect = false,
+  isSelected = false,
+  onSelect,
+  onDragStart,
+  onDragOver,
+  onDrop,
+}: RequestItemProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -42,7 +61,20 @@ export function RequestItem({ request, onLoad, onRename, onDelete }: RequestItem
     <div
       onClick={onLoad}
       className="flex items-center gap-2 px-3 py-2 h-8 pl-8 rounded-md hover:bg-bg-tertiary/60 transition-colors cursor-pointer group relative border border-transparent hover:border-stroke/60"
+      draggable={!!onDragStart}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
     >
+      {showSelect && (
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={(e) => onSelect?.(e.target.checked)}
+          onClick={(e) => e.stopPropagation()}
+          className="h-3.5 w-3.5 accent-accent cursor-pointer"
+        />
+      )}
       <span
         className={`${methodColorMap[request.method]} border text-xs font-bold px-1.5 py-0.5 rounded flex-shrink-0`}
       >
@@ -52,6 +84,22 @@ export function RequestItem({ request, onLoad, onRename, onDelete }: RequestItem
       <span className="text-xs font-mono text-text-primary truncate flex-1">
         {request.name}
       </span>
+
+      {request.tags && request.tags.length > 0 && (
+        <div className="flex items-center gap-1 max-w-[120px] overflow-hidden">
+          {request.tags.slice(0, 2).map((tag) => (
+            <span
+              key={tag.id}
+              className="text-[10px] px-1.5 py-0.5 bg-bg-tertiary/70 text-text-muted rounded-full border border-stroke"
+            >
+              {tag.name}
+            </span>
+          ))}
+          {request.tags.length > 2 && (
+            <span className="text-[10px] text-text-muted">+{request.tags.length - 2}</span>
+          )}
+        </div>
+      )}
 
       <div className="relative" ref={menuRef}>
         <button
@@ -86,6 +134,18 @@ export function RequestItem({ request, onLoad, onRename, onDelete }: RequestItem
             >
               Rename
             </button>
+            {onTags && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTags();
+                  setShowMenu(false);
+                }}
+                className="block w-full text-left px-4 py-2 text-text-primary hover:bg-bg-tertiary/60 text-sm transition-colors"
+              >
+                Tags
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation();

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
+import type { DragEvent } from 'react';
 import { CollectionWithRequests } from '@/hooks/useCollections';
 import { SavedRequest } from '@/types';
 import { RequestItem } from './RequestItem';
@@ -15,6 +16,16 @@ interface CollectionItemProps {
   onLoadRequest: (request: SavedRequest) => void;
   onRenameRequest: (request: SavedRequest) => void;
   onDeleteRequest: (request: SavedRequest) => void;
+  onTagRequest?: (request: SavedRequest) => void;
+  showRequestSelect?: boolean;
+  isRequestSelected?: (id: string) => boolean;
+  onSelectRequest?: (id: string, selected: boolean) => void;
+  showSelect?: boolean;
+  isSelected?: boolean;
+  onSelect?: (selected: boolean) => void;
+  onDragStart?: (e: DragEvent<HTMLDivElement>) => void;
+  onDragOver?: (e: DragEvent<HTMLDivElement>) => void;
+  onDrop?: (e: DragEvent<HTMLDivElement>) => void;
 }
 
 export function CollectionItem({
@@ -26,6 +37,16 @@ export function CollectionItem({
   onLoadRequest,
   onRenameRequest,
   onDeleteRequest,
+  onTagRequest,
+  showRequestSelect = false,
+  isRequestSelected,
+  onSelectRequest,
+  showSelect = false,
+  isSelected = false,
+  onSelect,
+  onDragStart,
+  onDragOver,
+  onDrop,
 }: CollectionItemProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -53,7 +74,22 @@ export function CollectionItem({
 
   return (
     <div className="space-y-1" ref={menuRef}>
-      <div className="flex items-center gap-2 h-9 rounded-md hover:bg-bg-tertiary/60 transition-colors group border border-transparent hover:border-stroke/60 px-1">
+      <div
+        className="flex items-center gap-2 h-9 rounded-md hover:bg-bg-tertiary/60 transition-colors group border border-transparent hover:border-stroke/60 px-1"
+        draggable={!!onDragStart}
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
+      >
+        {showSelect && (
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={(e) => onSelect?.(e.target.checked)}
+            onClick={(e) => e.stopPropagation()}
+            className="h-4 w-4 accent-accent cursor-pointer"
+          />
+        )}
         <button
           onClick={handleToggle}
           className="px-1 text-text-muted hover:text-text-primary transition-colors flex-shrink-0"
@@ -165,6 +201,10 @@ export function CollectionItem({
                 onLoad={() => onLoadRequest(request)}
                 onRename={() => onRenameRequest(request)}
                 onDelete={() => onDeleteRequest(request)}
+                onTags={onTagRequest ? () => onTagRequest(request) : undefined}
+                showSelect={showRequestSelect}
+                isSelected={isRequestSelected ? isRequestSelected(request.id) : false}
+                onSelect={(selected) => onSelectRequest?.(request.id, selected)}
               />
             ))
           )}
