@@ -67,7 +67,7 @@ export function UrlBar({
   }, [onSend]);
 
   return (
-    <div className="bg-bg-secondary/90 border-b border-bg-tertiary/60 p-4 space-y-2 backdrop-blur">
+    <div className="relative z-50 bg-bg-secondary/90 border-b border-bg-tertiary/60 p-4 space-y-2 backdrop-blur">
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
