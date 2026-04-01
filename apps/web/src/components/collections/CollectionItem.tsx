@@ -17,6 +17,8 @@ interface CollectionItemProps {
   onRenameRequest: (request: SavedRequest) => void;
   onDeleteRequest: (request: SavedRequest) => void;
   onTagRequest?: (request: SavedRequest) => void;
+  isRequestPinned?: (id: string) => boolean;
+  onToggleRequestPin?: (request: SavedRequest) => void;
   showRequestSelect?: boolean;
   isRequestSelected?: (id: string) => boolean;
   onSelectRequest?: (id: string, selected: boolean) => void;
@@ -38,6 +40,8 @@ export function CollectionItem({
   onRenameRequest,
   onDeleteRequest,
   onTagRequest,
+  isRequestPinned,
+  onToggleRequestPin,
   showRequestSelect = false,
   isRequestSelected,
   onSelectRequest,
@@ -202,6 +206,8 @@ export function CollectionItem({
                 onRename={() => onRenameRequest(request)}
                 onDelete={() => onDeleteRequest(request)}
                 onTags={onTagRequest ? () => onTagRequest(request) : undefined}
+                isPinned={isRequestPinned ? isRequestPinned(request.id) : false}
+                onTogglePin={onToggleRequestPin ? () => onToggleRequestPin(request) : undefined}
                 showSelect={showRequestSelect}
                 isSelected={isRequestSelected ? isRequestSelected(request.id) : false}
                 onSelect={(selected) => onSelectRequest?.(request.id, selected)}

@@ -89,6 +89,7 @@ export function RequestBuilder() {
     isLoading,
     response,
     previousResponse,
+    responseHistory,
     error,
     urlError,
     activeVariables,
@@ -252,6 +253,16 @@ export function RequestBuilder() {
     setPinnedRequests((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const togglePinRequest = (request: SavedRequest) => {
+    if (pinnedRequests.find((item) => item.id === request.id)) {
+      unpinRequest(request.id);
+    } else {
+      pinRequest(request);
+    }
+  };
+
+  const pinnedRequestIds = new Set(pinnedRequests.map((item) => item.id));
+
   const paletteItems: CommandPaletteItem[] = (() => {
     const query = paletteQuery.trim().toLowerCase();
     const pinnedMap = new Set(pinnedRequests.map((item) => item.id));
@@ -295,6 +306,8 @@ export function RequestBuilder() {
             url: url,
           }}
           onSaveRequest={handleSaveRequest}
+          pinnedRequestIds={pinnedRequestIds}
+          onTogglePinRequest={togglePinRequest}
         />
       </ErrorBoundary>
 
@@ -377,6 +390,7 @@ export function RequestBuilder() {
                 <ResponsePanel
                   response={response}
                   previousResponse={previousResponse}
+                  responseHistory={responseHistory}
                   isLoading={isLoading}
                   error={error}
                 />

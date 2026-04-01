@@ -8,6 +8,7 @@ interface ResponseViewerProps {
   headers: Record<string, string | string[]>;
   previousBody?: string | null;
   previousHeaders?: Record<string, string | string[]> | null;
+  responseHistory?: { result: { body: string; headers: Record<string, string | string[]> }; at: string }[];
 }
 
 export function ResponseViewer({
@@ -15,9 +16,11 @@ export function ResponseViewer({
   headers,
   previousBody = null,
   previousHeaders = null,
+  responseHistory = [],
 }: ResponseViewerProps) {
   const [activeTab, setActiveTab] = useState<'body' | 'headers' | 'diff'>('body');
   const [diffView, setDiffView] = useState<'body' | 'headers'>('body');
+  const [diffIndex, setDiffIndex] = useState(0);
 
   const formatJson = (value: string) => {
     try {
@@ -45,6 +48,10 @@ export function ResponseViewer({
     }
     return lines;
   };
+
+  const diffCandidates = responseHistory.length > 1 ? responseHistory.slice(0, -1).reverse() : [];
+  const normalizedDiffIndex = Math.min(diffIndex, Math.max(diffCandidates.length - 1, 0));
+  const selectedCandidate = diffCandidates[normalizedDiffIndex];
 
   return (
     <div className="flex flex-col h-full">
@@ -131,19 +138,34 @@ export function ResponseViewer({
               >
                 Headers
               </button>
+              {diffCandidates.length > 0 && (
+                <select
+                  value={diffIndex}
+                  onChange={(e) => setDiffIndex(Number(e.target.value))}
+                  className="text-xs px-2 py-1 bg-bg-secondary border border-stroke rounded-md text-text-primary"
+                >
+                  {diffCandidates.map((entry, index) => (
+                    <option key={entry.at} value={index}>
+                      {new Date(entry.at).toLocaleTimeString()}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             <div className="flex-1 overflow-auto p-4">
-              {!previousBody && diffView === 'body' ? (
+              {diffCandidates.length === 0 ? (
                 <div className="text-xs text-text-muted">No previous response to compare.</div>
-              ) : !previousHeaders && diffView === 'headers' ? (
+              ) : diffView === 'body' && !selectedCandidate ? (
+                <div className="text-xs text-text-muted">No previous response to compare.</div>
+              ) : diffView === 'headers' && !selectedCandidate ? (
                 <div className="text-xs text-text-muted">No previous headers to compare.</div>
               ) : (
                 <div className="grid grid-cols-2 gap-4 text-xs font-mono">
                   {getDiffLines(
                     diffView === 'body'
-                      ? formatJson(previousBody || '')
-                      : formatHeaders(previousHeaders || {}),
+                      ? formatJson(selectedCandidate?.result.body || previousBody || '')
+                      : formatHeaders(selectedCandidate?.result.headers || previousHeaders || {}),
                     diffView === 'body' ? formatJson(body) : formatHeaders(headers)
                   ).map((line, index) => (
                     <div key={index} className="grid grid-cols-2 gap-4 col-span-2">

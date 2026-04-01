@@ -23,6 +23,8 @@ interface HistorySidebarProps {
   isLoading: boolean;
   currentRequest: { method: string; url: string };
   onSaveRequest: (collectionId: string, data: SaveRequestInput) => Promise<void | SavedRequest>;
+  pinnedRequestIds?: Set<string>;
+  onTogglePinRequest?: (request: SavedRequest) => void;
 }
 
 const methodColors: Record<HttpMethod, string> = {
@@ -40,6 +42,8 @@ export function HistorySidebar({
   isLoading,
   currentRequest,
   onSaveRequest,
+  pinnedRequestIds,
+  onTogglePinRequest,
 }: HistorySidebarProps) {
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -259,6 +263,8 @@ export function HistorySidebar({
           onLoadRequest={onLoadRequest}
           currentRequest={currentRequest}
           onSaveRequest={() => setSaveModalOpen(true)}
+          pinnedRequestIds={pinnedRequestIds}
+          onTogglePinRequest={onTogglePinRequest}
         />
       </div>
 

@@ -73,6 +73,7 @@ export default function PlaygroundPage() {
     isLoading,
     response,
     previousResponse,
+    responseHistory,
     error,
     urlError,
     setMethod,
@@ -234,6 +235,7 @@ export default function PlaygroundPage() {
                   <ResponsePanel
                     response={response}
                     previousResponse={previousResponse}
+                    responseHistory={responseHistory}
                     isLoading={isLoading}
                     error={error}
                   />

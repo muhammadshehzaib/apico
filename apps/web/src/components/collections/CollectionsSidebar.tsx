@@ -19,6 +19,8 @@ interface CollectionsSidebarProps {
   onLoadRequest: (request: SavedRequest) => void;
   currentRequest: { method: string; url: string };
   onSaveRequest: () => void;
+  pinnedRequestIds?: Set<string>;
+  onTogglePinRequest?: (request: SavedRequest) => void;
 }
 
 export function CollectionsSidebar({
@@ -26,6 +28,8 @@ export function CollectionsSidebar({
   onLoadRequest,
   currentRequest,
   onSaveRequest,
+  pinnedRequestIds,
+  onTogglePinRequest,
 }: CollectionsSidebarProps) {
   const {
     collections,
@@ -574,7 +578,7 @@ export function CollectionsSidebar({
 
   const renderCollections = (list: CollectionWithRequests[]) => (
     list.map((collection) => (
-      <CollectionItem
+        <CollectionItem
         key={collection.id}
         collection={collection}
         isExpanded={expandedIds.has(collection.id)}
@@ -585,6 +589,8 @@ export function CollectionsSidebar({
         onRenameRequest={(request) => handleRenameRequest(request, collection.id)}
         onDeleteRequest={(request) => handleDeleteRequest(request, collection.id)}
         onTagRequest={handleTagRequest}
+        isRequestPinned={(id) => !!pinnedRequestIds?.has(id)}
+        onToggleRequestPin={onTogglePinRequest}
         showRequestSelect={bulkMode}
         isRequestSelected={(id) => selectedRequests.has(id)}
         onSelectRequest={toggleRequestSelect}

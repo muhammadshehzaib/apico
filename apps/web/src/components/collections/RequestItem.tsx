@@ -10,6 +10,8 @@ interface RequestItemProps {
   onRename: () => void;
   onDelete: () => void;
   onTags?: () => void;
+  isPinned?: boolean;
+  onTogglePin?: () => void;
   showSelect?: boolean;
   isSelected?: boolean;
   onSelect?: (selected: boolean) => void;
@@ -24,6 +26,8 @@ export function RequestItem({
   onRename,
   onDelete,
   onTags,
+  isPinned = false,
+  onTogglePin,
   showSelect = false,
   isSelected = false,
   onSelect,
@@ -134,6 +138,18 @@ export function RequestItem({
             >
               Rename
             </button>
+            {onTogglePin && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePin();
+                  setShowMenu(false);
+                }}
+                className="block w-full text-left px-4 py-2 text-text-primary hover:bg-bg-tertiary/60 text-sm transition-colors"
+              >
+                {isPinned ? 'Unpin' : 'Pin'}
+              </button>
+            )}
             {onTags && (
               <button
                 onClick={(e) => {
