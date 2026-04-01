@@ -137,6 +137,27 @@ describe('Collection CRUD & Share API', () => {
     expect(res.body.data.id).toBe(collectionId);
   });
 
+  it('should fetch a shared collection via workspace-scoped share route', async () => {
+    const { accessToken } = await createUser();
+    const workspaceId = await createWorkspace(accessToken);
+    const collectionId = await createCollection(accessToken, workspaceId);
+
+    const shareRes = await request(app)
+      .post(`/api/collections/${collectionId}/share`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({});
+    expect(shareRes.status).toBe(201);
+    const token = shareRes.body.data.token as string;
+
+    const res = await request(app).get(
+      `/api/workspaces/${workspaceId}/collections/share/${token}`
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(collectionId);
+  });
+
   it('should reject creating a collection without workspaceId on base route', async () => {
     const { accessToken } = await createUser();
 
