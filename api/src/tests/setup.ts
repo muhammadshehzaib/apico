@@ -20,6 +20,10 @@ beforeEach(async () => {
 
     const tables = [
         'sharedLink',
+        'sharedCollectionLink',
+        'requestTag',
+        'tag',
+        'folder',
         'workspaceInvite',
         'environmentVariable',
         'environment',
