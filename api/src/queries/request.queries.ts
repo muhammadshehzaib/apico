@@ -10,6 +10,7 @@ export const createSavedRequest = async (data: {
   params: any;
   body?: string;
   auth?: any;
+  order?: number;
 }) => {
   return prisma.savedRequest.create({
     data,
@@ -19,12 +20,30 @@ export const createSavedRequest = async (data: {
 export const findSavedRequestById = async (id: string) => {
   return prisma.savedRequest.findUnique({
     where: { id },
+    include: {
+      tags: {
+        include: { tag: true },
+      },
+    },
+  });
+};
+
+export const findSavedRequestWithCollection = async (id: string) => {
+  return prisma.savedRequest.findUnique({
+    where: { id },
+    include: { collection: true },
   });
 };
 
 export const findSavedRequestsByCollectionId = async (collectionId: string) => {
   return prisma.savedRequest.findMany({
     where: { collectionId },
+    orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
+    include: {
+      tags: {
+        include: { tag: true },
+      },
+    },
   });
 };
 
@@ -38,6 +57,8 @@ export const updateSavedRequest = async (
     params?: any;
     body?: string;
     auth?: any;
+    collectionId?: string;
+    order?: number;
   }
 ) => {
   return prisma.savedRequest.update({
@@ -66,7 +87,75 @@ export const findSharedLinkByToken = async (token: string) => {
   return prisma.sharedLink.findUnique({
     where: { token },
     include: {
-      savedRequest: true,
+      savedRequest: {
+        include: {
+          tags: { include: { tag: true } },
+        },
+      },
     },
   });
+};
+
+export const getMaxRequestOrder = async (collectionId: string) => {
+  const result = await prisma.savedRequest.aggregate({
+    _max: { order: true },
+    where: { collectionId },
+  });
+  return result._max.order ?? 0;
+};
+
+export const searchSavedRequests = async (params: {
+  workspaceId: string;
+  query?: string;
+  tags?: string[];
+  collectionId?: string;
+  method?: HttpMethod;
+}) => {
+  const { workspaceId, query, tags, collectionId, method } = params;
+
+  return prisma.savedRequest.findMany({
+    where: {
+      collection: { workspaceId },
+      ...(collectionId ? { collectionId } : {}),
+      ...(method ? { method } : {}),
+      ...(query
+        ? {
+            OR: [
+              { name: { contains: query, mode: 'insensitive' } },
+              { url: { contains: query, mode: 'insensitive' } },
+            ],
+          }
+        : {}),
+      ...(tags && tags.length > 0
+        ? {
+            tags: {
+              some: {
+                tag: {
+                  name: { in: tags },
+                },
+              },
+            },
+          }
+        : {}),
+    },
+    orderBy: [{ updatedAt: 'desc' }],
+    include: {
+      collection: {
+        select: { id: true, name: true, workspaceId: true },
+      },
+      tags: { include: { tag: true } },
+    },
+  });
+};
+
+export const replaceRequestTags = async (requestId: string, tagIds: string[]) => {
+  const ops = [prisma.requestTag.deleteMany({ where: { requestId } })];
+  if (tagIds.length > 0) {
+    ops.push(
+      prisma.requestTag.createMany({
+        data: tagIds.map((tagId) => ({ requestId, tagId })),
+      })
+    );
+  }
+  return prisma.$transaction(ops);
 };

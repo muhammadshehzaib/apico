@@ -7,6 +7,7 @@ import {
   deleteController,
   shareCollectionController,
   getSharedCollectionController,
+  reorderCollectionsController,
 } from '../controllers/collection.controller';
 
 const router = Router({ mergeParams: true });
@@ -18,6 +19,7 @@ router.use(authenticate);
 
 router.post('/', createController);
 router.get('/', getAllController);
+router.patch('/reorder', reorderCollectionsController);
 router.put('/:id', updateController);
 router.delete('/:id', deleteController);
 router.post('/:id/share', shareCollectionController);

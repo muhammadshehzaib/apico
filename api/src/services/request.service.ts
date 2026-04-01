@@ -2,17 +2,22 @@ import crypto from 'crypto';
 import {
   createSavedRequest,
   findSavedRequestById,
+  findSavedRequestWithCollection,
   findSavedRequestsByCollectionId,
   updateSavedRequest,
   deleteSavedRequest,
   createSharedLink,
   findSharedLinkByToken,
+  getMaxRequestOrder,
+  searchSavedRequests,
+  replaceRequestTags,
 } from '../queries/request.queries';
 import { findCollectionById } from '../queries/collection.queries';
 import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
 import { createHistoryEntry } from '../queries/history.queries';
 import { executeRequest } from '../proxy/executor';
 import { ExecuteRequestPayload, HttpMethod, WorkspaceRole } from '../types';
+import { upsertTag } from '../queries/tag.queries';
 
 const verifyCollectionAccess = async (collectionId: string, userId: string) => {
   const collection = await findCollectionById(collectionId);
@@ -74,6 +79,8 @@ export const saveRequest = async (
 ) => {
   await verifyCollectionWriteAccess(collectionId, userId);
 
+  const order = (await getMaxRequestOrder(collectionId)) + 1;
+
   return createSavedRequest({
     name: data.name,
     collectionId,
@@ -83,13 +90,18 @@ export const saveRequest = async (
     params: data.params,
     body: data.body,
     auth: data.auth,
+    order,
   });
 };
 
 export const getSavedRequests = async (collectionId: string, userId: string) => {
   await verifyCollectionAccess(collectionId, userId);
 
-  return findSavedRequestsByCollectionId(collectionId);
+  const requests = await findSavedRequestsByCollectionId(collectionId);
+  return requests.map((request) => ({
+    ...request,
+    tags: request.tags.map((tagLink) => tagLink.tag),
+  }));
 };
 
 export const updateSavedRequestService = async (
@@ -102,10 +114,12 @@ export const updateSavedRequestService = async (
     params?: any;
     body?: string;
     auth?: any;
+    collectionId?: string;
+    order?: number;
   },
   userId: string
 ) => {
-  const request = await findSavedRequestById(id);
+  const request = await findSavedRequestWithCollection(id);
 
   if (!request) {
     const error = new Error('Request not found');
@@ -114,6 +128,13 @@ export const updateSavedRequestService = async (
   }
 
   await verifyCollectionWriteAccess(request.collectionId, userId);
+
+  if (data.collectionId && data.collectionId !== request.collectionId) {
+    await verifyCollectionWriteAccess(data.collectionId, userId);
+    if (data.order === undefined) {
+      data.order = (await getMaxRequestOrder(data.collectionId)) + 1;
+    }
+  }
 
   return updateSavedRequest(id, data);
 };
@@ -171,5 +192,65 @@ export const getSharedLink = async (token: string) => {
     throw error;
   }
 
-  return link.savedRequest;
+  return {
+    ...link.savedRequest,
+    tags: link.savedRequest.tags.map((tagLink) => tagLink.tag),
+  };
+};
+
+export const searchRequestsService = async (
+  params: {
+    workspaceId: string;
+    query?: string;
+    tags?: string[];
+    collectionId?: string;
+    method?: HttpMethod;
+  },
+  userId: string
+) => {
+  await requireWorkspaceMember(params.workspaceId, userId);
+  const results = await searchSavedRequests(params);
+  return results.map((request) => ({
+    ...request,
+    tags: request.tags.map((tagLink) => tagLink.tag),
+  }));
+};
+
+export const updateRequestTagsService = async (
+  requestId: string,
+  userId: string,
+  tags: string[]
+) => {
+  const request = await findSavedRequestWithCollection(requestId);
+
+  if (!request) {
+    const error = new Error('Request not found');
+    (error as any).statusCode = 404;
+    throw error;
+  }
+
+  await verifyCollectionWriteAccess(request.collectionId, userId);
+
+  const normalizedTags = Array.from(
+    new Set(
+      tags
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0)
+    )
+  );
+
+  const tagIds: string[] = [];
+  for (const tagName of normalizedTags) {
+    const tag = await upsertTag(request.collection.workspaceId, tagName);
+    tagIds.push(tag.id);
+  }
+
+  await replaceRequestTags(requestId, tagIds);
+
+  const updated = await findSavedRequestById(requestId);
+  if (!updated) return updated;
+  return {
+    ...updated,
+    tags: updated.tags.map((tagLink) => tagLink.tag),
+  };
 };

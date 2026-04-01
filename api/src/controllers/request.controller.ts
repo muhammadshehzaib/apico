@@ -9,11 +9,16 @@ import {
   deleteSavedRequestService,
   createSharedLinkService,
   getSharedLink,
+  searchRequestsService,
+  updateRequestTagsService,
 } from '../services/request.service';
 import {
   executeRequestSchema,
   saveRequestSchema,
   shareRequestSchema,
+  updateSavedRequestSchema,
+  updateRequestTagsSchema,
+  reorderRequestsSchema,
 } from '../validations/request.validation';
 
 export const executeController = asyncHandler(async (req: Request, res: Response) => {
@@ -46,7 +51,7 @@ export const getAllController = asyncHandler(async (req: Request, res: Response)
 
 export const updateController = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const body = saveRequestSchema.partial().parse(req.body);
+  const body = updateSavedRequestSchema.parse(req.body);
   const userId = req.user!.id;
 
   const request = await updateSavedRequestService(id, body, userId);
@@ -79,4 +84,62 @@ export const getSharedController = asyncHandler(async (req: Request, res: Respon
   const request = await getSharedLink(token);
 
   success(res, request, 'Shared request fetched successfully');
+});
+
+export const searchController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const { workspaceId, q, tags, collectionId, method } = req.query;
+
+  const workspaceIdStr = String(workspaceId || '');
+  if (!workspaceIdStr) {
+    const error = new Error('workspaceId is required');
+    (error as any).statusCode = 400;
+    throw error;
+  }
+
+  const tagList =
+    typeof tags === 'string'
+      ? tags.split(',').map((tag) => tag.trim()).filter((tag) => tag.length > 0)
+      : [];
+
+  const results = await searchRequestsService(
+    {
+      workspaceId: workspaceIdStr,
+      query: typeof q === 'string' ? q : undefined,
+      tags: tagList.length > 0 ? tagList : undefined,
+      collectionId: typeof collectionId === 'string' ? collectionId : undefined,
+      method: typeof method === 'string' ? (method as any) : undefined,
+    },
+    userId
+  );
+
+  success(res, results, 'Search results fetched successfully');
+});
+
+export const updateTagsController = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+  const body = updateRequestTagsSchema.parse(req.body);
+
+  const request = await updateRequestTagsService(id, userId, body.tags);
+
+  success(res, request, 'Request tags updated successfully');
+});
+
+export const reorderRequestsController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const body = reorderRequestsSchema.parse(req.body);
+
+  for (const item of body.items) {
+    await updateSavedRequestService(
+      item.id,
+      {
+        order: item.order,
+        collectionId: item.collectionId,
+      },
+      userId
+    );
+  }
+
+  success(res, null, 'Requests reordered successfully');
 });

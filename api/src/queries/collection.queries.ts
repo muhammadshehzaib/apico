@@ -1,6 +1,11 @@
 import { prisma } from '../config/prisma.config';
 
-export const createCollection = async (data: { name: string; workspaceId: string }) => {
+export const createCollection = async (data: {
+  name: string;
+  workspaceId: string;
+  folderId?: string | null;
+  order?: number;
+}) => {
   return prisma.collection.create({
     data,
   });
@@ -14,10 +19,14 @@ export const findCollectionById = async (id: string) => {
 export const findCollectionsByWorkspaceId = async (workspaceId: string) => {
   return prisma.collection.findMany({
     where: { workspaceId },
+    orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
   });
 };
 
-export const updateCollection = async (id: string, data: { name?: string }) => {
+export const updateCollection = async (
+  id: string,
+  data: { name?: string; folderId?: string | null; order?: number }
+) => {
   return prisma.collection.update({
     where: { id },
     data,
@@ -38,6 +47,14 @@ export const createCollectionShareLink = async (data: {
   return prisma.sharedCollectionLink.create({
     data,
   });
+};
+
+export const getMaxCollectionOrder = async (workspaceId: string, folderId?: string | null) => {
+  const result = await prisma.collection.aggregate({
+    _max: { order: true },
+    where: { workspaceId, folderId: folderId ?? null },
+  });
+  return result._max.order ?? 0;
 };
 
 export const findCollectionShareLinkByToken = async (token: string) => {

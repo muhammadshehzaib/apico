@@ -27,6 +27,8 @@ model Workspace {
   updatedAt DateTime @updatedAt
   members   WorkspaceMember[]
   invites   WorkspaceInvite[]
+  folders   Folder[]
+  tags      Tag[]
 }
 
 model WorkspaceMember {
@@ -78,10 +80,13 @@ model Collection {
   id          String         @id @default(cuid())
   name        String
   workspaceId String
+  folderId    String?
+  order       Int            @default(0)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   requests    SavedRequest[]
   sharedLinks SharedCollectionLink[]
+  folder      Folder?        @relation(fields: [folderId], references: [id], onDelete: SetNull)
 }
 
 model SavedRequest {
@@ -94,10 +99,12 @@ model SavedRequest {
   params       Json         @default("[]")
   body         String?
   auth         Json?
+  order        Int          @default(0)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   collection   Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   sharedLinks  SharedLink[]
+  tags         RequestTag[]
 }
 
 model RequestHistory {
@@ -157,4 +164,44 @@ model EnvironmentVariable {
   isSecret      Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model Folder {
+  id          String    @id @default(cuid())
+  name        String
+  workspaceId String
+  parentId    String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parent      Folder?   @relation("FolderParent", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Folder[]  @relation("FolderParent")
+  collections Collection[]
+
+  @@index([workspaceId, parentId])
+}
+
+model Tag {
+  id          String    @id @default(cuid())
+  name        String
+  workspaceId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  requests    RequestTag[]
+
+  @@unique([workspaceId, name])
+}
+
+model RequestTag {
+  id         String       @id @default(cuid())
+  requestId  String
+  tagId      String
+  createdAt  DateTime     @default(now())
+  request    SavedRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  tag        Tag          @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, tagId])
+  @@index([tagId])
 }

@@ -6,6 +6,8 @@ import requestRoutes from './request.routes';
 import historyRoutes from './history.routes';
 import environmentRoutes from './environment.routes';
 import workspaceInviteRoutes from './workspaceInvite.routes';
+import folderRoutes from './folder.routes';
+import tagRoutes from './tag.routes';
 
 const router = Router();
 
@@ -16,8 +18,10 @@ router.get('/health', (req, res) => {
 
 router.use('/auth', authRoutes);
 router.use('/workspaces', workspaceRoutes);
+router.use('/workspaces/:workspaceId/folders', folderRoutes);
 router.use('/workspaces/:workspaceId/collections', collectionRoutes);
 router.use('/workspaces/:workspaceId/environments', environmentRoutes);
+router.use('/workspaces/:workspaceId/tags', tagRoutes);
 router.use('/collections', collectionRoutes);
 router.use('/requests', requestRoutes);
 router.use('/history', historyRoutes);

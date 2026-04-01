@@ -9,14 +9,24 @@ import {
   shareCollectionService,
   getSharedCollectionService,
 } from '../services/collection.service';
-import { createCollectionSchema, shareCollectionSchema } from '../validations/request.validation';
+import {
+  createCollectionSchema,
+  updateCollectionSchema,
+  shareCollectionSchema,
+  reorderCollectionsSchema,
+} from '../validations/request.validation';
 
 export const createController = asyncHandler(async (req: Request, res: Response) => {
   const { workspaceId } = req.params;
   const body = createCollectionSchema.parse(req.body);
   const userId = req.user!.id;
 
-  const collection = await createCollectionService(body.name, workspaceId, userId);
+  const collection = await createCollectionService(
+    body.name,
+    workspaceId,
+    userId,
+    body.folderId ?? null
+  );
 
   success(res, collection, 'Collection created successfully', 201);
 });
@@ -32,10 +42,10 @@ export const getAllController = asyncHandler(async (req: Request, res: Response)
 
 export const updateController = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const body = createCollectionSchema.parse(req.body);
+  const body = updateCollectionSchema.parse(req.body);
   const userId = req.user!.id;
 
-  const collection = await updateCollectionService(id, body.name, userId);
+  const collection = await updateCollectionService(id, body, userId);
 
   success(res, collection, 'Collection updated successfully');
 });
@@ -65,4 +75,22 @@ export const getSharedCollectionController = asyncHandler(async (req: Request, r
   const collection = await getSharedCollectionService(token);
 
   success(res, collection, 'Shared collection fetched successfully');
+});
+
+export const reorderCollectionsController = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+  const body = reorderCollectionsSchema.parse(req.body);
+
+  for (const item of body.items) {
+    await updateCollectionService(
+      item.id,
+      {
+        order: item.order,
+        folderId: item.folderId ?? null,
+      },
+      userId
+    );
+  }
+
+  success(res, null, 'Collections reordered successfully');
 });
