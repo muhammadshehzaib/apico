@@ -489,28 +489,66 @@ export function CollectionsSidebar({
   };
 
   const handleBulkExport = async () => {
-    const exportData: any = {
-      collections: [] as any[],
-      requests: [] as any[],
+    const folderMap = new Map(folders.map((folder) => [folder.id, folder]));
+    const exportFolders = new Map<string, Folder>();
+
+    const addFolderWithAncestors = (folderId?: string | null) => {
+      let currentId = folderId ?? null;
+      while (currentId) {
+        const folder = folderMap.get(currentId);
+        if (!folder) break;
+        exportFolders.set(folder.id, folder);
+        currentId = folder.parentId ?? null;
+      }
     };
 
-    for (const id of selectedCollections) {
-      const collection = collections.find((c) => c.id === id);
-      if (collection) {
-        exportData.collections.push(collection);
-      }
-    }
+    const exportCollections: CollectionWithRequests[] = [];
+    const exportRequests: SavedRequest[] = [];
 
-    for (const id of selectedRequests) {
-      const request = collections.flatMap((c) => c.requests).find((r) => r.id === id);
+    const collectionIds = new Set(selectedCollections);
+
+    for (const requestId of selectedRequests) {
+      const request = collections.flatMap((c) => c.requests).find((r) => r.id === requestId);
       if (request) {
-        exportData.requests.push(request);
+        exportRequests.push(request);
+        collectionIds.add(request.collectionId);
       }
     }
 
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: 'application/json',
-    });
+    for (const id of collectionIds) {
+      const collection = collections.find((c) => c.id === id);
+      if (!collection) continue;
+      exportCollections.push(collection);
+      addFolderWithAncestors(collection.folderId ?? null);
+
+      const requests =
+        collection.requests.length > 0 ? collection.requests : await fetchRequests(collection.id);
+      for (const request of requests) {
+        exportRequests.push(request);
+      }
+    }
+
+    const uniqueRequests = new Map(exportRequests.map((request) => [request.id, request]));
+    const uniqueCollections = new Map(exportCollections.map((col) => [col.id, col]));
+
+    const exportTagsMap = new Map<string, { id: string; name: string }>();
+    for (const request of uniqueRequests.values()) {
+      for (const tag of request.tags || []) {
+        exportTagsMap.set(tag.id, { id: tag.id, name: tag.name });
+      }
+    }
+
+    const exportData: any = {
+      format: 'apico',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      folders: Array.from(exportFolders.values()),
+      collections: Array.from(uniqueCollections.values()),
+      requests: Array.from(uniqueRequests.values()),
+      tags: Array.from(exportTagsMap.values()),
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

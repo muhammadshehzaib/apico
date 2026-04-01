@@ -116,6 +116,7 @@ export function useCollections(workspaceId: string | null) {
             : c
         )
       );
+      return requests;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch requests');
       setCollections((prev) =>
@@ -123,6 +124,7 @@ export function useCollections(workspaceId: string | null) {
           c.id === collectionId ? { ...c, isLoadingRequests: false } : c
         )
       );
+      return [];
     }
   }, []);
 
