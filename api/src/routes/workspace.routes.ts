@@ -12,6 +12,7 @@ import {
   updateMemberRoleController,
   leaveWorkspaceController,
 } from '../controllers/workspace.controller';
+import { importApicoController } from '../controllers/import.controller';
 
 const router = Router();
 
@@ -27,5 +28,6 @@ router.post('/:id/invites/:inviteId/revoke', revokeInviteController);
 router.delete('/:id/members/:userId', removeMemberController);
 router.patch('/:id/members/:userId', updateMemberRoleController);
 router.post('/:id/leave', leaveWorkspaceController);
+router.post('/:id/import', importApicoController);
 
 export default router;

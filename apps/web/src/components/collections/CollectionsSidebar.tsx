@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import type { DragEvent } from 'react';
 import { SavedRequest, Folder } from '@/types';
 import { useCollections } from '@/hooks/useCollections';
@@ -13,6 +13,7 @@ import { CreateFolderModal } from './CreateFolderModal';
 import { RenameModal } from './RenameModal';
 import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
+import { workspaceService } from '@/services/workspace.service';
 
 interface CollectionsSidebarProps {
   workspaceId: string | null;
@@ -39,6 +40,9 @@ export function CollectionsSidebar({
     expandedIds,
     folders,
     tags,
+    fetchCollections,
+    fetchFolders,
+    fetchTags,
     toggleExpand,
     createCollection,
     renameCollection,
@@ -86,6 +90,8 @@ export function CollectionsSidebar({
   const [searchResults, setSearchResults] = useState<SavedRequest[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [expandedFolderIds, setExpandedFolderIds] = useState<Set<string>>(new Set());
+  const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCreateCollection = async (name: string) => {
     setIsCreating(true);
@@ -564,6 +570,31 @@ export function CollectionsSidebar({
     showToast('Export downloaded', 'success');
   };
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImportFile = async (file: File) => {
+    if (!workspaceId) return;
+    setIsImporting(true);
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      await workspaceService.importApico(workspaceId, payload);
+      await fetchCollections(workspaceId);
+      await fetchFolders(workspaceId);
+      await fetchTags(workspaceId);
+      showToast('Import completed', 'success');
+    } catch (err) {
+      showToast('Failed to import file', 'error');
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
 
   if (!workspaceId) {
     return (
@@ -700,6 +731,14 @@ export function CollectionsSidebar({
         </h3>
         <div className="flex items-center gap-2">
           <button
+            onClick={handleImportClick}
+            className="text-text-muted hover:text-text-primary text-xs transition-colors border border-stroke rounded-md px-2 py-1"
+            title="Import Apico JSON"
+            disabled={isImporting}
+          >
+            {isImporting ? 'Importing...' : 'Import'}
+          </button>
+          <button
             onClick={() => setCreateFolderOpen(true)}
             className="text-text-muted hover:text-text-primary text-sm transition-colors"
             title="Create folder"
@@ -725,6 +764,19 @@ export function CollectionsSidebar({
           </button>
         </div>
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json,application/json"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            void handleImportFile(file);
+          }
+        }}
+        className="hidden"
+      />
 
       <input
         type="text"

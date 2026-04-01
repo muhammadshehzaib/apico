@@ -127,6 +127,14 @@ class WorkspaceService {
     await apiService.delete(API_ENDPOINTS.COLLECTION_BY_ID(id));
   }
 
+  async importApico(workspaceId: string, payload: any): Promise<any> {
+    const response = await apiService.post<any>(
+      `/workspaces/${workspaceId}/import`,
+      payload
+    );
+    return response.data.data;
+  }
+
   async executeRequest(payload: ExecuteRequestInput): Promise<ExecuteRequestResult> {
     const response = await apiService.post<any>(
       API_ENDPOINTS.EXECUTE_REQUEST,
