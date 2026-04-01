@@ -44,6 +44,746 @@ Complete test suite for the Apico REST API testing tool backend. This collection
 
 ---
 
+## Manual API Verification (Exact Order)
+
+If you want to manually verify the API without running the full collection, use this exact order. Save the tokens and IDs as noted because later steps depend on them.
+
+### Phase 3 — Run APIs in This Exact Order
+
+1. **STEP 1 — Register (Run This First Always)**  
+`POST http://localhost:4000/api/auth/register`  
+Body:
+```json
+{
+  "name": "Test User",
+  "email": "test@apico.dev",
+  "password": "Test1234!"
+}
+```
+Expected: `201 Created`  
+Save: `accessToken`, `refreshToken`, `user.id`  
+Why: Every other API needs a user to exist.
+
+2. **STEP 2 — Login**  
+`POST http://localhost:4000/api/auth/login`  
+Body:
+```json
+{
+  "email": "test@apico.dev",
+  "password": "Test1234!"
+}
+```
+Expected: `200 OK`  
+Save: `accessToken` (use as Bearer token), `refreshToken`  
+Why: Gets a fresh token for all future requests.
+
+3. **STEP 3 — Create Workspace**  
+`POST http://localhost:4000/api/workspaces`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "My First Workspace"
+}
+```
+Expected: `201 Created`  
+Save: `data.id` as `WORKSPACE_ID`  
+Why: Collections live inside workspaces.
+
+4. **STEP 4 — Get Workspaces**  
+`GET http://localhost:4000/api/workspaces`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should see array containing your workspace.
+
+5. **STEP 5 — Create Collection**  
+`POST http://localhost:4000/api/workspaces/{WORKSPACE_ID}/collections`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "My First Collection"
+}
+```
+Expected: `201 Created`  
+Save: `data.id` as `COLLECTION_ID`  
+Why: Saved requests live inside collections.
+
+6. **STEP 6 — Get Collections**  
+`GET http://localhost:4000/api/workspaces/{WORKSPACE_ID}/collections`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should see array with your collection.
+
+7. **STEP 7 — Execute Request (Core Feature)**  
+`POST http://localhost:4000/api/execute`  
+Headers:  
+`Authorization: Bearer {your_token_here}`  
+`Content-Type: application/json`  
+Body:
+```json
+{
+  "method": "GET",
+  "url": "https://jsonplaceholder.typicode.com/posts/1",
+  "headers": [],
+  "params": [],
+  "body": "",
+  "auth": { "type": "none" }
+}
+```
+Expected: `200 OK`  
+Response should contain: `data.statusCode: 200`, `data.body` (JSON string), `data.duration` (ms), `data.size` (bytes).
+
+8. **STEP 8 — Execute as Guest (No Token)**  
+`POST http://localhost:4000/api/execute`  
+No `Authorization` header  
+Body:
+```json
+{
+  "method": "GET",
+  "url": "https://jsonplaceholder.typicode.com/posts/1",
+  "headers": [],
+  "params": [],
+  "body": "",
+  "auth": { "type": "none" }
+}
+```
+Expected: `200 OK`  
+This tests the playground feature works without login.
+
+9. **STEP 9 — Save Request to Collection**  
+`POST http://localhost:4000/api/collections/{COLLECTION_ID}/requests`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "Get Post by ID",
+  "method": "GET",
+  "url": "https://jsonplaceholder.typicode.com/posts/1",
+  "headers": [],
+  "params": [],
+  "body": "",
+  "auth": { "type": "none" }
+}
+```
+Expected: `201 Created`  
+Save: `data.id` as `REQUEST_ID`.
+
+10. **STEP 10 — Get Saved Requests**  
+`GET http://localhost:4000/api/collections/{COLLECTION_ID}/requests`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should see your saved request.
+
+11. **STEP 11 — Get History**  
+`GET http://localhost:4000/api/history`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should see execute requests from Steps 7 and 8. Step 8 (guest) should NOT appear.
+
+12. **STEP 12 — Create Shared Link**  
+`POST http://localhost:4000/api/requests/{REQUEST_ID}/share`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body: `{}`  
+Expected: `201 Created`  
+Save: `data.token` as `SHARE_TOKEN`.
+
+13. **STEP 13 — Get Shared Request (Public)**  
+`GET http://localhost:4000/api/share/{SHARE_TOKEN}`  
+No `Authorization` header  
+Expected: `200 OK`  
+Should return the request data without login.
+
+14. **STEP 14 — Create Environment**  
+`POST http://localhost:4000/api/workspaces/{WORKSPACE_ID}/environments`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "Local Development"
+}
+```
+Expected: `201 Created`  
+Save: `data.id` as `ENVIRONMENT_ID`.
+
+15. **STEP 15 — Add Variables to Environment**  
+`PUT http://localhost:4000/api/environments/{ENVIRONMENT_ID}/variables`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "variables": [
+    {
+      "key": "BASE_URL",
+      "value": "localhost:4000",
+      "enabled": true,
+      "isSecret": false
+    },
+    {
+      "key": "TOKEN",
+      "value": "my-secret-token",
+      "enabled": true,
+      "isSecret": true
+    }
+  ]
+}
+```
+Expected: `200 OK`.
+
+16. **STEP 16 — Generate Documentation**  
+`POST http://localhost:4000/api/collections/{COLLECTION_ID}/docs`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "title": "My API Documentation",
+  "description": "Test documentation",
+  "baseUrl": "https://api.example.com",
+  "version": "v1.0.0",
+  "theme": "DARK",
+  "isPublic": true
+}
+```
+Expected: `201 Created`  
+Save: `data.token` as `DOC_TOKEN` and `data.id` as `DOC_ID`.
+
+17. **STEP 17 — Get Doc by Token (Public)**  
+`GET http://localhost:4000/api/docs/{DOC_TOKEN}`  
+No `Authorization` header  
+Expected: `200 OK`  
+Should return full documentation without login.
+
+17A. **STEP 17A — Get My Docs (Auth)**  
+`GET http://localhost:4000/api/docs`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should return an array of your generated docs.
+
+17B. **STEP 17B — Toggle Doc Visibility (Auth)**  
+`PATCH http://localhost:4000/api/docs/{DOC_ID}/visibility`  
+Headers:  
+`Authorization: Bearer {your_token_here}`  
+`Content-Type: application/json`  
+Body:
+```json
+{}
+```
+Expected: `200 OK`  
+Should flip `isPublic` for that doc.
+
+17C. **STEP 17C — Delete Doc (Auth)**  
+`DELETE http://localhost:4000/api/docs/{DOC_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK` or `204 No Content`.
+
+18. **STEP 18 — Health Check**  
+`GET http://localhost:4000/api/health`  
+No Authorization header  
+Expected: `200 OK`  
+Response: `{ "success": true, "message": "API is running" }`
+
+19. **STEP 19 — Get Workspace by ID**  
+`GET http://localhost:4000/api/workspaces/{WORKSPACE_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should return the specific workspace details.
+
+20. **STEP 20 — Update Collection**  
+`PUT http://localhost:4000/api/workspaces/{WORKSPACE_ID}/collections/{COLLECTION_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "Updated Collection Name"
+}
+```
+Expected: `200 OK`
+
+21. **STEP 21 — Reorder Collections**  
+`PATCH http://localhost:4000/api/workspaces/{WORKSPACE_ID}/collections/reorder`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "order": ["{COLLECTION_ID}"]
+}
+```
+Expected: `200 OK`
+
+22. **STEP 22 — Share Collection**  
+`POST http://localhost:4000/api/workspaces/{WORKSPACE_ID}/collections/{COLLECTION_ID}/share`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body: `{}`  
+Expected: `201 Created`  
+Save: `data.token` as `COLLECTION_SHARE_TOKEN`.
+
+23. **STEP 23 — Get Shared Collection (Public)**  
+`GET http://localhost:4000/api/workspaces/{WORKSPACE_ID}/collections/share/{COLLECTION_SHARE_TOKEN}`  
+No Authorization header  
+Expected: `200 OK`  
+Should return the shared collection without login.
+
+24. **STEP 24 — Update Saved Request**  
+`PUT http://localhost:4000/api/requests/{REQUEST_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "Updated Post Request",
+  "method": "POST",
+  "url": "https://jsonplaceholder.typicode.com/posts",
+  "headers": [{ "key": "Content-Type", "value": "application/json", "enabled": true }],
+  "params": [],
+  "body": "{\"title\":\"foo\",\"body\":\"bar\",\"userId\":1}",
+  "auth": { "type": "none" }
+}
+```
+Expected: `200 OK`
+
+25. **STEP 25 — Search Requests**  
+`GET http://localhost:4000/api/requests/search?q=Updated`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should return requests matching the search query.
+
+26. **STEP 26 — Reorder Requests**  
+`PATCH http://localhost:4000/api/requests/reorder`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "order": ["{REQUEST_ID}"]
+}
+```
+Expected: `200 OK`
+
+27. **STEP 27 — Add Tags to Request**  
+`PUT http://localhost:4000/api/requests/{REQUEST_ID}/tags`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "tagIds": ["{TAG_ID}"]
+}
+```
+Expected: `200 OK`  
+Note: Requires a tag to exist first (see Step 38).
+
+28. **STEP 28 — Delete History Entry**  
+`DELETE http://localhost:4000/api/history/{HISTORY_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Note: Use a history ID from Step 11.
+
+29. **STEP 29 — Clear All History**  
+`DELETE http://localhost:4000/api/history`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Clears all history for the authenticated user.
+
+30. **STEP 30 — Get Environments**  
+`GET http://localhost:4000/api/workspaces/{WORKSPACE_ID}/environments`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should return array containing the environment from Step 14.
+
+31. **STEP 31 — Get Environment by ID**  
+`GET http://localhost:4000/api/workspaces/{WORKSPACE_ID}/environments/{ENVIRONMENT_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should return the specific environment with its variables.
+
+32. **STEP 32 — Update Environment**  
+`PUT http://localhost:4000/api/workspaces/{WORKSPACE_ID}/environments/{ENVIRONMENT_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "Staging Environment"
+}
+```
+Expected: `200 OK`
+
+33. **STEP 33 — Delete Environment**  
+`DELETE http://localhost:4000/api/workspaces/{WORKSPACE_ID}/environments/{ENVIRONMENT_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Removes the environment and its variables.
+
+34. **STEP 34 — Create Folder**  
+`POST http://localhost:4000/api/workspaces/{WORKSPACE_ID}/folders`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "My Folder"
+}
+```
+Expected: `201 Created`  
+Save: `data.id` as `FOLDER_ID`.
+
+35. **STEP 35 — Get Folders**  
+`GET http://localhost:4000/api/workspaces/{WORKSPACE_ID}/folders`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should return array containing your folder.
+
+36. **STEP 36 — Update Folder**  
+`PUT http://localhost:4000/api/workspaces/{WORKSPACE_ID}/folders/{FOLDER_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "Renamed Folder"
+}
+```
+Expected: `200 OK`
+
+37. **STEP 37 — Reorder Folders**  
+`PATCH http://localhost:4000/api/workspaces/{WORKSPACE_ID}/folders/reorder`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "order": ["{FOLDER_ID}"]
+}
+```
+Expected: `200 OK`
+
+38. **STEP 38 — Delete Folder**  
+`DELETE http://localhost:4000/api/workspaces/{WORKSPACE_ID}/folders/{FOLDER_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`
+
+39. **STEP 39 — Create Tag**  
+`POST http://localhost:4000/api/workspaces/{WORKSPACE_ID}/tags`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "important",
+  "color": "#ff0000"
+}
+```
+Expected: `201 Created`  
+Save: `data.id` as `TAG_ID`.
+
+40. **STEP 40 — Get Tags**  
+`GET http://localhost:4000/api/workspaces/{WORKSPACE_ID}/tags`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should return array containing your tag.
+
+41. **STEP 41 — Update Tag**  
+`PUT http://localhost:4000/api/workspaces/{WORKSPACE_ID}/tags/{TAG_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "name": "critical",
+  "color": "#ff4444"
+}
+```
+Expected: `200 OK`
+
+42. **STEP 42 — Delete Tag**  
+`DELETE http://localhost:4000/api/workspaces/{WORKSPACE_ID}/tags/{TAG_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`
+
+43. **STEP 43 — Delete Saved Request**  
+`DELETE http://localhost:4000/api/requests/{REQUEST_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`
+
+44. **STEP 44 — Delete Collection**  
+`DELETE http://localhost:4000/api/workspaces/{WORKSPACE_ID}/collections/{COLLECTION_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`
+
+45. **STEP 45 — Invite Member to Workspace**  
+`POST http://localhost:4000/api/workspaces/{WORKSPACE_ID}/invite`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "email": "member@apico.dev",
+  "role": "VIEWER"
+}
+```
+Expected: `201 Created`  
+Save: `data.id` as `INVITE_ID`, `data.token` as `INVITE_TOKEN`.
+
+46. **STEP 46 — Get Workspace Members**  
+`GET http://localhost:4000/api/workspaces/{WORKSPACE_ID}/members`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should return array of workspace members.
+
+47. **STEP 47 — Get Workspace Invites**  
+`GET http://localhost:4000/api/workspaces/{WORKSPACE_ID}/invites`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`  
+Should return array of pending invites.
+
+48. **STEP 48 — Get Invite by Token (Public)**  
+`GET http://localhost:4000/api/workspace-invites/{INVITE_TOKEN}`  
+No Authorization header  
+Expected: `200 OK`  
+Should return invite details without login.
+
+49. **STEP 49 — Get Pending Invites (Invitee)**  
+`GET http://localhost:4000/api/workspace-invites/pending`  
+Headers: `Authorization: Bearer {invitee_token_here}`  
+Expected: `200 OK`  
+Note: Requires the invitee to be registered and logged in.
+
+50. **STEP 50 — Accept Invite**  
+`POST http://localhost:4000/api/workspace-invites/{INVITE_TOKEN}/accept`  
+Headers: `Authorization: Bearer {invitee_token_here}`  
+Expected: `200 OK`  
+Note: Requires the invitee to be logged in.
+
+51. **STEP 51 — Decline Invite**  
+`POST http://localhost:4000/api/workspace-invites/{INVITE_TOKEN}/decline`  
+Headers: `Authorization: Bearer {invitee_token_here}`  
+Expected: `200 OK`  
+Note: Create another invite first, then decline it.
+
+52. **STEP 52 — Update Member Role**  
+`PATCH http://localhost:4000/api/workspaces/{WORKSPACE_ID}/members/{MEMBER_USER_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Body:
+```json
+{
+  "role": "EDITOR"
+}
+```
+Expected: `200 OK`
+
+53. **STEP 53 — Revoke Invite**  
+`POST http://localhost:4000/api/workspaces/{WORKSPACE_ID}/invites/{INVITE_ID}/revoke`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`
+
+54. **STEP 54 — Remove Member from Workspace**  
+`DELETE http://localhost:4000/api/workspaces/{WORKSPACE_ID}/members/{MEMBER_USER_ID}`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`
+
+55. **STEP 55 — Leave Workspace**  
+`POST http://localhost:4000/api/workspaces/{WORKSPACE_ID}/leave`  
+Headers: `Authorization: Bearer {member_token_here}`  
+Expected: `200 OK`  
+Note: Must be a non-owner member to leave.
+
+56. **STEP 56 — Import to Workspace**  
+`POST http://localhost:4000/api/workspaces/{WORKSPACE_ID}/import`  
+Headers: `Authorization: Bearer {your_token_here}`  
+`Content-Type: application/json`  
+Body:
+```json
+{
+  "format": "apico",
+  "data": {
+    "collections": [
+      {
+        "name": "Imported Collection",
+        "requests": [
+          {
+            "name": "Sample Request",
+            "method": "GET",
+            "url": "https://jsonplaceholder.typicode.com/posts/1",
+            "headers": [],
+            "params": [],
+            "body": "",
+            "auth": { "type": "none" }
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+Expected: `200 OK`
+
+57. **STEP 57 — Test Error Cases**  
+Run these to verify error handling:
+```text
+Test 1 — No token:
+GET http://localhost:4000/api/workspaces
+No auth header
+Expected: 401
+
+Test 2 — Wrong password:
+POST http://localhost:4000/api/auth/login
+{ "email": "test@apico.dev", "password": "wrong" }
+Expected: 401
+
+Test 3 — Invalid URL in execute:
+POST http://localhost:4000/api/requests/execute
+{ "method": "GET", "url": "not-a-url", ... }
+Expected: 400
+
+Test 4 — Access wrong workspace:
+GET http://localhost:4000/api/workspaces/fake-id-999
+With valid token
+Expected: 403 or 404
+```
+
+58. **STEP 58 — Refresh Token**  
+`POST http://localhost:4000/api/auth/refresh`  
+Body:
+```json
+{
+  "refreshToken": "{your_refresh_token}"
+}
+```
+Expected: `200 OK`  
+Returns new `accessToken`.
+
+59. **STEP 59 — Logout**  
+`POST http://localhost:4000/api/auth/logout`  
+Headers: `Authorization: Bearer {your_token_here}`  
+Expected: `200 OK`.
+
+### Complete Order Summary
+
+Phase 1 — Server Check  
+18. Health Check
+
+Phase 2 — Auth (must be first)  
+1. Register  
+2. Login (save token)
+
+Phase 3 — Setup (needs auth)  
+3. Create Workspace (save ID)  
+4. Get Workspaces  
+5. Create Collection (save ID)  
+6. Get Collections
+
+Phase 4 — Core Feature  
+7. Execute Request (with auth)  
+8. Execute Request (no auth/guest)  
+9. Save Request (save ID)  
+10. Get Saved Requests
+
+Phase 5 — History  
+11. Get History
+
+Phase 6 — Sharing  
+12. Create Shared Link (save token)  
+13. Get Shared Request (no auth)
+
+Phase 7 — Environments  
+14. Create Environment (save ID)  
+15. Add Variables
+
+Phase 8 — Documentation  
+16. Generate Doc (save token)  
+17. Get Doc (no auth)  
+17A. Get My Docs  
+17B. Toggle Doc Visibility  
+17C. Delete Doc
+
+Phase 9 — Workspace Details  
+19. Get Workspace by ID
+
+Phase 10 — Collection Management  
+20. Update Collection  
+21. Reorder Collections  
+22. Share Collection  
+23. Get Shared Collection (public)  
+44. Delete Collection
+
+Phase 11 — Request Management  
+24. Update Saved Request  
+25. Search Requests  
+26. Reorder Requests  
+27. Add Tags to Request  
+43. Delete Saved Request
+
+Phase 12 — History Management  
+28. Delete History Entry  
+29. Clear All History
+
+Phase 13 — Environment Management  
+30. Get Environments  
+31. Get Environment by ID  
+32. Update Environment  
+33. Delete Environment
+
+Phase 14 — Folders  
+34. Create Folder (save ID)  
+35. Get Folders  
+36. Update Folder  
+37. Reorder Folders  
+38. Delete Folder
+
+Phase 15 — Tags  
+39. Create Tag (save ID)  
+40. Get Tags  
+41. Update Tag  
+42. Delete Tag
+
+Phase 16 — Workspace Collaboration  
+45. Invite Member (save invite ID/token)  
+46. Get Workspace Members  
+47. Get Workspace Invites  
+48. Get Invite by Token (public)  
+49. Get Pending Invites (invitee)  
+50. Accept Invite  
+51. Decline Invite  
+52. Update Member Role  
+53. Revoke Invite  
+54. Remove Member  
+55. Leave Workspace
+
+Phase 17 — Import  
+56. Import to Workspace
+
+Phase 18 — Error Cases  
+57. Test all 4 error scenarios
+
+Phase 19 — Cleanup  
+58. Refresh Token  
+59. Logout
+
+### Color Code Meaning
+
+🔴 Critical — Must work or nothing works  
+🟡 Important — Core functionality  
+🟢 Core feature — Main value of the app  
+🔵 Nice to have — Important but secondary  
+🟣 Advanced — Environment system  
+🟠 Premium — Docs feature
+
+If any step fails, report:
+Which step number failed, the error message, and the status code.
+
+### Additional Things Available to Test Now
+
+Backend checks:
+1. Run migrations (folders/tags/order added).
+2. Run tests.
+3. All folder, tag, reorder, and search endpoints are now covered in Steps 25–42 above.
+
+Frontend checks:
+1. Sidebar folder creation, drag-drop, delete.
+2. Add tags to a request, filter by tags.
+3. Bulk actions (move/share/delete/export).
+4. Command palette (Cmd/Ctrl+K).
+5. Pin/unpin requests.
+6. Response diff tab.
+
+Recent changes to verify:
+1. UI fix: HTTP method dropdown no longer shows background text bleeding through.
+2. Backend test coverage: added test for `GET /api/workspaces/:workspaceId/collections/share/:token`.
+3. Folders + tags + ordering feature (backend and frontend).
+4. Core UX features: command palette, pinned tabs, history filters, response diff view, request menu pin/unpin.
+
+---
+
 ## Collection Structure
 
 ### 01 - Auth (6 requests)
