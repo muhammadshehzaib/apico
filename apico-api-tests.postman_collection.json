@@ -549,7 +549,15 @@
                   "pm.test('Response has correct structure', () => {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json).to.have.property('success')",
-                  "})"
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.invite?.id) {",
+                  "  pm.environment.set('INVITE_ID', json.data.invite.id)",
+                  "}",
+                  "if (json.data?.invite?.token) {",
+                  "  pm.environment.set('INVITE_TOKEN', json.data.invite.token)",
+                  "}"
                 ]
               }
             }
@@ -577,7 +585,33 @@
                 "members"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array of members', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "const currentUserId = pm.environment.get('USER_ID')",
+                  "if (Array.isArray(json.data)) {",
+                  "  const other = json.data.find((m) => m.user?.id && m.user.id !== currentUserId)",
+                  "  if (other?.user?.id) {",
+                  "    pm.environment.set('MEMBER_USER_ID', other.user.id)",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Workspace Invites",
@@ -601,7 +635,35 @@
                 "invites"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (Array.isArray(json.data) && json.data.length) {",
+                  "  const invite = json.data[0]",
+                  "  if (invite.id) {",
+                  "    pm.environment.set('INVITE_ID', invite.id)",
+                  "  }",
+                  "  if (invite.token) {",
+                  "    pm.environment.set('INVITE_TOKEN', invite.token)",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Revoke Workspace Invite",
@@ -627,7 +689,19 @@
                 "revoke"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200, 400, or 404', () => {",
+                  "  pm.expect([200, 400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Remove Workspace Member",
@@ -652,7 +726,19 @@
                 "{{MEMBER_USER_ID}}"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200, 400, or 404', () => {",
+                  "  pm.expect([200, 400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Workspace Member Role",
@@ -685,7 +771,19 @@
               "mode": "raw",
               "raw": "{\"role\": \"EDITOR\"}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200, 400, or 404', () => {",
+                  "  pm.expect([200, 400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Leave Workspace",
@@ -717,7 +815,19 @@
               "mode": "raw",
               "raw": "{}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 400', () => {",
+                  "  pm.expect([200, 400]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Import Workspace (Apico)",
@@ -749,7 +859,24 @@
               "mode": "raw",
               "raw": "{\"format\": \"apico\", \"version\": 1, \"collections\": []}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Import completed', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json).to.have.property('success')",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -968,7 +1095,19 @@
               "mode": "raw",
               "raw": "{\"items\": [{\"id\": \"{{COLLECTION_ID}}\", \"order\": 1, \"folderId\": null}]}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -1216,7 +1355,7 @@
               }
             ],
             "url": {
-              "raw": "{{BASE_URL}}/requests/search?query={{SEARCH_QUERY}}",
+              "raw": "{{BASE_URL}}/requests/search?workspaceId={{WORKSPACE_ID}}&q={{SEARCH_QUERY}}",
               "host": [
                 "{{BASE_URL}}"
               ],
@@ -1226,12 +1365,33 @@
               ],
               "query": [
                 {
-                  "key": "query",
+                  "key": "workspaceId",
+                  "value": "{{WORKSPACE_ID}}"
+                },
+                {
+                  "key": "q",
                   "value": "{{SEARCH_QUERY}}"
                 }
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Reorder Requests",
@@ -1262,7 +1422,19 @@
               "mode": "raw",
               "raw": "{\"items\": [{\"id\": \"{{REQUEST_ID}}\", \"order\": 1}]}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Request Tags",
@@ -1294,7 +1466,19 @@
               "mode": "raw",
               "raw": "{\"tags\": [\"tag1\", \"tag2\"]}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -2060,7 +2244,29 @@
               "mode": "raw",
               "raw": "{\"expiresAt\": \"2026-12-31T00:00:00.000Z\"}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Share token created', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.token).to.exist",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.token) {",
+                  "  pm.environment.set('COLLECTION_SHARE_TOKEN', json.data.token)",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Shared Collection (public)",
@@ -2078,7 +2284,19 @@
                 "{{COLLECTION_SHARE_TOKEN}}"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -2390,7 +2608,30 @@
               "mode": "raw",
               "raw": "{\"name\": \"Test Folder\"}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Folder created', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.id).to.exist",
+                  "  pm.expect(json.data.name).to.equal('Test Folder')",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('FOLDER_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Folders",
@@ -2414,7 +2655,32 @@
                 "folders"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (Array.isArray(json.data) && json.data.length) {",
+                  "  const folder = json.data[0]",
+                  "  if (folder.id) {",
+                  "    pm.environment.set('FOLDER_ID', folder.id)",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Reorder Folders",
@@ -2447,7 +2713,19 @@
               "mode": "raw",
               "raw": "{\"items\": [{\"id\": \"{{FOLDER_ID}}\", \"order\": 1, \"parentId\": null}]}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Folder",
@@ -2480,7 +2758,19 @@
               "mode": "raw",
               "raw": "{\"name\": \"Updated Folder\"}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Folder",
@@ -2505,7 +2795,19 @@
                 "{{FOLDER_ID}}"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -2694,7 +2996,30 @@
               "mode": "raw",
               "raw": "{\"name\": \"Test Tag\"}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201', () => {",
+                  "  pm.expect(pm.response.code).to.equal(201)",
+                  "})",
+                  "",
+                  "pm.test('Tag created', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.id).to.exist",
+                  "  pm.expect(json.data.name).to.equal('Test Tag')",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (json.data?.id) {",
+                  "  pm.environment.set('TAG_ID', json.data.id)",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Tags",
@@ -2718,7 +3043,32 @@
                 "tags"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (Array.isArray(json.data) && json.data.length) {",
+                  "  const tag = json.data[0]",
+                  "  if (tag.id) {",
+                  "    pm.environment.set('TAG_ID', tag.id)",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Tag",
@@ -2751,7 +3101,19 @@
               "mode": "raw",
               "raw": "{\"name\": \"Updated Tag\"}"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Delete Tag",
@@ -2776,7 +3138,19 @@
                 "{{TAG_ID}}"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -2805,7 +3179,32 @@
                 "pending"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Returns array', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data).to.be.an('array')",
+                  "})",
+                  "",
+                  "const json = pm.response.json()",
+                  "if (Array.isArray(json.data) && json.data.length) {",
+                  "  const invite = json.data[0]",
+                  "  if (invite.token) {",
+                  "    pm.environment.set('INVITE_TOKEN', invite.token)",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Invite by Token",
@@ -2822,7 +3221,19 @@
                 "{{INVITE_TOKEN}}"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Accept Invite",
@@ -2846,7 +3257,19 @@
                 "accept"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200, 403, 404, or 410', () => {",
+                  "  pm.expect([200, 403, 404, 410]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Decline Invite",
@@ -2870,7 +3293,19 @@
                 "decline"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200, 403, 404, or 410', () => {",
+                  "  pm.expect([200, 403, 404, 410]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -2892,7 +3327,19 @@
                 "health"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     }
