@@ -48,12 +48,16 @@ export const executeAndSave = async (payload: ExecuteRequestPayload, userId?: st
 
   // Only save to history if user is authenticated
   if (userId) {
+    const historyBody = payload.bodyType === 'form-data' && payload.formDataFields
+      ? JSON.stringify({ __bodyType: 'form-data', fields: payload.formDataFields })
+      : payload.body;
+
     await createHistoryEntry({
       userId,
       method: payload.method,
       url: payload.url,
       headers: payload.headers,
-      body: payload.body,
+      body: historyBody,
       statusCode: result.statusCode,
       response: result.body,
       duration: result.duration,

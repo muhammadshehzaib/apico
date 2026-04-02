@@ -25,6 +25,10 @@ class ApiService {
         // Log lack of token for debugging E2E
         console.warn(`[API] No token found for ${config.method?.toUpperCase()} ${config.url}`);
       }
+      // Let browser set Content-Type with multipart boundary for FormData
+      if (config.data instanceof FormData) {
+        delete config.headers['Content-Type'];
+      }
       return config;
     });
 

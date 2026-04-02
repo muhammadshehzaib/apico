@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { authenticate } from '../middleware/auth.middleware';
 import { optionalAuthenticate } from '../middleware/optionalAuth.middleware';
 import {
@@ -14,9 +15,14 @@ import {
   reorderRequestsController,
 } from '../controllers/request.controller';
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
+
 const router = Router({ mergeParams: true });
 
-router.post('/execute', optionalAuthenticate, executeController);
+router.post('/execute', optionalAuthenticate, upload.any(), executeController);
 
 router.get('/share/:token', getSharedController);
 

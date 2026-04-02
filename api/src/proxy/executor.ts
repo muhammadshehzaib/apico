@@ -1,4 +1,5 @@
 import axios from 'axios';
+import FormData from 'form-data';
 import { ExecuteRequestPayload, ExecuteRequestResult } from '../types';
 
 export const executeRequest = async (payload: ExecuteRequestPayload): Promise<ExecuteRequestResult> => {
@@ -40,15 +41,45 @@ export const executeRequest = async (payload: ExecuteRequestPayload): Promise<Ex
     }
   }
 
-  let requestBody: any = payload.body;
+  let requestBody: any;
 
-  // Auto-detect JSON body and set Content-Type if not already set
-  if (payload.body && !headers['Content-Type'] && !headers['content-type']) {
-    try {
-      requestBody = JSON.parse(payload.body);
-      headers['Content-Type'] = 'application/json';
-    } catch {
-      // Not JSON — send as plain string
+  if (payload.bodyType === 'form-data' && payload.formDataFields) {
+    const form = new FormData();
+    const files = ((payload as any)._files || []) as Array<{
+      fieldname: string;
+      originalname: string;
+      mimetype: string;
+      buffer: Buffer;
+    }>;
+
+    for (const field of payload.formDataFields) {
+      if (!field.enabled) continue;
+      if (field.type === 'text') {
+        form.append(field.key, field.value);
+      } else if (field.type === 'file') {
+        const file = files.find((f) => f.fieldname === `file_${field.key}`);
+        if (file) {
+          form.append(field.key, file.buffer, {
+            filename: file.originalname,
+            contentType: file.mimetype,
+          });
+        }
+      }
+    }
+
+    requestBody = form;
+    Object.assign(headers, form.getHeaders());
+  } else {
+    requestBody = payload.body;
+
+    // Auto-detect JSON body and set Content-Type if not already set
+    if (payload.body && !headers['Content-Type'] && !headers['content-type']) {
+      try {
+        requestBody = JSON.parse(payload.body);
+        headers['Content-Type'] = 'application/json';
+      } catch {
+        // Not JSON — send as plain string
+      }
     }
   }
 

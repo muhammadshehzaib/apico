@@ -82,6 +82,9 @@ export function RequestBuilder() {
     headers,
     params,
     body,
+    bodyType,
+    formDataFields,
+    formDataFiles,
     auth,
     preRequestScript,
     postResponseScript,
@@ -98,6 +101,9 @@ export function RequestBuilder() {
     setHeaders,
     setParams,
     setBody,
+    setBodyType,
+    setFormDataFields,
+    setFormDataFiles,
     setAuth,
     setActiveTab,
     setActiveVariables,
@@ -136,7 +142,31 @@ export function RequestBuilder() {
     setUrl(request.url);
     setHeaders(request.headers || [{ key: '', value: '', enabled: true }]);
     setParams((request as any).params || [{ key: '', value: '', enabled: true }]);
-    setBody(request.body || '');
+
+    // Detect form-data serialized body
+    const rawBody = request.body || '';
+    let detectedBodyType: import('@/types').BodyType = 'json';
+    let loadedBody = rawBody;
+    let loadedFormDataFields: import('@/types').FormDataField[] = [{ key: '', type: 'text', value: '', enabled: true }];
+
+    if (rawBody) {
+      try {
+        const parsed = JSON.parse(rawBody);
+        if (parsed.__bodyType === 'form-data' && Array.isArray(parsed.fields)) {
+          detectedBodyType = 'form-data';
+          loadedFormDataFields = parsed.fields;
+          loadedBody = '';
+        }
+      } catch {
+        // Not form-data envelope
+      }
+    }
+
+    setBody(loadedBody);
+    setBodyType(detectedBodyType);
+    setFormDataFields(loadedFormDataFields);
+    setFormDataFiles(new Map());
+
     if ('auth' in request) {
       setAuth((request as SavedRequest).auth || { type: 'none' });
     }
@@ -304,7 +334,13 @@ export function RequestBuilder() {
           currentRequest={{
             method: method,
             url: url,
-          }}
+            headers: headers,
+            params: params,
+            body: bodyType === 'form-data'
+              ? JSON.stringify({ __bodyType: 'form-data', fields: formDataFields })
+              : body,
+            auth: auth,
+          } as any}
           onSaveRequest={handleSaveRequest}
           pinnedRequestIds={pinnedRequestIds}
           onTogglePinRequest={togglePinRequest}
@@ -352,6 +388,12 @@ export function RequestBuilder() {
                   onHeadersChange={setHeaders}
                   body={body}
                   onBodyChange={setBody}
+                  bodyType={bodyType}
+                  onBodyTypeChange={setBodyType}
+                  formDataFields={formDataFields}
+                  onFormDataFieldsChange={setFormDataFields}
+                  formDataFiles={formDataFiles}
+                  onFormDataFilesChange={setFormDataFiles}
                   auth={auth}
                   onAuthChange={setAuth}
                   preRequestScript={preRequestScript}

@@ -7,6 +7,8 @@ import {
   RequestAuth,
   ExecuteRequestResult,
   SavedRequest,
+  BodyType,
+  FormDataField,
 } from '@/types';
 import { workspaceService } from '@/services/workspace.service';
 import { isValidUrl } from '@/utils/request.util';
@@ -27,6 +29,8 @@ interface RequestState {
   headers: KeyValuePair[];
   params: KeyValuePair[];
   body: string;
+  bodyType: BodyType;
+  formDataFields: FormDataField[];
   auth: RequestAuth;
   preRequestScript: string;
   postResponseScript: string;
@@ -44,6 +48,8 @@ const defaultState: RequestState = {
   headers: [{ key: '', value: '', enabled: true }],
   params: [{ key: '', value: '', enabled: true }],
   body: '',
+  bodyType: 'json',
+  formDataFields: [{ key: '', type: 'text', value: '', enabled: true }],
   auth: { type: 'none' },
   preRequestScript: '',
   postResponseScript: '',
@@ -57,6 +63,7 @@ const defaultState: RequestState = {
 
 export function useRequestBuilder() {
   const [state, setState] = useState<RequestState>(defaultState);
+  const [formDataFiles, setFormDataFiles] = useState<Map<string, File>>(new Map());
   const [responseHistory, setResponseHistory] = useState<
     Record<string, { result: ExecuteRequestResult; at: string }[]>
   >({});
@@ -128,6 +135,14 @@ export function useRequestBuilder() {
     setState((prev) => ({ ...prev, body }));
   }, []);
 
+  const setBodyType = useCallback((bodyType: BodyType) => {
+    setState((prev) => ({ ...prev, bodyType }));
+  }, []);
+
+  const setFormDataFields = useCallback((formDataFields: FormDataField[]) => {
+    setState((prev) => ({ ...prev, formDataFields }));
+  }, []);
+
   const setAuth = useCallback((auth: RequestAuth) => {
     setState((prev) => ({ ...prev, auth }));
   }, []);
@@ -154,17 +169,39 @@ export function useRequestBuilder() {
 
   const resetAll = useCallback(() => {
     setState(defaultState);
+    setFormDataFiles(new Map());
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 
   const loadSavedRequest = useCallback((request: SavedRequest) => {
+    let bodyType: BodyType = 'json';
+    let body = request.body || '';
+    let formDataFields: FormDataField[] = [{ key: '', type: 'text', value: '', enabled: true }];
+
+    // Detect form-data serialized body
+    if (body) {
+      try {
+        const parsed = JSON.parse(body);
+        if (parsed.__bodyType === 'form-data' && Array.isArray(parsed.fields)) {
+          bodyType = 'form-data';
+          formDataFields = parsed.fields;
+          body = '';
+        }
+      } catch {
+        // Not JSON envelope, treat as regular body
+      }
+    }
+
+    setFormDataFiles(new Map());
     setState((prev) => ({
       ...prev,
       method: request.method,
       url: request.url,
       headers: request.headers || [{ key: '', value: '', enabled: true }],
       params: request.params || [{ key: '', value: '', enabled: true }],
-      body: request.body || '',
+      body,
+      bodyType,
+      formDataFields,
       auth: request.auth || { type: 'none' },
       response: null,
       error: null,
@@ -212,35 +249,77 @@ export function useRequestBuilder() {
 
     try {
       // Resolve variables in all request fields
-      let resolvedPayload: any = {
-        method: state.method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-        url: resolveVariables(state.url, state.activeVariables),
-        headers: resolveKeyValuePairs(state.headers, state.activeVariables).filter(h => h.enabled && h.key.trim() !== ''),
-        params: resolveKeyValuePairs(state.params, state.activeVariables).filter(p => p.enabled && p.key.trim() !== ''),
-        body: resolveVariables(state.body, state.activeVariables),
-        auth: {
-          ...state.auth,
-          token: state.auth.token
-            ? resolveVariables(state.auth.token, state.activeVariables)
-            : undefined,
-          username: state.auth.username
-            ? resolveVariables(state.auth.username, state.activeVariables)
-            : undefined,
-          password: state.auth.password
-            ? resolveVariables(state.auth.password, state.activeVariables)
-            : undefined,
-        },
+      const resolvedHeaders = resolveKeyValuePairs(state.headers, state.activeVariables).filter(h => h.enabled && h.key.trim() !== '');
+      const resolvedParams = resolveKeyValuePairs(state.params, state.activeVariables).filter(p => p.enabled && p.key.trim() !== '');
+      const resolvedAuth = {
+        ...state.auth,
+        token: state.auth.token
+          ? resolveVariables(state.auth.token, state.activeVariables)
+          : undefined,
+        username: state.auth.username
+          ? resolveVariables(state.auth.username, state.activeVariables)
+          : undefined,
+        password: state.auth.password
+          ? resolveVariables(state.auth.password, state.activeVariables)
+          : undefined,
       };
 
-      // Run pre-request script if provided
-      if (state.preRequestScript.trim()) {
-        resolvedPayload = await runPreRequestScript(
-          resolvedPayload as any,
-          state.activeVariables as any
-        );
-      }
+      let result: ExecuteRequestResult;
 
-      const result = await workspaceService.executeRequest(resolvedPayload as any);
+      if (state.bodyType === 'form-data') {
+        // Resolve variables in form-data text fields
+        const resolvedFields = state.formDataFields.map((field) => ({
+          ...field,
+          key: resolveVariables(field.key, state.activeVariables),
+          value: field.type === 'text'
+            ? resolveVariables(field.value, state.activeVariables)
+            : field.value,
+        }));
+
+        // Build browser FormData
+        const fd = new FormData();
+        fd.append('__metadata', JSON.stringify({
+          method: state.method,
+          url: resolveVariables(state.url, state.activeVariables),
+          headers: resolvedHeaders,
+          params: resolvedParams,
+          bodyType: 'form-data',
+          fields: resolvedFields,
+          auth: resolvedAuth,
+        }));
+
+        for (let i = 0; i < resolvedFields.length; i++) {
+          const field = resolvedFields[i];
+          if (!field.enabled || !field.key.trim()) continue;
+          if (field.type === 'file') {
+            const file = formDataFiles.get(String(i));
+            if (file) {
+              fd.append(`file_${field.key}`, file);
+            }
+          }
+        }
+
+        result = await workspaceService.executeFormDataRequest(fd);
+      } else {
+        let resolvedPayload: any = {
+          method: state.method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+          url: resolveVariables(state.url, state.activeVariables),
+          headers: resolvedHeaders,
+          params: resolvedParams,
+          body: resolveVariables(state.body, state.activeVariables),
+          auth: resolvedAuth,
+        };
+
+        // Run pre-request script if provided
+        if (state.preRequestScript.trim()) {
+          resolvedPayload = await runPreRequestScript(
+            resolvedPayload as any,
+            state.activeVariables as any
+          );
+        }
+
+        result = await workspaceService.executeRequest(resolvedPayload as any);
+      }
 
       setState((prev) => ({ ...prev, response: result, isLoading: false }));
 
@@ -257,20 +336,20 @@ export function useRequestBuilder() {
       if (state.postResponseScript.trim()) {
         await runTestScript(
           state.postResponseScript,
-          resolvedPayload as any,
+          { method: state.method, url: state.url, headers: resolvedHeaders, params: resolvedParams, auth: resolvedAuth } as any,
           result,
           state.activeVariables as any
         );
       }
 
-      // Persist to localStorage
+      // Persist to localStorage (exclude non-serializable formDataFiles)
       const toSave = { ...state, response: null };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Request failed';
       setState((prev) => ({ ...prev, error: errorMessage, isLoading: false }));
     }
-  }, [state, runPreRequestScript, runTestScript, getResponseKey]);
+  }, [state, formDataFiles, runPreRequestScript, runTestScript, getResponseKey]);
 
   const responseKey = getResponseKey(state.method, state.url);
   const responseHistoryList = responseHistory[responseKey] || [];
@@ -281,6 +360,7 @@ export function useRequestBuilder() {
 
   return {
     ...state,
+    formDataFiles,
     previousResponse,
     responseHistory: responseHistoryList,
     setMethod,
@@ -288,6 +368,9 @@ export function useRequestBuilder() {
     setHeaders,
     setParams,
     setBody,
+    setBodyType,
+    setFormDataFields,
+    setFormDataFiles,
     setAuth,
     setActiveTab,
     setActiveVariables,

@@ -14,18 +14,36 @@ import {
 } from '../services/request.service';
 import {
   executeRequestSchema,
+  formDataMetadataSchema,
   saveRequestSchema,
   shareRequestSchema,
   updateSavedRequestSchema,
   updateRequestTagsSchema,
   reorderRequestsSchema,
 } from '../validations/request.validation';
+import { ExecuteRequestPayload, HttpMethod } from '../types';
 
 export const executeController = asyncHandler(async (req: Request, res: Response) => {
-  const body = executeRequestSchema.parse(req.body);
-  const userId = req.user?.id;
+  let payload: ExecuteRequestPayload;
 
-  const result = await executeAndSave(body, userId);
+  if (req.is('multipart/form-data') || req.body?.__metadata) {
+    const metadata = formDataMetadataSchema.parse(JSON.parse(req.body.__metadata));
+    payload = {
+      method: metadata.method as HttpMethod,
+      url: metadata.url,
+      headers: metadata.headers,
+      params: metadata.params,
+      bodyType: 'form-data',
+      formDataFields: metadata.fields,
+      auth: metadata.auth,
+    };
+    (payload as any)._files = req.files;
+  } else {
+    payload = executeRequestSchema.parse(req.body) as unknown as ExecuteRequestPayload;
+  }
+
+  const userId = req.user?.id;
+  const result = await executeAndSave(payload, userId);
 
   success(res, result, 'Request executed successfully');
 });
