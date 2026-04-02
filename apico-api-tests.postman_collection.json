@@ -3512,6 +3512,435 @@
               }
             }
           ]
+        },
+        {
+          "name": "Invalid Email (expect 400)",
+          "description": "Attempts to register with an invalid email.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Bad Email\",\"email\":\"not-an-email\",\"password\":\"password123\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/register",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Environment Missing Name (expect 400)",
+          "description": "Attempts to update an environment without a name.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "environments",
+                "{{ENVIRONMENT_ID}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Shared Collection Invalid Token (expect 404)",
+          "description": "Attempts to fetch a shared collection with an invalid token.",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{BASE_URL}}/collections/share/invalid-token",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections",
+                "share",
+                "invalid-token"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => {",
+                  "  pm.expect(pm.response.code).to.equal(404)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Short Password (expect 400)",
+          "description": "Attempts to register with a short password.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Short Pass\",\"email\":\"shortpass@test.com\",\"password\":\"short\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/register",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Invalid Email Format (expect 400)",
+          "description": "Attempts to login with an invalid email format.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"bad-email\",\"password\":\"whatever\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Missing Token (expect 400)",
+          "description": "Attempts to refresh without refreshToken.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/refresh",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Invalid Token (expect 401)",
+          "description": "Attempts to refresh with an invalid refresh token.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"refreshToken\":\"invalid.token.value\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/refresh",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 401', () => {",
+                  "  pm.expect(pm.response.code).to.equal(401)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Workspace Missing Name (expect 400)",
+          "description": "Attempts to create a workspace without a name.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Collection Invalid Folder (expect 404)",
+          "description": "Attempts to create a collection with a non-existent folderId.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Bad Folder Collection\",\"folderId\":\"non-existent-folder\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "collections"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404 or 403', () => {",
+                  "  pm.expect([404, 403]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bulk Update Variables Missing Key (expect 400)",
+          "description": "Attempts to update variables with a missing key.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"variables\":[{\"value\":\"x\",\"enabled\":true,\"isSecret\":false}]}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "environments",
+                "{{ENVIRONMENT_ID}}",
+                "variables"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Shared Request Invalid Token (expect 404)",
+          "description": "Attempts to fetch a shared request with an invalid token.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/requests/share/invalid-token",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "share",
+                "invalid-token"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 404', () => {",
+                  "  pm.expect(pm.response.code).to.equal(404)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
