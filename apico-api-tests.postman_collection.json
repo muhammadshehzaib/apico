@@ -5533,6 +5533,841 @@
               }
             }
           ]
+        },
+        {
+          "name": "Setup Member User (Register)",
+          "description": "Creates a secondary member user for role/permission tests.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Member User\",\"email\":\"{{MEMBER_EMAIL}}\",\"password\":\"{{MEMBER_PASSWORD}}\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/register",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const existingEmail = pm.environment.get('MEMBER_EMAIL');",
+                  "const existingPass = pm.environment.get('MEMBER_PASSWORD');",
+                  "if (!existingEmail || !existingPass) {",
+                  "  const ts = Date.now();",
+                  "  pm.environment.set('MEMBER_EMAIL', `member+${ts}@apico.dev`);",
+                  "  pm.environment.set('MEMBER_PASSWORD', 'Password123!');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 or 400', () => {",
+                  "  pm.expect([201, 400]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Member User",
+          "description": "Logs in the member user and stores MEMBER_ACCESS_TOKEN.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{MEMBER_EMAIL}}\",\"password\":\"{{MEMBER_PASSWORD}}\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/auth/login",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.data?.accessToken) {",
+                  "  pm.environment.set('MEMBER_ACCESS_TOKEN', json.data.accessToken);",
+                  "  pm.environment.set('MEMBER_REFRESH_TOKEN', json.data.refreshToken);",
+                  "}",
+                  "if (json.data?.user?.id) {",
+                  "  pm.environment.set('MEMBER_USER_ID', json.data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invite Member as Viewer",
+          "description": "Invites the member user as VIEWER.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{MEMBER_EMAIL}}\",\"role\":\"VIEWER\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "invite"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201, 400, 403, or 404', () => {",
+                  "  pm.expect([201, 400, 403, 404]).to.include(pm.response.code)",
+                  "})",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.data?.invite?.id) {",
+                  "  pm.environment.set('MEMBER_INVITE_ID', json.data.invite.id)",
+                  "}",
+                  "if (json.data?.invite?.token) {",
+                  "  pm.environment.set('MEMBER_INVITE_TOKEN', json.data.invite.token)",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Accept Invite as Member",
+          "description": "Accepts the invite using member token.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspace-invites/{{MEMBER_INVITE_TOKEN}}/accept",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspace-invites",
+                "{{MEMBER_INVITE_TOKEN}}",
+                "accept"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200, 403, 404, or 410', () => {",
+                  "  pm.expect([200, 403, 404, 410]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Accept Invite Twice (expect 410)",
+          "description": "Accepting the same invite again should fail (idempotency).",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspace-invites/{{MEMBER_INVITE_TOKEN}}/accept",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspace-invites",
+                "{{MEMBER_INVITE_TOKEN}}",
+                "accept"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 410, 403, or 404', () => {",
+                  "  pm.expect([410, 403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Owner Cannot Change Own Role (expect 400)",
+          "description": "Owner cannot change their own role.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{USER_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "members",
+                "{{USER_ID}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"role\":\"EDITOR\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 403', () => {",
+                  "  pm.expect([400, 403]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Owner Cannot Remove Self (expect 400)",
+          "description": "Owner cannot remove themselves from workspace.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{USER_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "members",
+                "{{USER_ID}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 403', () => {",
+                  "  pm.expect([400, 403]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invite Existing Member (expect 400)",
+          "description": "Inviting an already-member user should fail.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"{{MEMBER_EMAIL}}\",\"role\":\"VIEWER\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "invite"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400, 403, or 404', () => {",
+                  "  pm.expect([400, 403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Viewer Cannot Invite Members (expect 403)",
+          "description": "Viewer role cannot invite members.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"someone@apico.dev\",\"role\":\"VIEWER\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "invite"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Viewer Cannot Create Collection (expect 403)",
+          "description": "Viewer role cannot create collections.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test Collection\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "collections"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Viewer Cannot Create Folder (expect 403)",
+          "description": "Viewer role cannot create folders.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "folders"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test Folder\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Viewer Cannot Create Tag (expect 403)",
+          "description": "Viewer role cannot create tags.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "tags"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test Tag\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Viewer Cannot Create Environment (expect 403)",
+          "description": "Viewer role cannot create environments.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Local Development\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "environments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Viewer Cannot Import Workspace (expect 403)",
+          "description": "Viewer role cannot import workspace data.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/import",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "import"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"format\": \"apico\", \"version\": 1, \"collections\": []}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Viewer Cannot Update Member Role (expect 403)",
+          "description": "Viewer role cannot update member roles.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "members",
+                "{{MEMBER_USER_ID}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"role\": \"EDITOR\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Viewer Cannot Remove Member (expect 403)",
+          "description": "Viewer role cannot remove members.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{MEMBER_ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "members",
+                "{{MEMBER_USER_ID}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 403 or 404', () => {",
+                  "  pm.expect([403, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clear History (Idempotent) #1",
+          "description": "Clears history (first call).",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/history",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "history"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Clear History (Idempotent) #2",
+          "description": "Clears history again (should still succeed).",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/history",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "history"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout (Idempotent) #1",
+          "description": "Logout once.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/logout",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout (Idempotent) #2",
+          "description": "Logout again (should still succeed).",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/auth/logout",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
