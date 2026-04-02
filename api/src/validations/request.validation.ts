@@ -17,6 +17,24 @@ const requestAuthSchema = z.object({
   apiIn: z.enum(['header', 'query']).optional(),
 });
 
+export const formDataFieldSchema = z.object({
+  key: z.string(),
+  type: z.enum(['text', 'file']),
+  value: z.string(),
+  fileName: z.string().optional(),
+  enabled: z.boolean(),
+});
+
+export const formDataMetadataSchema = z.object({
+  method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const),
+  url: z.string().url('Invalid URL'),
+  headers: z.array(keyValuePairSchema),
+  params: z.array(keyValuePairSchema),
+  bodyType: z.literal('form-data'),
+  fields: z.array(formDataFieldSchema),
+  auth: requestAuthSchema.optional(),
+});
+
 export const executeRequestSchema = z.object({
   method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const),
   url: z.string().url('Invalid URL'),

@@ -1,6 +1,6 @@
 'use client';
 
-import { KeyValuePair, RequestAuth } from '@/types';
+import { KeyValuePair, RequestAuth, BodyType, FormDataField } from '@/types';
 import { KeyValueEditor } from './KeyValueEditor';
 import { BodyEditor } from './BodyEditor';
 import { AuthEditor } from './AuthEditor';
@@ -16,6 +16,12 @@ interface RequestTabsProps {
   onHeadersChange: (headers: KeyValuePair[]) => void;
   body: string;
   onBodyChange: (body: string) => void;
+  bodyType: BodyType;
+  onBodyTypeChange: (bodyType: BodyType) => void;
+  formDataFields: FormDataField[];
+  onFormDataFieldsChange: (fields: FormDataField[]) => void;
+  formDataFiles: Map<string, File>;
+  onFormDataFilesChange: (files: Map<string, File>) => void;
   auth: RequestAuth;
   onAuthChange: (auth: RequestAuth) => void;
   preRequestScript?: string;
@@ -41,12 +47,16 @@ const getTabs = (
   params: KeyValuePair[],
   headers: KeyValuePair[],
   body: string,
+  bodyType: BodyType,
+  formDataFields: FormDataField[],
   auth: RequestAuth,
   preRequestScript?: string
 ) => {
   const paramsCount = params.filter((p) => p.enabled && p.key.trim()).length;
   const headersCount = headers.filter((h) => h.enabled && h.key.trim()).length;
-  const hasBody = body.trim().length > 0;
+  const hasBody = bodyType === 'form-data'
+    ? formDataFields.some((f) => f.enabled && f.key.trim())
+    : body.trim().length > 0;
   const hasAuth = auth.type !== 'none';
   const hasScript = (preRequestScript || '').trim().length > 0;
 
@@ -68,6 +78,12 @@ export function RequestTabs({
   onHeadersChange,
   body,
   onBodyChange,
+  bodyType,
+  onBodyTypeChange,
+  formDataFields,
+  onFormDataFieldsChange,
+  formDataFiles,
+  onFormDataFilesChange,
   auth,
   onAuthChange,
   preRequestScript = '',
@@ -88,7 +104,7 @@ export function RequestTabs({
   lastTestRunDuration = null,
   onClearTestResults,
 }: RequestTabsProps) {
-  const tabs = getTabs(params, headers, body, auth, preRequestScript);
+  const tabs = getTabs(params, headers, body, bodyType, formDataFields, auth, preRequestScript);
 
   return (
     <div className="flex flex-col h-full bg-bg-secondary/90">
@@ -133,7 +149,16 @@ export function RequestTabs({
         )}
 
         {activeTab === 'body' && (
-          <BodyEditor body={body} onChange={onBodyChange} />
+          <BodyEditor
+            body={body}
+            onChange={onBodyChange}
+            bodyType={bodyType}
+            onBodyTypeChange={onBodyTypeChange}
+            formDataFields={formDataFields}
+            onFormDataFieldsChange={onFormDataFieldsChange}
+            formDataFiles={formDataFiles}
+            onFormDataFilesChange={onFormDataFilesChange}
+          />
         )}
 
         {activeTab === 'auth' && (

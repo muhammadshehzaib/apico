@@ -78,6 +78,16 @@ export interface KeyValuePair {
   enabled: boolean;
 }
 
+export interface FormDataField {
+  key: string;
+  type: 'text' | 'file';
+  value: string;
+  fileName?: string;
+  enabled: boolean;
+}
+
+export type BodyType = 'json' | 'raw' | 'form-data';
+
 export interface RequestAuth {
   type: 'none' | 'bearer' | 'basic' | 'apikey';
   token?: string;

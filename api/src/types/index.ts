@@ -47,12 +47,24 @@ export interface RequestAuth {
   apiIn?: 'header' | 'query';
 }
 
+export interface FormDataField {
+  key: string;
+  type: 'text' | 'file';
+  value: string;
+  fileName?: string;
+  enabled: boolean;
+}
+
+export type BodyType = 'json' | 'raw' | 'form-data';
+
 export interface ExecuteRequestPayload {
   method: HttpMethod;
   url: string;
   headers: KeyValuePair[];
   params: KeyValuePair[];
   body?: string;
+  bodyType?: BodyType;
+  formDataFields?: FormDataField[];
   auth?: RequestAuth;
 }
 

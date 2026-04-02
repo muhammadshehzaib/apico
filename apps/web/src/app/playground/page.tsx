@@ -68,6 +68,9 @@ export default function PlaygroundPage() {
     headers,
     params,
     body,
+    bodyType,
+    formDataFields,
+    formDataFiles,
     auth,
     activeTab,
     isLoading,
@@ -81,6 +84,9 @@ export default function PlaygroundPage() {
     setHeaders,
     setParams,
     setBody,
+    setBodyType,
+    setFormDataFields,
+    setFormDataFiles,
     setAuth,
     setActiveTab,
     setActiveVariables,
@@ -214,6 +220,12 @@ export default function PlaygroundPage() {
                     onHeadersChange={setHeaders}
                     body={body}
                     onBodyChange={setBody}
+                    bodyType={bodyType}
+                    onBodyTypeChange={setBodyType}
+                    formDataFields={formDataFields}
+                    onFormDataFieldsChange={setFormDataFields}
+                    formDataFiles={formDataFiles}
+                    onFormDataFilesChange={setFormDataFiles}
                     auth={auth}
                     onAuthChange={setAuth}
                   />

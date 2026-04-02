@@ -146,6 +146,14 @@ class WorkspaceService {
     return (response.data?.data ?? response.data) as ExecuteRequestResult;
   }
 
+  async executeFormDataRequest(formData: FormData): Promise<ExecuteRequestResult> {
+    const response = await apiService.post<any>(
+      API_ENDPOINTS.EXECUTE_REQUEST,
+      formData,
+    );
+    return (response.data?.data ?? response.data) as ExecuteRequestResult;
+  }
+
   async saveRequest(collectionId: string, data: SaveRequestInput): Promise<SavedRequest | null> {
     const response = await apiService.post<SavedRequest>(
       API_ENDPOINTS.SAVE_REQUEST(collectionId),
