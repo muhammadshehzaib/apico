@@ -3941,6 +3941,534 @@
               }
             }
           ]
+        },
+        {
+          "name": "Invite Member Invalid Role (expect 400)",
+          "description": "Attempts to invite a member with an invalid role.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\":\"member@apico.dev\",\"role\":\"ADMIN\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "invite"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Member Role Invalid (expect 400)",
+          "description": "Attempts to set an invalid member role.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "members",
+                "{{MEMBER_USER_ID}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"role\":\"OWNER\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Folder Missing Name (expect 400)",
+          "description": "Attempts to create a folder without a name.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "folders"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Tag Missing Name (expect 400)",
+          "description": "Attempts to create a tag without a name.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "tags"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Save Request Invalid URL (expect 400)",
+          "description": "Attempts to save a request with an invalid URL.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Bad URL\",\"method\":\"GET\",\"url\":\"not-a-url\",\"headers\":[],\"params\":[],\"body\":\"\",\"auth\":{\"type\":\"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{COLLECTION_ID}}",
+                "requests"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Execute Request Invalid URL (expect 400)",
+          "description": "Attempts to execute a request with an invalid URL.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"method\":\"GET\",\"url\":\"not-a-url\",\"headers\":[],\"params\":[],\"body\":\"\",\"auth\":{\"type\":\"none\"}}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/requests/execute",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "execute"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400', () => {",
+                  "  pm.expect(pm.response.code).to.equal(400)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Request Tags Invalid Body (expect 400)",
+          "description": "Attempts to update request tags with invalid payload.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}/tags",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{REQUEST_ID}}",
+                "tags"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"tags\":\"not-an-array\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reorder Requests Missing Order (expect 400)",
+          "description": "Attempts to reorder requests with invalid payload.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/requests/reorder",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "reorder"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"items\":[{\"id\":\"{{REQUEST_ID}}\"}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reorder Folders Missing Order (expect 400)",
+          "description": "Attempts to reorder folders with invalid payload.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/reorder",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "folders",
+                "reorder"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"items\":[{\"id\":\"{{FOLDER_ID}}\"}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Environment Missing Name (expect 400)",
+          "description": "Attempts to create an environment without a name.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "environments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Share Request Invalid Expiry (expect 400)",
+          "description": "Attempts to share a request with invalid expiry.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expiresAt\":\"not-a-date\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "requests",
+                "{{SHARE_REQUEST_ID}}",
+                "share"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Share Collection Invalid Expiry (expect 400)",
+          "description": "Attempts to share a collection with invalid expiry.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/share",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections",
+                "{{COLLECTION_ID}}",
+                "share"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expiresAt\":\"not-a-date\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 400 or 404', () => {",
+                  "  pm.expect([400, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
