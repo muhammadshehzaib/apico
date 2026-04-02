@@ -1032,41 +1032,6 @@
           ]
         },
         {
-          "name": "Delete Collection",
-          "description": "Deletes a collection (test with a temporary collection first).",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{ACCESS_TOKEN}}"
-              }
-            ],
-            "url": {
-              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "{{COLLECTION_ID}}"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status is 200 or 204', () => {",
-                  "  pm.expect([200, 204]).to.include(pm.response.code)",
-                  "})"
-                ]
-              }
-            }
-          ]
-        },
-        {
           "name": "Reorder Collections",
           "description": "Reorders collections by updating order and folder placement.",
           "request": {
@@ -1103,6 +1068,41 @@
                 "exec": [
                   "pm.test('Status is 200', () => {",
                   "  pm.expect(pm.response.code).to.equal(200)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Collection",
+          "description": "Deletes a collection (test with a temporary collection first).",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections",
+                "{{COLLECTION_ID}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 204', () => {",
+                  "  pm.expect([200, 204]).to.include(pm.response.code)",
                   "})"
                 ]
               }
@@ -1309,25 +1309,34 @@
           ]
         },
         {
-          "name": "Delete Saved Request",
-          "description": "Deletes a saved request from a collection.",
+          "name": "Update Request Tags",
+          "description": "Replaces tags for a request.",
           "request": {
-            "method": "DELETE",
+            "method": "PUT",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
             ],
             "url": {
-              "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
+              "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}/tags",
               "host": [
                 "{{BASE_URL}}"
               ],
               "path": [
                 "requests",
-                "{{REQUEST_ID}}"
+                "{{REQUEST_ID}}",
+                "tags"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"tags\": [\"tag1\", \"tag2\"]}"
             }
           },
           "event": [
@@ -1335,8 +1344,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 204', () => {",
-                  "  pm.expect([200, 204]).to.include(pm.response.code)",
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
               }
@@ -1437,34 +1446,25 @@
           ]
         },
         {
-          "name": "Update Request Tags",
-          "description": "Replaces tags for a request.",
+          "name": "Delete Saved Request",
+          "description": "Deletes a saved request from a collection.",
           "request": {
-            "method": "PUT",
+            "method": "DELETE",
             "header": [
               {
                 "key": "Authorization",
                 "value": "Bearer {{ACCESS_TOKEN}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
               }
             ],
             "url": {
-              "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}/tags",
+              "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
               "host": [
                 "{{BASE_URL}}"
               ],
               "path": [
                 "requests",
-                "{{REQUEST_ID}}",
-                "tags"
+                "{{REQUEST_ID}}"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\"tags\": [\"tag1\", \"tag2\"]}"
             }
           },
           "event": [
@@ -1472,8 +1472,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
-                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "pm.test('Status is 200 or 204', () => {",
+                  "  pm.expect([200, 204]).to.include(pm.response.code)",
                   "})"
                 ]
               }
@@ -2829,6 +2829,9 @@
               "path": [
                 "workspaces"
               ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           },
           "event": [
@@ -2866,6 +2869,16 @@
               ],
               "path": [
                 "workspaces"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "invalid.jwt.token",
+                  "type": "string"
+                }
               ]
             }
           },

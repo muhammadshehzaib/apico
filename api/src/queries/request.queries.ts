@@ -120,10 +120,7 @@ export const searchSavedRequests = async (params: {
       ...(method ? { method } : {}),
       ...(query
         ? {
-            OR: [
-              { name: { contains: query, mode: 'insensitive' } },
-              { url: { contains: query, mode: 'insensitive' } },
-            ],
+            OR: [{ name: { contains: query } }, { url: { contains: query } }],
           }
         : {}),
       ...(tags && tags.length > 0
