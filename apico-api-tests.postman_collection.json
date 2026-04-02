@@ -1108,6 +1108,221 @@
               }
             }
           ]
+        },
+        {
+          "name": "Create Collection (Base)",
+          "description": "Creates a new request collection (base route).",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Test Collection\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/collections",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 or 403', () => {",
+                  "  pm.expect([201, 403]).to.include(pm.response.code)",
+                  "})",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json()",
+                  "  if (json.data?.id) {",
+                  "    pm.environment.set('COLLECTION_ID', json.data.id)",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Collections (Base)",
+          "description": "Retrieves all collections (base route).",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/collections",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "collections"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 403', () => {",
+                  "  pm.expect([200, 403]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Collection (Workspace Route)",
+          "description": "Updates a collection using the workspace route.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Updated Collection Name\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/{{COLLECTION_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "collections",
+                "{{COLLECTION_ID}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => {",
+                  "  pm.expect(pm.response.code).to.equal(200)",
+                  "})",
+                  "",
+                  "pm.test('Name was updated', () => {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.name).to.equal('Updated Collection Name')",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Collection (Workspace Route)",
+          "description": "Deletes a collection using the workspace route.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/{{COLLECTION_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "collections",
+                "{{COLLECTION_ID}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reorder Collections (Workspace Route)",
+          "description": "Reorders collections using the workspace route.",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/reorder",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "collections",
+                "reorder"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"items\": [{\"id\": \"{{COLLECTION_ID}}\", \"order\": 1, \"folderId\": null}]}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -2171,7 +2386,7 @@
         },
         {
           "name": "Get Shared Request (public)",
-          "description": "Tests the public share endpoint. No Authorization header — simulates a non-logged-in user viewing a shared link.",
+          "description": "Tests the public share endpoint. No Authorization header \u2014 simulates a non-logged-in user viewing a shared link.",
           "request": {
             "method": "GET",
             "header": [],
@@ -2279,6 +2494,91 @@
                 "{{BASE_URL}}"
               ],
               "path": [
+                "collections",
+                "share",
+                "{{COLLECTION_SHARE_TOKEN}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Collection Share Link (Workspace Route)",
+          "description": "Creates a shareable link for a collection (workspace route).",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/{{COLLECTION_ID}}/share",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "collections",
+                "{{COLLECTION_ID}}",
+                "share"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expiresAt\": \"2026-12-31T00:00:00.000Z\"}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 or 404', () => {",
+                  "  pm.expect([201, 404]).to.include(pm.response.code)",
+                  "})",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json()",
+                  "  if (json.data?.token) {",
+                  "    pm.environment.set('COLLECTION_SHARE_TOKEN', json.data.token)",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Shared Collection (public, Workspace Route)",
+          "description": "Retrieves a shared collection by public token (workspace route).",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/share/{{COLLECTION_SHARE_TOKEN}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
                 "collections",
                 "share",
                 "{{COLLECTION_SHARE_TOKEN}}"
@@ -2566,6 +2866,259 @@
                 "exec": [
                   "pm.test('Status is 200 or 204', () => {",
                   "  pm.expect([200, 204]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Environment (Base)",
+          "description": "Creates a new environment (base route).",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Local Development\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/environments",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "environments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 201 or 403', () => {",
+                  "  pm.expect([201, 403]).to.include(pm.response.code)",
+                  "})",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json()",
+                  "  if (json.data?.id) {",
+                  "    pm.environment.set('ENVIRONMENT_ID', json.data.id)",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Environments (Base)",
+          "description": "Retrieves all environments (base route).",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/environments",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "environments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 403', () => {",
+                  "  pm.expect([200, 403]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Environment by ID (Workspace Route)",
+          "description": "Retrieves an environment by ID using the workspace route.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "environments",
+                "{{ENVIRONMENT_ID}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Environment (Workspace Route)",
+          "description": "Updates environment metadata using the workspace route.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Local Dev Updated\"}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "environments",
+                "{{ENVIRONMENT_ID}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json()",
+                  "  pm.expect(json.data.name).to.equal('Local Dev Updated')",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bulk Update Variables (Workspace Route)",
+          "description": "Bulk updates environment variables using the workspace route.",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"variables\": [{\"key\": \"BASE_URL\",\"value\": \"localhost:4000\",\"enabled\": true,\"isSecret\": false},{\"key\": \"API_TOKEN\",\"value\": \"my-secret-token\",\"enabled\": true,\"isSecret\": true},{\"key\": \"VERSION\",\"value\": \"v1\",\"enabled\": true,\"isSecret\": false}]}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}/variables",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "environments",
+                "{{ENVIRONMENT_ID}}",
+                "variables"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
+                  "})"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Environment (Workspace Route)",
+          "description": "Deletes an environment using the workspace route.",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ACCESS_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "workspaces",
+                "{{WORKSPACE_ID}}",
+                "environments",
+                "{{ENVIRONMENT_ID}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
               }
@@ -3365,7 +3918,7 @@
           "if (!authRequests.includes(folder)) {",
           "  const token = pm.environment.get('ACCESS_TOKEN');",
           "  if (!token && folder !== 'Missing Required Fields') {",
-          "    console.warn('⚠️ No ACCESS_TOKEN set. Run Auth folder first.');",
+          "    console.warn('\u26a0\ufe0f No ACCESS_TOKEN set. Run Auth folder first.');",
           "  }",
           "}"
         ]
@@ -3376,7 +3929,7 @@
       "script": {
         "exec": [
           "if (pm.response.code >= 400) {",
-          "  console.log('❌ Failed Request:', pm.info.requestName);",
+          "  console.log('\u274c Failed Request:', pm.info.requestName);",
           "  console.log('Status:', pm.response.code);",
           "}"
         ]
