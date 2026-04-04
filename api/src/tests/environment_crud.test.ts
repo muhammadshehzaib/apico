@@ -150,7 +150,7 @@ describe('Environment CRUD API', () => {
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .send({ name: 'Env Base Route' });
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
 
@@ -161,7 +161,7 @@ describe('Environment CRUD API', () => {
       .get('/api/environments')
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
 });

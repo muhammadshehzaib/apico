@@ -15,9 +15,15 @@ import {
   shareCollectionSchema,
   reorderCollectionsSchema,
 } from '../validations/request.validation';
+import { getWorkspaceIdFromRequest } from '../utils/workspace-request.util';
 
 export const createController = asyncHandler(async (req: Request, res: Response) => {
-  const { workspaceId } = req.params;
+  const workspaceId = getWorkspaceIdFromRequest(req);
+  if (!workspaceId) {
+    const error = new Error('workspaceId is required');
+    (error as any).statusCode = 400;
+    throw error;
+  }
   const body = createCollectionSchema.parse(req.body);
   const userId = req.user!.id;
 
@@ -32,7 +38,12 @@ export const createController = asyncHandler(async (req: Request, res: Response)
 });
 
 export const getAllController = asyncHandler(async (req: Request, res: Response) => {
-  const { workspaceId } = req.params;
+  const workspaceId = getWorkspaceIdFromRequest(req);
+  if (!workspaceId) {
+    const error = new Error('workspaceId is required');
+    (error as any).statusCode = 400;
+    throw error;
+  }
   const userId = req.user!.id;
 
   const collections = await getCollections(workspaceId, userId);

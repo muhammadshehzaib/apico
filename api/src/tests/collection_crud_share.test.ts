@@ -166,7 +166,7 @@ describe('Collection CRUD & Share API', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Base Collection' });
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
 
@@ -177,7 +177,7 @@ describe('Collection CRUD & Share API', () => {
       .get('/api/collections')
       .set('Authorization', `Bearer ${accessToken}`);
 
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
 });

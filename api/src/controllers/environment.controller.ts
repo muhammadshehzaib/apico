@@ -14,9 +14,15 @@ import {
   updateEnvironmentSchema,
   bulkUpdateVariablesSchema,
 } from '../validations/environment.validation';
+import { getWorkspaceIdFromRequest } from '../utils/workspace-request.util';
 
 export const createController = asyncHandler(async (req: Request, res: Response) => {
-  const { workspaceId } = req.params;
+  const workspaceId = getWorkspaceIdFromRequest(req);
+  if (!workspaceId) {
+    const error = new Error('workspaceId is required');
+    (error as any).statusCode = 400;
+    throw error;
+  }
   const body = createEnvironmentSchema.parse(req.body);
   const userId = req.user!.id;
 
@@ -26,7 +32,12 @@ export const createController = asyncHandler(async (req: Request, res: Response)
 });
 
 export const getAllController = asyncHandler(async (req: Request, res: Response) => {
-  const { workspaceId } = req.params;
+  const workspaceId = getWorkspaceIdFromRequest(req);
+  if (!workspaceId) {
+    const error = new Error('workspaceId is required');
+    (error as any).statusCode = 400;
+    throw error;
+  }
   const userId = req.user!.id;
 
   const environments = await getEnvironments(workspaceId, userId);

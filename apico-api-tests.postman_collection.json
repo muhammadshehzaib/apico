@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Apico API Tests",
-    "description": "Complete test suite for the Apico REST API testing tool backend. Run this collection to verify all endpoints are working correctly.\n\n## Setup\n1. Import this collection\n2. Import the environment file (apico-local.postman_environment.json)\n3. Select the environment\n4. Run folder '01 - Auth' first\n5. Then run remaining folders in order\n\n## Order Matters!\nFolders must be run in numbered order because each folder depends on variables set by previous folders.\n\n## Expected Results\n~72 requests total\nAssertions depend on enabled tests\nAll should pass on a fresh database with backend running on localhost:4000",
+    "description": "Complete test suite for the Apico REST API testing tool backend. Run this collection to verify all endpoints are working correctly.\n\n## Setup\n1. Import this collection\n2. Import the environment file (apico-local.postman_environment.json)\n3. Select the environment\n4. Run folder \u002701 - Auth\u0027 first\n5. Then run remaining folders in order\n\n## Order Matters!\nFolders must be run in numbered order because each folder depends on variables set by previous folders.\n\n## Expected Results\n~72 requests total\nAssertions depend on enabled tests\nAll should pass on a fresh database with backend running on localhost:4000",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "version": "1.0.0"
   },
@@ -27,56 +27,62 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
             }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Ensure a unique email each run to avoid duplicate-user 400",
+                  "const unique = `test+${Date.now()}@apico.dev`",
+                  "pm.environment.set(\u0027USER_EMAIL\u0027, unique)",
+                  ""
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Response has correct structure', () => {",
+                  "pm.test(\u0027Response has correct structure\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json).to.have.property('success')",
-                  "  pm.expect(json).to.have.property('data')",
-                  "  pm.expect(json).to.have.property('message')",
+                  "  pm.expect(json).to.have.property(\u0027success\u0027)",
+                  "  pm.expect(json).to.have.property(\u0027data\u0027)",
+                  "  pm.expect(json).to.have.property(\u0027message\u0027)",
                   "})",
                   "",
-                  "pm.test('Returns tokens', () => {",
+                  "pm.test(\u0027Returns tokens\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.accessToken).to.exist",
                   "  pm.expect(json.data.refreshToken).to.exist",
                   "  pm.expect(json.data.user).to.exist",
-                  "  pm.expect(json.data.user.email).to.equal(pm.variables.get('USER_EMAIL'))",
+                  "  pm.expect(json.data.user.email).to.equal(pm.variables.get(\u0027USER_EMAIL\u0027))",
                   "})",
                   "",
-                  "pm.test('Returns user object', () => {",
+                  "pm.test(\u0027Returns user object\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data.user).to.have.property('id')",
-                  "  pm.expect(json.data.user).to.have.property('email')",
-                  "  pm.expect(json.data.user).to.have.property('name')",
-                  "  pm.expect(json.data.user).to.not.have.property('password')",
+                  "  pm.expect(json.data.user).to.have.property(\u0027id\u0027)",
+                  "  pm.expect(json.data.user).to.have.property(\u0027email\u0027)",
+                  "  pm.expect(json.data.user).to.have.property(\u0027name\u0027)",
+                  "  pm.expect(json.data.user).to.not.have.property(\u0027password\u0027)",
                   "})",
                   "",
-                  "pm.test('Response time under 2000ms', () => {",
+                  "pm.test(\u0027Response time under 2000ms\u0027, () =\u003e {",
                   "  pm.expect(pm.response.responseTime).to.be.below(2000)",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data) {",
-                  "  pm.environment.set('ACCESS_TOKEN', json.data.accessToken)",
-                  "  pm.environment.set('REFRESH_TOKEN', json.data.refreshToken)",
-                  "  pm.environment.set('USER_ID', json.data.user.id)",
+                  "  pm.environment.set(\u0027ACCESS_TOKEN\u0027, json.data.accessToken)",
+                  "  pm.environment.set(\u0027REFRESH_TOKEN\u0027, json.data.refreshToken)",
+                  "  pm.environment.set(\u0027USER_ID\u0027, json.data.user.id)",
                   "}"
                 ]
               }
@@ -100,13 +106,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
             }
           },
           "event": [
@@ -114,11 +115,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})",
                   "",
-                  "pm.test('Success is false', () => {",
+                  "pm.test(\u0027Success is false\u0027, () =\u003e {",
                   "  pm.expect(pm.response.json().success).to.equal(false)",
                   "})"
                 ]
@@ -143,13 +144,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/login",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
             }
           },
           "event": [
@@ -157,27 +153,27 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns valid tokens', () => {",
+                  "pm.test(\u0027Returns valid tokens\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data.accessToken).to.be.a('string')",
-                  "  pm.expect(json.data.refreshToken).to.be.a('string')",
+                  "  pm.expect(json.data.accessToken).to.be.a(\u0027string\u0027)",
+                  "  pm.expect(json.data.refreshToken).to.be.a(\u0027string\u0027)",
                   "  pm.expect(json.data.accessToken.length).to.be.above(20)",
                   "})",
                   "",
-                  "pm.test('Response has correct structure', () => {",
+                  "pm.test(\u0027Response has correct structure\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json).to.have.property('success')",
+                  "  pm.expect(json).to.have.property(\u0027success\u0027)",
                   "  pm.expect(json.success).to.equal(true)",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data) {",
-                  "  pm.environment.set('ACCESS_TOKEN', json.data.accessToken)",
-                  "  pm.environment.set('REFRESH_TOKEN', json.data.refreshToken)",
+                  "  pm.environment.set(\u0027ACCESS_TOKEN\u0027, json.data.accessToken)",
+                  "  pm.environment.set(\u0027REFRESH_TOKEN\u0027, json.data.refreshToken)",
                   "}"
                 ]
               }
@@ -201,13 +197,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/login",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
             }
           },
           "event": [
@@ -215,11 +206,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 401', () => {",
+                  "pm.test(\u0027Status is 401\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(401)",
                   "})",
                   "",
-                  "pm.test('Success is false', () => {",
+                  "pm.test(\u0027Success is false\u0027, () =\u003e {",
                   "  pm.expect(pm.response.json().success).to.equal(false)",
                   "})"
                 ]
@@ -244,13 +235,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/refresh",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "refresh"]
             }
           },
           "event": [
@@ -258,18 +244,18 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns new access token', () => {",
+                  "pm.test(\u0027Returns new access token\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.accessToken).to.exist",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.accessToken) {",
-                  "  pm.environment.set('ACCESS_TOKEN', json.data.accessToken)",
+                  "  pm.environment.set(\u0027ACCESS_TOKEN\u0027, json.data.accessToken)",
                   "}"
                 ]
               }
@@ -289,13 +275,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/auth/logout",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "logout"]
             }
           },
           "event": [
@@ -303,11 +284,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Success is true', () => {",
+                  "pm.test(\u0027Success is true\u0027, () =\u003e {",
                   "  pm.expect(pm.response.json().success).to.equal(true)",
                   "})"
                 ]
@@ -342,12 +323,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
             }
           },
           "event": [
@@ -355,25 +332,25 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Workspace has correct structure', () => {",
+                  "pm.test(\u0027Workspace has correct structure\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.have.property('id')",
-                  "  pm.expect(json.data).to.have.property('name')",
-                  "  pm.expect(json.data).to.have.property('ownerId')",
-                  "  pm.expect(json.data.name).to.equal('Test Workspace')",
+                  "  pm.expect(json.data).to.have.property(\u0027id\u0027)",
+                  "  pm.expect(json.data).to.have.property(\u0027name\u0027)",
+                  "  pm.expect(json.data).to.have.property(\u0027ownerId\u0027)",
+                  "  pm.expect(json.data.name).to.equal(\u0027Test Workspace\u0027)",
                   "})",
                   "",
-                  "pm.test('Response time under 2000ms', () => {",
+                  "pm.test(\u0027Response time under 2000ms\u0027, () =\u003e {",
                   "  pm.expect(pm.response.responseTime).to.be.below(2000)",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.id) {",
-                  "  pm.environment.set('WORKSPACE_ID', json.data.id)",
+                  "  pm.environment.set(\u0027WORKSPACE_ID\u0027, json.data.id)",
                   "}"
                 ]
               }
@@ -393,12 +370,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
             }
           },
           "event": [
@@ -406,20 +379,20 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array', () => {",
+                  "pm.test(\u0027Returns array\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
                   "  pm.expect(json.data.length).to.be.above(0)",
                   "})",
                   "",
-                  "pm.test('Contains created workspace', () => {",
+                  "pm.test(\u0027Contains created workspace\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  const workspaceId = pm.environment.get('WORKSPACE_ID')",
-                  "  const found = json.data.find(w => w.id === workspaceId)",
+                  "  const workspaceId = pm.environment.get(\u0027WORKSPACE_ID\u0027)",
+                  "  const found = json.data.find(w =\u003e w.id === workspaceId)",
                   "  pm.expect(found).to.exist",
                   "})"
                 ]
@@ -440,13 +413,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}"]
             }
           },
           "event": [
@@ -454,13 +422,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns correct workspace', () => {",
+                  "pm.test(\u0027Returns correct workspace\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data.id).to.equal(pm.environment.get('WORKSPACE_ID'))",
+                  "  pm.expect(json.data.id).to.equal(pm.environment.get(\u0027WORKSPACE_ID\u0027))",
                   "})"
                 ]
               }
@@ -469,7 +437,7 @@
         },
         {
           "name": "Get Invalid Workspace (expect 403)",
-          "description": "Attempts to access a workspace that doesn't exist or belongs to another user.",
+          "description": "Attempts to access a workspace that doesn\u0027t exist or belongs to another user.",
           "request": {
             "method": "GET",
             "header": [
@@ -480,13 +448,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/invalid-workspace-id-999",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "invalid-workspace-id-999"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "invalid-workspace-id-999"]
             }
           },
           "event": [
@@ -494,11 +457,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})",
                   "",
-                  "pm.test('Success is false', () => {",
+                  "pm.test(\u0027Success is false\u0027, () =\u003e {",
                   "  pm.expect(pm.response.json().success).to.equal(false)",
                   "})"
                 ]
@@ -527,14 +490,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "invite"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "invite"]
             }
           },
           "event": [
@@ -542,21 +499,21 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201 or 404', () => {",
+                  "pm.test(\u0027Status is 201 or 404\u0027, () =\u003e {",
                   "  pm.expect([201, 404]).to.include(pm.response.code)",
                   "})",
                   "",
-                  "pm.test('Response has correct structure', () => {",
+                  "pm.test(\u0027Response has correct structure\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json).to.have.property('success')",
+                  "  pm.expect(json).to.have.property(\u0027success\u0027)",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.invite?.id) {",
-                  "  pm.environment.set('INVITE_ID', json.data.invite.id)",
+                  "  pm.environment.set(\u0027INVITE_ID\u0027, json.data.invite.id)",
                   "}",
                   "if (json.data?.invite?.token) {",
-                  "  pm.environment.set('INVITE_TOKEN', json.data.invite.token)",
+                  "  pm.environment.set(\u0027INVITE_TOKEN\u0027, json.data.invite.token)",
                   "}"
                 ]
               }
@@ -576,14 +533,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "members"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "members"]
             }
           },
           "event": [
@@ -591,21 +542,21 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array of members', () => {",
+                  "pm.test(\u0027Returns array of members\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
                   "})",
                   "",
                   "const json = pm.response.json()",
-                  "const currentUserId = pm.environment.get('USER_ID')",
+                  "const currentUserId = pm.environment.get(\u0027USER_ID\u0027)",
                   "if (Array.isArray(json.data)) {",
-                  "  const other = json.data.find((m) => m.user?.id && m.user.id !== currentUserId)",
+                  "  const other = json.data.find((m) =\u003e m.user?.id \u0026\u0026 m.user.id !== currentUserId)",
                   "  if (other?.user?.id) {",
-                  "    pm.environment.set('MEMBER_USER_ID', other.user.id)",
+                  "    pm.environment.set(\u0027MEMBER_USER_ID\u0027, other.user.id)",
                   "  }",
                   "}"
                 ]
@@ -626,14 +577,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invites",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "invites"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "invites"]
             }
           },
           "event": [
@@ -641,23 +586,23 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array', () => {",
+                  "pm.test(\u0027Returns array\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
                   "})",
                   "",
                   "const json = pm.response.json()",
-                  "if (Array.isArray(json.data) && json.data.length) {",
+                  "if (Array.isArray(json.data) \u0026\u0026 json.data.length) {",
                   "  const invite = json.data[0]",
                   "  if (invite.id) {",
-                  "    pm.environment.set('INVITE_ID', invite.id)",
+                  "    pm.environment.set(\u0027INVITE_ID\u0027, invite.id)",
                   "  }",
                   "  if (invite.token) {",
-                  "    pm.environment.set('INVITE_TOKEN', invite.token)",
+                  "    pm.environment.set(\u0027INVITE_TOKEN\u0027, invite.token)",
                   "  }",
                   "}"
                 ]
@@ -678,9 +623,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invites/{{INVITE_ID}}/revoke",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -695,7 +638,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200, 400, or 404', () => {",
+                  "pm.test(\u0027Status is 200, 400, or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -716,9 +659,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -732,7 +673,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200, 400, or 404', () => {",
+                  "pm.test(\u0027Status is 200, 400, or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -757,9 +698,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -777,7 +716,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200, 400, or 404', () => {",
+                  "pm.test(\u0027Status is 200, 400, or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -802,14 +741,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/leave",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "leave"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "leave"]
             },
             "body": {
               "mode": "raw",
@@ -821,7 +754,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 400', () => {",
+                  "pm.test(\u0027Status is 200 or 400\u0027, () =\u003e {",
                   "  pm.expect([200, 400]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -846,14 +779,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/import",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "import"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "import"]
             },
             "body": {
               "mode": "raw",
@@ -865,13 +792,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Import completed', () => {",
+                  "pm.test(\u0027Import completed\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json).to.have.property('success')",
+                  "  pm.expect(json).to.have.property(\u0027success\u0027)",
                   "})"
                 ]
               }
@@ -905,14 +832,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "collections"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
             }
           },
           "event": [
@@ -920,20 +841,20 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Collection created correctly', () => {",
+                  "pm.test(\u0027Collection created correctly\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.id).to.exist",
-                  "  pm.expect(json.data.name).to.equal('Test Collection')",
-                  "  pm.expect(json.data.workspaceId).to.equal(pm.environment.get('WORKSPACE_ID'))",
+                  "  pm.expect(json.data.name).to.equal(\u0027Test Collection\u0027)",
+                  "  pm.expect(json.data.workspaceId).to.equal(pm.environment.get(\u0027WORKSPACE_ID\u0027))",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.id) {",
-                  "  pm.environment.set('COLLECTION_ID', json.data.id)",
+                  "  pm.environment.set(\u0027COLLECTION_ID\u0027, json.data.id)",
                   "}"
                 ]
               }
@@ -953,14 +874,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "collections"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
             }
           },
           "event": [
@@ -968,14 +883,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array with our collection', () => {",
+                  "pm.test(\u0027Returns array with our collection\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
-                  "  const found = json.data.find(c => c.id === pm.environment.get('COLLECTION_ID'))",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
+                  "  const found = json.data.find(c =\u003e c.id === pm.environment.get(\u0027COLLECTION_ID\u0027))",
                   "  pm.expect(found).to.exist",
                   "})"
                 ]
@@ -1004,13 +919,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "{{COLLECTION_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}"]
             }
           },
           "event": [
@@ -1018,13 +928,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Name was updated', () => {",
+                  "pm.test(\u0027Name was updated\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data.name).to.equal('Updated Collection Name')",
+                  "  pm.expect(json.data.name).to.equal(\u0027Updated Collection Name\u0027)",
                   "})"
                 ]
               }
@@ -1048,13 +958,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/collections/reorder",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "reorder"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "reorder"]
             },
             "body": {
               "mode": "raw",
@@ -1066,7 +971,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})"
                 ]
@@ -1087,13 +992,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "{{COLLECTION_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}"]
             }
           },
           "event": [
@@ -1101,7 +1001,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 204', () => {",
+                  "pm.test(\u0027Status is 200 or 204\u0027, () =\u003e {",
                   "  pm.expect([200, 204]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -1126,16 +1026,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"name\": \"Test Collection\"}"
+              "raw": "{\"name\": \"Test Collection\", \"workspaceId\": \"{{WORKSPACE_ID}}\"}"
             },
             "url": {
               "raw": "{{BASE_URL}}/collections",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections"]
             }
           },
           "event": [
@@ -1143,14 +1039,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201 or 403', () => {",
+                  "pm.test(\u0027Status is 201 or 403\u0027, () =\u003e {",
                   "  pm.expect([201, 403]).to.include(pm.response.code)",
                   "})",
                   "",
                   "if (pm.response.code === 201) {",
                   "  const json = pm.response.json()",
                   "  if (json.data?.id) {",
-                  "    pm.environment.set('COLLECTION_ID', json.data.id)",
+                  "    pm.environment.set(\u0027COLLECTION_ID\u0027, json.data.id)",
                   "  }",
                   "}"
                 ]
@@ -1170,12 +1066,14 @@
               }
             ],
             "url": {
-              "raw": "{{BASE_URL}}/collections",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections"
+              "raw": "{{BASE_URL}}/collections?workspaceId={{WORKSPACE_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections"],
+              "query": [
+                {
+                  "key": "workspaceId",
+                  "value": "{{WORKSPACE_ID}}"
+                }
               ]
             }
           },
@@ -1184,7 +1082,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 403', () => {",
+                  "pm.test(\u0027Status is 200 or 403\u0027, () =\u003e {",
                   "  pm.expect([200, 403]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -1213,9 +1111,7 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/{{COLLECTION_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -1229,13 +1125,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Name was updated', () => {",
+                  "pm.test(\u0027Name was updated\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data.name).to.equal('Updated Collection Name')",
+                  "  pm.expect(json.data.name).to.equal(\u0027Updated Collection Name\u0027)",
                   "})"
                 ]
               }
@@ -1255,9 +1151,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/{{COLLECTION_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -1271,7 +1165,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -1296,9 +1190,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/reorder",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -1316,7 +1208,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -1351,14 +1243,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "collections"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
             }
           },
           "event": [
@@ -1368,7 +1254,7 @@
                 "exec": [
                   "const json = pm.response.json()",
                   "if (json.data?.id) {",
-                  "  pm.environment.set('COLLECTION_ID', json.data.id)",
+                  "  pm.environment.set(\u0027COLLECTION_ID\u0027, json.data.id)",
                   "}"
                 ]
               }
@@ -1396,14 +1282,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{COLLECTION_ID}}",
-                "requests"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{COLLECTION_ID}}", "requests"]
             }
           },
           "event": [
@@ -1411,21 +1291,21 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Request saved correctly', () => {",
+                  "pm.test(\u0027Request saved correctly\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.id).to.exist",
-                  "  pm.expect(json.data.name).to.equal('Get All Posts')",
-                  "  pm.expect(json.data.method).to.equal('GET')",
-                  "  pm.expect(json.data.collectionId).to.equal(pm.environment.get('COLLECTION_ID'))",
+                  "  pm.expect(json.data.name).to.equal(\u0027Get All Posts\u0027)",
+                  "  pm.expect(json.data.method).to.equal(\u0027GET\u0027)",
+                  "  pm.expect(json.data.collectionId).to.equal(pm.environment.get(\u0027COLLECTION_ID\u0027))",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.id) {",
-                  "  pm.environment.set('REQUEST_ID', json.data.id)",
+                  "  pm.environment.set(\u0027REQUEST_ID\u0027, json.data.id)",
                   "}"
                 ]
               }
@@ -1445,14 +1325,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{COLLECTION_ID}}",
-                "requests"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{COLLECTION_ID}}", "requests"]
             }
           },
           "event": [
@@ -1460,14 +1334,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Contains our saved request', () => {",
+                  "pm.test(\u0027Contains our saved request\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
-                  "  const found = json.data.find(r => r.id === pm.environment.get('REQUEST_ID'))",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
+                  "  const found = json.data.find(r =\u003e r.id === pm.environment.get(\u0027REQUEST_ID\u0027))",
                   "  pm.expect(found).to.exist",
                   "})"
                 ]
@@ -1496,13 +1370,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{REQUEST_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{REQUEST_ID}}"]
             }
           },
           "event": [
@@ -1510,13 +1379,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Request was updated', () => {",
+                  "pm.test(\u0027Request was updated\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data.name).to.equal('Get Posts by User')",
+                  "  pm.expect(json.data.name).to.equal(\u0027Get Posts by User\u0027)",
                   "})"
                 ]
               }
@@ -1540,14 +1409,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}/tags",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{REQUEST_ID}}",
-                "tags"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{REQUEST_ID}}", "tags"]
             },
             "body": {
               "mode": "raw",
@@ -1559,7 +1422,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -1579,14 +1442,9 @@
               }
             ],
             "url": {
-              "raw": "{{BASE_URL}}/requests/search?workspaceId={{WORKSPACE_ID}}&q={{SEARCH_QUERY}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "search"
-              ],
+              "raw": "{{BASE_URL}}/requests/search?workspaceId={{WORKSPACE_ID}}\u0026q={{SEARCH_QUERY}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "search"],
               "query": [
                 {
                   "key": "workspaceId",
@@ -1604,13 +1462,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array', () => {",
+                  "pm.test(\u0027Returns array\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
                   "})"
                 ]
               }
@@ -1634,13 +1492,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/requests/reorder",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "reorder"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "reorder"]
             },
             "body": {
               "mode": "raw",
@@ -1652,7 +1505,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})"
                 ]
@@ -1673,13 +1526,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{REQUEST_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{REQUEST_ID}}"]
             }
           },
           "event": [
@@ -1687,7 +1535,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 204', () => {",
+                  "pm.test(\u0027Status is 200 or 204\u0027, () =\u003e {",
                   "  pm.expect([200, 204]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -1722,13 +1570,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -1736,19 +1579,19 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Response has execution result', () => {",
+                  "pm.test(\u0027Response has execution result\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.statusCode).to.equal(200)",
                   "  pm.expect(json.data.body).to.exist",
-                  "  pm.expect(json.data.duration).to.be.a('number')",
-                  "  pm.expect(json.data.size).to.be.a('number')",
+                  "  pm.expect(json.data.duration).to.be.a(\u0027number\u0027)",
+                  "  pm.expect(json.data.size).to.be.a(\u0027number\u0027)",
                   "})",
                   "",
-                  "pm.test('External API returned valid data', () => {",
+                  "pm.test(\u0027External API returned valid data\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  const body = JSON.parse(json.data.body)",
                   "  pm.expect(body.id).to.equal(1)",
@@ -1780,13 +1623,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -1794,11 +1632,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Response successful', () => {",
+                  "pm.test(\u0027Response successful\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.statusCode).to.equal(200)",
                   "})"
@@ -1828,13 +1666,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -1842,20 +1675,20 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('External API returned 201', () => {",
+                  "pm.test(\u0027External API returned 201\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.statusCode).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Response has created post', () => {",
+                  "pm.test(\u0027Response has created post\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  const body = JSON.parse(json.data.body)",
                   "  pm.expect(body.id).to.exist",
-                  "  pm.expect(body.title).to.equal('Test Post')",
+                  "  pm.expect(body.title).to.equal(\u0027Test Post\u0027)",
                   "})"
                 ]
               }
@@ -1883,13 +1716,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -1897,15 +1725,15 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Filtered by userId', () => {",
+                  "pm.test(\u0027Filtered by userId\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  const posts = JSON.parse(json.data.body)",
-                  "  pm.expect(posts).to.be.an('array')",
-                  "  posts.forEach(post => {",
+                  "  pm.expect(posts).to.be.an(\u0027array\u0027)",
+                  "  posts.forEach(post =\u003e {",
                   "    pm.expect(post.userId).to.equal(1)",
                   "  })",
                   "})"
@@ -1935,13 +1763,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -1949,11 +1772,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Bearer auth was applied', () => {",
+                  "pm.test(\u0027Bearer auth was applied\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  const body = JSON.parse(json.data.body)",
                   "  pm.expect(body.authenticated).to.equal(true)",
@@ -1984,13 +1807,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -1998,7 +1816,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})"
                 ]
@@ -2027,13 +1845,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -2041,11 +1854,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})",
                   "",
-                  "pm.test('Returns validation error', () => {",
+                  "pm.test(\u0027Returns validation error\u0027, () =\u003e {",
                   "  pm.expect(pm.response.json().success).to.equal(false)",
                   "})"
                 ]
@@ -2070,13 +1883,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -2084,11 +1892,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 (guest allowed)', () => {",
+                  "pm.test(\u0027Status is 200 (guest allowed)\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Response has result', () => {",
+                  "pm.test(\u0027Response has result\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.statusCode).to.equal(200)",
                   "})"
@@ -2116,12 +1924,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/history",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "history"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["history"]
             }
           },
           "event": [
@@ -2129,23 +1933,23 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array of history', () => {",
+                  "pm.test(\u0027Returns array of history\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
                   "})",
                   "",
-                  "pm.test('History entries have correct structure', () => {",
+                  "pm.test(\u0027History entries have correct structure\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  if (json.data.length > 0) {",
+                  "  if (json.data.length \u003e 0) {",
                   "    const entry = json.data[0]",
-                  "    pm.expect(entry).to.have.property('id')",
-                  "    pm.expect(entry).to.have.property('method')",
-                  "    pm.expect(entry).to.have.property('url')",
-                  "    pm.environment.set('HISTORY_ID', entry.id)",
+                  "    pm.expect(entry).to.have.property(\u0027id\u0027)",
+                  "    pm.expect(entry).to.have.property(\u0027method\u0027)",
+                  "    pm.expect(entry).to.have.property(\u0027url\u0027)",
+                  "    pm.environment.set(\u0027HISTORY_ID\u0027, entry.id)",
                   "  }",
                   "})"
                 ]
@@ -2166,13 +1970,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/history/{{HISTORY_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "history",
-                "{{HISTORY_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["history", "{{HISTORY_ID}}"]
             }
           },
           "event": [
@@ -2180,7 +1979,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 204', () => {",
+                  "pm.test(\u0027Status is 200 or 204\u0027, () =\u003e {",
                   "  pm.expect([200, 204]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -2201,12 +2000,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/history",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "history"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["history"]
             }
           },
           "event": [
@@ -2214,11 +2009,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 204', () => {",
+                  "pm.test(\u0027Status is 200 or 204\u0027, () =\u003e {",
                   "  pm.expect([200, 204]).to.include(pm.response.code)",
                   "})",
                   "",
-                  "pm.test('Success is true', () => {",
+                  "pm.test(\u0027Success is true\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  if (json.success !== undefined) {",
                   "    pm.expect(json.success).to.equal(true)",
@@ -2256,14 +2051,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{COLLECTION_ID}}",
-                "requests"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{COLLECTION_ID}}", "requests"]
             }
           },
           "event": [
@@ -2273,7 +2062,7 @@
                 "exec": [
                   "const json = pm.response.json()",
                   "if (json.data?.id) {",
-                  "  pm.environment.set('SHARE_REQUEST_ID', json.data.id)",
+                  "  pm.environment.set(\u0027SHARE_REQUEST_ID\u0027, json.data.id)",
                   "}"
                 ]
               }
@@ -2301,14 +2090,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{SHARE_REQUEST_ID}}",
-                "share"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{SHARE_REQUEST_ID}}", "share"]
             }
           },
           "event": [
@@ -2316,11 +2099,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Returns share token', () => {",
+                  "pm.test(\u0027Returns share token\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.token).to.exist",
                   "  pm.expect(json.data.token.length).to.be.above(10)",
@@ -2328,7 +2111,7 @@
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.token) {",
-                  "  pm.environment.set('SHARE_TOKEN', json.data.token)",
+                  "  pm.environment.set(\u0027SHARE_TOKEN\u0027, json.data.token)",
                   "}"
                 ]
               }
@@ -2356,14 +2139,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{SHARE_REQUEST_ID}}",
-                "share"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{SHARE_REQUEST_ID}}", "share"]
             }
           },
           "event": [
@@ -2371,11 +2148,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Has expiry date', () => {",
+                  "pm.test(\u0027Has expiry date\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.expiresAt).to.exist",
                   "})"
@@ -2386,20 +2163,14 @@
         },
         {
           "name": "Get Shared Request (public)",
-          "description": "Tests the public share endpoint. No Authorization header \u2014 simulates a non-logged-in user viewing a shared link.",
+          "description": "Tests the public share endpoint. No Authorization header � simulates a non-logged-in user viewing a shared link.",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/requests/share/{{SHARE_TOKEN}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "share",
-                "{{SHARE_TOKEN}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "share", "{{SHARE_TOKEN}}"]
             }
           },
           "event": [
@@ -2407,22 +2178,22 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns request data', () => {",
+                  "pm.test(\u0027Returns request data\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.have.property('method')",
-                  "  pm.expect(json.data).to.have.property('url')",
-                  "  pm.expect(json.data.method).to.equal('GET')",
+                  "  pm.expect(json.data).to.have.property(\u0027method\u0027)",
+                  "  pm.expect(json.data).to.have.property(\u0027url\u0027)",
+                  "  pm.expect(json.data.method).to.equal(\u0027GET\u0027)",
                   "})",
                   "",
-                  "pm.test('No auth token exposed', () => {",
+                  "pm.test(\u0027No auth token exposed\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  const str = JSON.stringify(json)",
-                  "  pm.expect(str).to.not.include('password')",
-                  "  pm.expect(str).to.not.include('token')",
+                  "  pm.expect(str).to.not.include(\u0027password\u0027)",
+                  "  pm.expect(str).to.not.include(\u0027token\u0027)",
                   "})"
                 ]
               }
@@ -2446,14 +2217,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/share",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "{{COLLECTION_ID}}",
-                "share"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}", "share"]
             },
             "body": {
               "mode": "raw",
@@ -2465,18 +2230,18 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Share token created', () => {",
+                  "pm.test(\u0027Share token created\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.token).to.exist",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.token) {",
-                  "  pm.environment.set('COLLECTION_SHARE_TOKEN', json.data.token)",
+                  "  pm.environment.set(\u0027COLLECTION_SHARE_TOKEN\u0027, json.data.token)",
                   "}"
                 ]
               }
@@ -2490,14 +2255,8 @@
             "method": "GET",
             "url": {
               "raw": "{{BASE_URL}}/collections/share/{{COLLECTION_SHARE_TOKEN}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "share",
-                "{{COLLECTION_SHARE_TOKEN}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "share", "{{COLLECTION_SHARE_TOKEN}}"]
             }
           },
           "event": [
@@ -2505,7 +2264,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -2530,9 +2289,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/{{COLLECTION_ID}}/share",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -2551,14 +2308,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201 or 404', () => {",
+                  "pm.test(\u0027Status is 201 or 404\u0027, () =\u003e {",
                   "  pm.expect([201, 404]).to.include(pm.response.code)",
                   "})",
                   "",
                   "if (pm.response.code === 201) {",
                   "  const json = pm.response.json()",
                   "  if (json.data?.token) {",
-                  "    pm.environment.set('COLLECTION_SHARE_TOKEN', json.data.token)",
+                  "    pm.environment.set(\u0027COLLECTION_SHARE_TOKEN\u0027, json.data.token)",
                   "  }",
                   "}"
                 ]
@@ -2573,9 +2330,7 @@
             "method": "GET",
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/share/{{COLLECTION_SHARE_TOKEN}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -2590,7 +2345,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -2625,14 +2380,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "environments"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "environments"]
             }
           },
           "event": [
@@ -2640,19 +2389,19 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Environment created', () => {",
+                  "pm.test(\u0027Environment created\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.id).to.exist",
-                  "  pm.expect(json.data.name).to.equal('Local Development')",
+                  "  pm.expect(json.data.name).to.equal(\u0027Local Development\u0027)",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.id) {",
-                  "  pm.environment.set('ENVIRONMENT_ID', json.data.id)",
+                  "  pm.environment.set(\u0027ENVIRONMENT_ID\u0027, json.data.id)",
                   "}"
                 ]
               }
@@ -2672,14 +2421,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "environments"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "environments"]
             }
           },
           "event": [
@@ -2687,13 +2430,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array', () => {",
+                  "pm.test(\u0027Returns array\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
                   "})"
                 ]
               }
@@ -2713,13 +2456,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments",
-                "{{ENVIRONMENT_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}"]
             }
           },
           "event": [
@@ -2727,13 +2465,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns environment', () => {",
+                  "pm.test(\u0027Returns environment\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data.id).to.equal(pm.environment.get('ENVIRONMENT_ID'))",
+                  "  pm.expect(json.data.id).to.equal(pm.environment.get(\u0027ENVIRONMENT_ID\u0027))",
                   "})"
                 ]
               }
@@ -2761,13 +2499,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments",
-                "{{ENVIRONMENT_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}"]
             }
           },
           "event": [
@@ -2775,13 +2508,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Name was updated', () => {",
+                  "pm.test(\u0027Name was updated\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data.name).to.equal('Local Dev Updated')",
+                  "  pm.expect(json.data.name).to.equal(\u0027Local Dev Updated\u0027)",
                   "})"
                 ]
               }
@@ -2809,14 +2542,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments",
-                "{{ENVIRONMENT_ID}}",
-                "variables"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}", "variables"]
             }
           },
           "event": [
@@ -2824,11 +2551,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Variables saved', () => {",
+                  "pm.test(\u0027Variables saved\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.success).to.equal(true)",
                   "})"
@@ -2850,13 +2577,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments",
-                "{{ENVIRONMENT_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}"]
             }
           },
           "event": [
@@ -2864,7 +2586,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 204', () => {",
+                  "pm.test(\u0027Status is 200 or 204\u0027, () =\u003e {",
                   "  pm.expect([200, 204]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -2889,16 +2611,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"name\": \"Local Development\"}"
+              "raw": "{\"name\": \"Local Development\", \"workspaceId\": \"{{WORKSPACE_ID}}\"}"
             },
             "url": {
               "raw": "{{BASE_URL}}/environments",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments"]
             }
           },
           "event": [
@@ -2906,14 +2624,14 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201 or 403', () => {",
+                  "pm.test(\u0027Status is 201 or 403\u0027, () =\u003e {",
                   "  pm.expect([201, 403]).to.include(pm.response.code)",
                   "})",
                   "",
                   "if (pm.response.code === 201) {",
                   "  const json = pm.response.json()",
                   "  if (json.data?.id) {",
-                  "    pm.environment.set('ENVIRONMENT_ID', json.data.id)",
+                  "    pm.environment.set(\u0027ENVIRONMENT_ID\u0027, json.data.id)",
                   "  }",
                   "}"
                 ]
@@ -2933,12 +2651,14 @@
               }
             ],
             "url": {
-              "raw": "{{BASE_URL}}/environments",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments"
+              "raw": "{{BASE_URL}}/environments?workspaceId={{WORKSPACE_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments"],
+              "query": [
+                {
+                  "key": "workspaceId",
+                  "value": "{{WORKSPACE_ID}}"
+                }
               ]
             }
           },
@@ -2947,7 +2667,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 403', () => {",
+                  "pm.test(\u0027Status is 200 or 403\u0027, () =\u003e {",
                   "  pm.expect([200, 403]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -2968,9 +2688,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -2984,7 +2702,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -3013,9 +2731,7 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -3029,13 +2745,13 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})",
                   "",
                   "if (pm.response.code === 200) {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data.name).to.equal('Local Dev Updated')",
+                  "  pm.expect(json.data.name).to.equal(\u0027Local Dev Updated\u0027)",
                   "}"
                 ]
               }
@@ -3063,9 +2779,7 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}/variables",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -3080,7 +2794,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -3101,9 +2815,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -3117,7 +2829,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -3148,14 +2860,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "folders"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "folders"]
             },
             "body": {
               "mode": "raw",
@@ -3167,19 +2873,19 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Folder created', () => {",
+                  "pm.test(\u0027Folder created\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.id).to.exist",
-                  "  pm.expect(json.data.name).to.equal('Test Folder')",
+                  "  pm.expect(json.data.name).to.equal(\u0027Test Folder\u0027)",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.id) {",
-                  "  pm.environment.set('FOLDER_ID', json.data.id)",
+                  "  pm.environment.set(\u0027FOLDER_ID\u0027, json.data.id)",
                   "}"
                 ]
               }
@@ -3199,14 +2905,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "folders"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "folders"]
             }
           },
           "event": [
@@ -3214,20 +2914,20 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array', () => {",
+                  "pm.test(\u0027Returns array\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
                   "})",
                   "",
                   "const json = pm.response.json()",
-                  "if (Array.isArray(json.data) && json.data.length) {",
+                  "if (Array.isArray(json.data) \u0026\u0026 json.data.length) {",
                   "  const folder = json.data[0]",
                   "  if (folder.id) {",
-                  "    pm.environment.set('FOLDER_ID', folder.id)",
+                  "    pm.environment.set(\u0027FOLDER_ID\u0027, folder.id)",
                   "  }",
                   "}"
                 ]
@@ -3252,15 +2952,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/reorder",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "folders",
-                "reorder"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "folders", "reorder"]
             },
             "body": {
               "mode": "raw",
@@ -3272,7 +2965,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})"
                 ]
@@ -3297,9 +2990,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -3317,7 +3008,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -3338,9 +3029,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -3354,7 +3043,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -3376,12 +3065,8 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/workspaces",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
             },
             "auth": {
               "type": "noauth"
@@ -3392,11 +3077,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 401', () => {",
+                  "pm.test(\u0027Status is 401\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(401)",
                   "})",
                   "",
-                  "pm.test('Error message is clear', () => {",
+                  "pm.test(\u0027Error message is clear\u0027, () =\u003e {",
                   "  pm.expect(pm.response.json().success).to.equal(false)",
                   "})"
                 ]
@@ -3417,12 +3102,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
             },
             "auth": {
               "type": "bearer",
@@ -3440,7 +3121,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 401', () => {",
+                  "pm.test(\u0027Status is 401\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(401)",
                   "})"
                 ]
@@ -3465,13 +3146,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
             }
           },
           "event": [
@@ -3479,11 +3155,11 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})",
                   "",
-                  "pm.test('Validation error returned', () => {",
+                  "pm.test(\u0027Validation error returned\u0027, () =\u003e {",
                   "  pm.expect(pm.response.json().success).to.equal(false)",
                   "})"
                 ]
@@ -3504,13 +3180,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/some-other-workspace-id",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "some-other-workspace-id"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "some-other-workspace-id"]
             }
           },
           "event": [
@@ -3518,7 +3189,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -3543,13 +3214,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
             }
           },
           "event": [
@@ -3557,7 +3223,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -3586,13 +3252,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments",
-                "{{ENVIRONMENT_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}"]
             }
           },
           "event": [
@@ -3600,7 +3261,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -3615,14 +3276,8 @@
             "method": "GET",
             "url": {
               "raw": "{{BASE_URL}}/collections/share/invalid-token",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "share",
-                "invalid-token"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "share", "invalid-token"]
             }
           },
           "event": [
@@ -3630,7 +3285,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404', () => {",
+                  "pm.test(\u0027Status is 404\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(404)",
                   "})"
                 ]
@@ -3655,13 +3310,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
             }
           },
           "event": [
@@ -3669,7 +3319,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -3694,13 +3344,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/login",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
             }
           },
           "event": [
@@ -3708,7 +3353,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -3733,13 +3378,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/refresh",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "refresh"]
             }
           },
           "event": [
@@ -3747,7 +3387,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -3772,13 +3412,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/refresh",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "refresh"]
             }
           },
           "event": [
@@ -3786,7 +3421,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 401', () => {",
+                  "pm.test(\u0027Status is 401\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(401)",
                   "})"
                 ]
@@ -3815,12 +3450,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces"]
             }
           },
           "event": [
@@ -3828,7 +3459,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -3857,14 +3488,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "collections"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
             }
           },
           "event": [
@@ -3872,7 +3497,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404 or 403', () => {",
+                  "pm.test(\u0027Status is 404 or 403\u0027, () =\u003e {",
                   "  pm.expect([404, 403]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -3901,14 +3526,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments",
-                "{{ENVIRONMENT_ID}}",
-                "variables"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}", "variables"]
             }
           },
           "event": [
@@ -3916,7 +3535,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -3932,14 +3551,8 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/requests/share/invalid-token",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "share",
-                "invalid-token"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "share", "invalid-token"]
             }
           },
           "event": [
@@ -3947,7 +3560,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404', () => {",
+                  "pm.test(\u0027Status is 404\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(404)",
                   "})"
                 ]
@@ -3976,14 +3589,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "invite"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "invite"]
             }
           },
           "event": [
@@ -3991,7 +3598,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4016,9 +3623,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -4036,7 +3641,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4061,14 +3666,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "folders"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "folders"]
             },
             "body": {
               "mode": "raw",
@@ -4080,7 +3679,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4105,14 +3704,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "tags"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "tags"]
             },
             "body": {
               "mode": "raw",
@@ -4124,7 +3717,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4153,14 +3746,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{COLLECTION_ID}}",
-                "requests"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{COLLECTION_ID}}", "requests"]
             }
           },
           "event": [
@@ -4168,7 +3755,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4197,13 +3784,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -4211,7 +3793,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -4236,14 +3818,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}/tags",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{REQUEST_ID}}",
-                "tags"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{REQUEST_ID}}", "tags"]
             },
             "body": {
               "mode": "raw",
@@ -4255,7 +3831,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4280,13 +3856,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/requests/reorder",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "reorder"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "reorder"]
             },
             "body": {
               "mode": "raw",
@@ -4298,7 +3869,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4323,15 +3894,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/reorder",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "folders",
-                "reorder"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "folders", "reorder"]
             },
             "body": {
               "mode": "raw",
@@ -4343,7 +3907,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4372,14 +3936,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "environments"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "environments"]
             }
           },
           "event": [
@@ -4387,7 +3945,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4416,14 +3974,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{SHARE_REQUEST_ID}}",
-                "share"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{SHARE_REQUEST_ID}}", "share"]
             }
           },
           "event": [
@@ -4431,7 +3983,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4456,14 +4008,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/share",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "{{COLLECTION_ID}}",
-                "share"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}", "share"]
             },
             "body": {
               "mode": "raw",
@@ -4475,7 +4021,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4500,13 +4046,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
             }
           },
           "event": [
@@ -4514,7 +4055,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -4539,13 +4080,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/login",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
             }
           },
           "event": [
@@ -4553,7 +4089,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -4578,13 +4114,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/refresh",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "refresh"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "refresh"]
             }
           },
           "event": [
@@ -4592,7 +4123,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 401', () => {",
+                  "pm.test(\u0027Status is 401\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(401)",
                   "})"
                 ]
@@ -4621,14 +4152,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "invite"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "invite"]
             }
           },
           "event": [
@@ -4636,7 +4161,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400, 403, or 404', () => {",
+                  "pm.test(\u0027Status is 400, 403, or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4665,14 +4190,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "invite"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "invite"]
             }
           },
           "event": [
@@ -4680,7 +4199,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400, 403, or 404', () => {",
+                  "pm.test(\u0027Status is 400, 403, or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4705,9 +4224,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -4725,7 +4242,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4746,9 +4263,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/invalid-user-id",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -4762,7 +4277,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404 or 403', () => {",
+                  "pm.test(\u0027Status is 404 or 403\u0027, () =\u003e {",
                   "  pm.expect([404, 403]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4791,14 +4306,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "collections"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
             }
           },
           "event": [
@@ -4806,7 +4315,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 403 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4835,13 +4344,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "{{COLLECTION_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "{{COLLECTION_ID}}"]
             }
           },
           "event": [
@@ -4849,7 +4353,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 403 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4874,13 +4378,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/collections/reorder",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "collections",
-                "reorder"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["collections", "reorder"]
             },
             "body": {
               "mode": "raw",
@@ -4892,7 +4391,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4921,14 +4420,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{COLLECTION_ID}}",
-                "requests"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{COLLECTION_ID}}", "requests"]
             }
           },
           "event": [
@@ -4936,7 +4429,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -4965,14 +4458,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{COLLECTION_ID}}",
-                "requests"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{COLLECTION_ID}}", "requests"]
             }
           },
           "event": [
@@ -4980,7 +4467,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5009,13 +4496,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "{{REQUEST_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "{{REQUEST_ID}}"]
             }
           },
           "event": [
@@ -5023,7 +4505,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5044,13 +4526,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/requests/search",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "search"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "search"]
             }
           },
           "event": [
@@ -5058,7 +4535,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -5087,13 +4564,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -5101,7 +4573,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -5130,13 +4602,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/requests/execute",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "requests",
-                "execute"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["requests", "execute"]
             }
           },
           "event": [
@@ -5144,7 +4611,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400', () => {",
+                  "pm.test(\u0027Status is 400\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(400)",
                   "})"
                 ]
@@ -5169,9 +4636,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -5189,7 +4654,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5214,15 +4679,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/reorder",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "folders",
-                "reorder"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "folders", "reorder"]
             },
             "body": {
               "mode": "raw",
@@ -5234,7 +4692,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5259,15 +4717,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "tags",
-                "{{TAG_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "tags", "{{TAG_ID}}"]
             },
             "body": {
               "mode": "raw",
@@ -5279,7 +4730,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5300,9 +4751,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/invalid-tag-id",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -5316,7 +4765,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404 or 403', () => {",
+                  "pm.test(\u0027Status is 404 or 403\u0027, () =\u003e {",
                   "  pm.expect([404, 403]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5345,14 +4794,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments",
-                "{{ENVIRONMENT_ID}}",
-                "variables"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "{{ENVIRONMENT_ID}}", "variables"]
             }
           },
           "event": [
@@ -5360,7 +4803,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 404', () => {",
+                  "pm.test(\u0027Status is 400 or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5389,13 +4832,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/environments/invalid-env-id",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "environments",
-                "invalid-env-id"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["environments", "invalid-env-id"]
             }
           },
           "event": [
@@ -5403,7 +4841,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404 or 403', () => {",
+                  "pm.test(\u0027Status is 404 or 403\u0027, () =\u003e {",
                   "  pm.expect([404, 403]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5424,13 +4862,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/history/invalid-history-id",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "history",
-                "invalid-history-id"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["history", "invalid-history-id"]
             }
           },
           "event": [
@@ -5438,7 +4871,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404', () => {",
+                  "pm.test(\u0027Status is 404\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(404)",
                   "})"
                 ]
@@ -5453,13 +4886,8 @@
             "method": "GET",
             "url": {
               "raw": "{{BASE_URL}}/workspace-invites/invalid-token",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspace-invites",
-                "invalid-token"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspace-invites", "invalid-token"]
             }
           },
           "event": [
@@ -5467,7 +4895,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404', () => {",
+                  "pm.test(\u0027Status is 404\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(404)",
                   "})"
                 ]
@@ -5488,14 +4916,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspace-invites/invalid-token/accept",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspace-invites",
-                "invalid-token",
-                "accept"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspace-invites", "invalid-token", "accept"]
             }
           },
           "event": [
@@ -5503,7 +4925,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404 or 401', () => {",
+                  "pm.test(\u0027Status is 404 or 401\u0027, () =\u003e {",
                   "  pm.expect([404, 401]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5524,14 +4946,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspace-invites/invalid-token/decline",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspace-invites",
-                "invalid-token",
-                "decline"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspace-invites", "invalid-token", "decline"]
             }
           },
           "event": [
@@ -5539,7 +4955,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 404 or 401', () => {",
+                  "pm.test(\u0027Status is 404 or 401\u0027, () =\u003e {",
                   "  pm.expect([404, 401]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5564,13 +4980,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/register",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "register"]
             }
           },
           "event": [
@@ -5578,13 +4989,14 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "const existingEmail = pm.environment.get('MEMBER_EMAIL');",
-                  "const existingPass = pm.environment.get('MEMBER_PASSWORD');",
-                  "if (!existingEmail || !existingPass) {",
-                  "  const ts = Date.now();",
-                  "  pm.environment.set('MEMBER_EMAIL', `member+${ts}@apico.dev`);",
-                  "  pm.environment.set('MEMBER_PASSWORD', 'Password123!');",
-                  "}"
+                  "const ts = Date.now();",
+                  "pm.environment.set(\u0027MEMBER_EMAIL\u0027, `member+${ts}@apico.dev`);",
+                  "pm.environment.set(\u0027MEMBER_PASSWORD\u0027, \u0027Password123!\u0027);",
+                  "pm.environment.unset(\u0027MEMBER_ACCESS_TOKEN\u0027);",
+                  "pm.environment.unset(\u0027MEMBER_REFRESH_TOKEN\u0027);",
+                  "pm.environment.unset(\u0027MEMBER_USER_ID\u0027);",
+                  "pm.environment.unset(\u0027MEMBER_INVITE_ID\u0027);",
+                  "pm.environment.unset(\u0027MEMBER_INVITE_TOKEN\u0027);"
                 ]
               }
             },
@@ -5592,7 +5004,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201 or 400', () => {",
+                  "pm.test(\u0027Status is 201 or 400\u0027, () =\u003e {",
                   "  pm.expect([201, 400]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5617,13 +5029,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/auth/login",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "login"]
             }
           },
           "event": [
@@ -5631,17 +5038,17 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
                   "const json = pm.response.json();",
                   "if (json.data?.accessToken) {",
-                  "  pm.environment.set('MEMBER_ACCESS_TOKEN', json.data.accessToken);",
-                  "  pm.environment.set('MEMBER_REFRESH_TOKEN', json.data.refreshToken);",
+                  "  pm.environment.set(\u0027MEMBER_ACCESS_TOKEN\u0027, json.data.accessToken);",
+                  "  pm.environment.set(\u0027MEMBER_REFRESH_TOKEN\u0027, json.data.refreshToken);",
                   "}",
                   "if (json.data?.user?.id) {",
-                  "  pm.environment.set('MEMBER_USER_ID', json.data.user.id);",
+                  "  pm.environment.set(\u0027MEMBER_USER_ID\u0027, json.data.user.id);",
                   "}"
                 ]
               }
@@ -5669,14 +5076,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "invite"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "invite"]
             }
           },
           "event": [
@@ -5684,16 +5085,16 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201, 400, 403, or 404', () => {",
+                  "pm.test(\u0027Status is 201, 400, 403, or 404\u0027, () =\u003e {",
                   "  pm.expect([201, 400, 403, 404]).to.include(pm.response.code)",
                   "})",
                   "",
                   "const json = pm.response.json();",
                   "if (json.data?.invite?.id) {",
-                  "  pm.environment.set('MEMBER_INVITE_ID', json.data.invite.id)",
+                  "  pm.environment.set(\u0027MEMBER_INVITE_ID\u0027, json.data.invite.id)",
                   "}",
                   "if (json.data?.invite?.token) {",
-                  "  pm.environment.set('MEMBER_INVITE_TOKEN', json.data.invite.token)",
+                  "  pm.environment.set(\u0027MEMBER_INVITE_TOKEN\u0027, json.data.invite.token)",
                   "}"
                 ]
               }
@@ -5713,14 +5114,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspace-invites/{{MEMBER_INVITE_TOKEN}}/accept",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspace-invites",
-                "{{MEMBER_INVITE_TOKEN}}",
-                "accept"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspace-invites", "{{MEMBER_INVITE_TOKEN}}", "accept"]
             }
           },
           "event": [
@@ -5728,7 +5123,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200, 403, 404, or 410', () => {",
+                  "pm.test(\u0027Status is 200, 403, 404, or 410\u0027, () =\u003e {",
                   "  pm.expect([200, 403, 404, 410]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5749,14 +5144,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspace-invites/{{MEMBER_INVITE_TOKEN}}/accept",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspace-invites",
-                "{{MEMBER_INVITE_TOKEN}}",
-                "accept"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspace-invites", "{{MEMBER_INVITE_TOKEN}}", "accept"]
             }
           },
           "event": [
@@ -5764,7 +5153,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 410, 403, or 404', () => {",
+                  "pm.test(\u0027Status is 410, 403, or 404\u0027, () =\u003e {",
                   "  pm.expect([410, 403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5789,9 +5178,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{USER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -5809,7 +5196,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 403', () => {",
+                  "pm.test(\u0027Status is 400 or 403\u0027, () =\u003e {",
                   "  pm.expect([400, 403]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5830,9 +5217,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{USER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -5846,7 +5231,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400 or 403', () => {",
+                  "pm.test(\u0027Status is 400 or 403\u0027, () =\u003e {",
                   "  pm.expect([400, 403]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5875,14 +5260,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "invite"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "invite"]
             }
           },
           "event": [
@@ -5890,7 +5269,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 400, 403, or 404', () => {",
+                  "pm.test(\u0027Status is 400, 403, or 404\u0027, () =\u003e {",
                   "  pm.expect([400, 403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5919,14 +5298,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "invite"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "invite"]
             }
           },
           "event": [
@@ -5934,7 +5307,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -5963,14 +5336,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "collections"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "collections"]
             }
           },
           "event": [
@@ -5978,7 +5345,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6003,14 +5370,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "folders"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "folders"]
             },
             "body": {
               "mode": "raw",
@@ -6022,7 +5383,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6047,14 +5408,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "tags"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "tags"]
             },
             "body": {
               "mode": "raw",
@@ -6066,7 +5421,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6095,14 +5450,8 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "environments"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "environments"]
             }
           },
           "event": [
@@ -6110,7 +5459,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6135,14 +5484,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/import",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "import"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "import"]
             },
             "body": {
               "mode": "raw",
@@ -6154,7 +5497,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6179,9 +5522,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -6199,7 +5540,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6220,9 +5561,7 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
+              "host": ["{{BASE_URL}}"],
               "path": [
                 "workspaces",
                 "{{WORKSPACE_ID}}",
@@ -6236,7 +5575,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 403 or 404', () => {",
+                  "pm.test(\u0027Status is 403 or 404\u0027, () =\u003e {",
                   "  pm.expect([403, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6257,12 +5596,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/history",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "history"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["history"]
             }
           },
           "event": [
@@ -6270,7 +5605,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})"
                 ]
@@ -6291,12 +5626,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/history",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "history"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["history"]
             }
           },
           "event": [
@@ -6304,7 +5635,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})"
                 ]
@@ -6325,13 +5656,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/auth/logout",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "logout"]
             }
           },
           "event": [
@@ -6339,7 +5665,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})"
                 ]
@@ -6360,13 +5686,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/auth/logout",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["auth", "logout"]
             }
           },
           "event": [
@@ -6374,7 +5695,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})"
                 ]
@@ -6405,38 +5726,41 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "tags"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "tags"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"name\": \"Test Tag\"}"
+              "raw": "{\"name\": \"{{TAG_NAME}}\"}"
             }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.environment.set(\u0027TAG_NAME\u0027, `Test Tag ${ts}`);"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 201', () => {",
+                  "pm.test(\u0027Status is 201\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(201)",
                   "})",
                   "",
-                  "pm.test('Tag created', () => {",
+                  "pm.test(\u0027Tag created\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
                   "  pm.expect(json.data.id).to.exist",
-                  "  pm.expect(json.data.name).to.equal('Test Tag')",
+                  "  pm.expect(json.data.name).to.equal(pm.environment.get(\u0027TAG_NAME\u0027))",
                   "})",
                   "",
                   "const json = pm.response.json()",
                   "if (json.data?.id) {",
-                  "  pm.environment.set('TAG_ID', json.data.id)",
+                  "  pm.environment.set(\u0027TAG_ID\u0027, json.data.id)",
                   "}"
                 ]
               }
@@ -6456,14 +5780,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "tags"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "tags"]
             }
           },
           "event": [
@@ -6471,20 +5789,20 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array', () => {",
+                  "pm.test(\u0027Returns array\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
                   "})",
                   "",
                   "const json = pm.response.json()",
-                  "if (Array.isArray(json.data) && json.data.length) {",
+                  "if (Array.isArray(json.data) \u0026\u0026 json.data.length) {",
                   "  const tag = json.data[0]",
                   "  if (tag.id) {",
-                  "    pm.environment.set('TAG_ID', tag.id)",
+                  "    pm.environment.set(\u0027TAG_ID\u0027, tag.id)",
                   "  }",
                   "}"
                 ]
@@ -6509,27 +5827,29 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "tags",
-                "{{TAG_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "tags", "{{TAG_ID}}"]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\"name\": \"Updated Tag\"}"
+              "raw": "{\"name\": \"{{TAG_NAME_UPDATED}}\"}"
             }
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const base = pm.environment.get(\u0027TAG_NAME\u0027) || \u0027Test Tag\u0027;",
+                  "pm.environment.set(\u0027TAG_NAME_UPDATED\u0027, `${base} Updated`);"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6550,15 +5870,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspaces",
-                "{{WORKSPACE_ID}}",
-                "tags",
-                "{{TAG_ID}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspaces", "{{WORKSPACE_ID}}", "tags", "{{TAG_ID}}"]
             }
           },
           "event": [
@@ -6566,7 +5879,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6593,13 +5906,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspace-invites/pending",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspace-invites",
-                "pending"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspace-invites", "pending"]
             }
           },
           "event": [
@@ -6607,20 +5915,20 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})",
                   "",
-                  "pm.test('Returns array', () => {",
+                  "pm.test(\u0027Returns array\u0027, () =\u003e {",
                   "  const json = pm.response.json()",
-                  "  pm.expect(json.data).to.be.an('array')",
+                  "  pm.expect(json.data).to.be.an(\u0027array\u0027)",
                   "})",
                   "",
                   "const json = pm.response.json()",
-                  "if (Array.isArray(json.data) && json.data.length) {",
+                  "if (Array.isArray(json.data) \u0026\u0026 json.data.length) {",
                   "  const invite = json.data[0]",
                   "  if (invite.token) {",
-                  "    pm.environment.set('INVITE_TOKEN', invite.token)",
+                  "    pm.environment.set(\u0027INVITE_TOKEN\u0027, invite.token)",
                   "  }",
                   "}"
                 ]
@@ -6635,13 +5943,8 @@
             "method": "GET",
             "url": {
               "raw": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspace-invites",
-                "{{INVITE_TOKEN}}"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspace-invites", "{{INVITE_TOKEN}}"]
             }
           },
           "event": [
@@ -6649,7 +5952,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200 or 404', () => {",
+                  "pm.test(\u0027Status is 200 or 404\u0027, () =\u003e {",
                   "  pm.expect([200, 404]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6670,14 +5973,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}/accept",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspace-invites",
-                "{{INVITE_TOKEN}}",
-                "accept"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspace-invites", "{{INVITE_TOKEN}}", "accept"]
             }
           },
           "event": [
@@ -6685,7 +5982,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200, 403, 404, or 410', () => {",
+                  "pm.test(\u0027Status is 200, 403, 404, or 410\u0027, () =\u003e {",
                   "  pm.expect([200, 403, 404, 410]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6706,14 +6003,8 @@
             ],
             "url": {
               "raw": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}/decline",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "workspace-invites",
-                "{{INVITE_TOKEN}}",
-                "decline"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["workspace-invites", "{{INVITE_TOKEN}}", "decline"]
             }
           },
           "event": [
@@ -6721,7 +6012,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200, 403, 404, or 410', () => {",
+                  "pm.test(\u0027Status is 200, 403, 404, or 410\u0027, () =\u003e {",
                   "  pm.expect([200, 403, 404, 410]).to.include(pm.response.code)",
                   "})"
                 ]
@@ -6742,12 +6033,8 @@
             "method": "GET",
             "url": {
               "raw": "{{BASE_URL}}/health",
-              "host": [
-                "{{BASE_URL}}"
-              ],
-              "path": [
-                "health"
-              ]
+              "host": ["{{BASE_URL}}"],
+              "path": ["health"]
             }
           },
           "event": [
@@ -6755,7 +6042,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status is 200', () => {",
+                  "pm.test(\u0027Status is 200\u0027, () =\u003e {",
                   "  pm.expect(pm.response.code).to.equal(200)",
                   "})"
                 ]
@@ -6782,12 +6069,12 @@
       "script": {
         "exec": [
           "const folder = pm.info.requestName;",
-          "const authRequests = ['Register User', 'Register Duplicate', 'Login User', 'Login Wrong Password', 'No Auth Header', 'Invalid JWT', 'Execute as Guest'];",
+          "const authRequests = [\u0027Register User\u0027, \u0027Register Duplicate\u0027, \u0027Login User\u0027, \u0027Login Wrong Password\u0027, \u0027No Auth Header\u0027, \u0027Invalid JWT\u0027, \u0027Execute as Guest\u0027];",
           "",
           "if (!authRequests.includes(folder)) {",
-          "  const token = pm.environment.get('ACCESS_TOKEN');",
-          "  if (!token && folder !== 'Missing Required Fields') {",
-          "    console.warn('\u26a0\ufe0f No ACCESS_TOKEN set. Run Auth folder first.');",
+          "  const token = pm.environment.get(\u0027ACCESS_TOKEN\u0027);",
+          "  if (!token \u0026\u0026 folder !== \u0027Missing Required Fields\u0027) {",
+          "    console.warn(\u0027?? No ACCESS_TOKEN set. Run Auth folder first.\u0027);",
           "  }",
           "}"
         ]
@@ -6797,9 +6084,9 @@
       "listen": "test",
       "script": {
         "exec": [
-          "if (pm.response.code >= 400) {",
-          "  console.log('\u274c Failed Request:', pm.info.requestName);",
-          "  console.log('Status:', pm.response.code);",
+          "if (pm.response.code \u003e= 400) {",
+          "  console.log(\u0027? Failed Request:\u0027, pm.info.requestName);",
+          "  console.log(\u0027Status:\u0027, pm.response.code);",
           "}"
         ]
       }
