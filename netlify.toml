@@ -1,0 +1,5 @@
+[build]
+  # Monorepo: build from the Next.js app directory.
+  base = "apps/web"
+  command = "npm run build"
+  publish = ".next"
