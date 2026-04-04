@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ExecuteRequestPayload, HttpMethod } from '../types';
+import { HttpMethod } from '../types';
 
 const keyValuePairSchema = z.object({
   key: z.string(),
@@ -26,7 +26,7 @@ export const formDataFieldSchema = z.object({
 });
 
 export const formDataMetadataSchema = z.object({
-  method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const),
+  method: z.nativeEnum(HttpMethod),
   url: z.string().url('Invalid URL'),
   headers: z.array(keyValuePairSchema),
   params: z.array(keyValuePairSchema),
@@ -36,7 +36,7 @@ export const formDataMetadataSchema = z.object({
 });
 
 export const executeRequestSchema = z.object({
-  method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const),
+  method: z.nativeEnum(HttpMethod),
   url: z.string().url('Invalid URL'),
   headers: z.array(keyValuePairSchema),
   params: z.array(keyValuePairSchema),
@@ -46,7 +46,7 @@ export const executeRequestSchema = z.object({
 
 export const saveRequestSchema = z.object({
   name: z.string().min(1, 'Request name is required'),
-  method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const),
+  method: z.nativeEnum(HttpMethod),
   url: z.string().url('Invalid URL'),
   headers: z.array(keyValuePairSchema),
   params: z.array(keyValuePairSchema),

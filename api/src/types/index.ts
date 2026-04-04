@@ -1,23 +1,10 @@
-export enum HttpMethod {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  PATCH = 'PATCH',
-  DELETE = 'DELETE',
-}
+import { HttpMethod } from '@prisma/client';
 
-export enum WorkspaceRole {
-  OWNER = 'OWNER',
-  EDITOR = 'EDITOR',
-  VIEWER = 'VIEWER',
-}
-
-export enum WorkspaceInviteStatus {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  REVOKED = 'REVOKED',
-  EXPIRED = 'EXPIRED',
-}
+export {
+  HttpMethod,
+  WorkspaceRole,
+  WorkspaceInviteStatus,
+} from '@prisma/client';
 
 export interface ApiResponse<T> {
   success: boolean;
