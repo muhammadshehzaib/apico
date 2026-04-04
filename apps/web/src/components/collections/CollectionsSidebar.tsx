@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
-import type { DragEvent } from 'react';
-import { SavedRequest, Folder } from '@/types';
-import { useCollections } from '@/hooks/useCollections';
+import { Button } from '@/components/ui/Button';
+import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import type { CollectionWithRequests } from '@/hooks/useCollections';
+import { useCollections } from '@/hooks/useCollections';
 import { useToast } from '@/hooks/useToast';
+import { workspaceService } from '@/services/workspace.service';
+import { Folder, SavedRequest } from '@/types';
+import type { DragEvent } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CollectionItem } from './CollectionItem';
-import { RequestItem } from './RequestItem';
 import { CreateCollectionModal } from './CreateCollectionModal';
 import { CreateFolderModal } from './CreateFolderModal';
 import { RenameModal } from './RenameModal';
-import { Button } from '@/components/ui/Button';
-import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
-import { workspaceService } from '@/services/workspace.service';
+import { RequestItem } from './RequestItem';
 
 interface CollectionsSidebarProps {
   workspaceId: string | null;
@@ -43,6 +43,7 @@ export function CollectionsSidebar({
     fetchCollections,
     fetchFolders,
     fetchTags,
+    fetchRequests,
     toggleExpand,
     createCollection,
     renameCollection,
