@@ -1,26 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { workspaceService } from '@/services/workspace.service';
 import { SavedRequest } from '@/types';
 import { HTTP_METHOD_TAILWIND, APP_NAME } from '@/constants/app.constants';
 import { Button } from '@/components/ui/Button';
 
-interface SharePageProps {
-  params: { token: string };
-}
-
-export default function SharePage({ params }: SharePageProps) {
+export default function SharePage() {
+  const params = useParams<{ token: string }>();
+  const token = Array.isArray(params?.token) ? params?.token[0] : params?.token;
   const router = useRouter();
   const [request, setRequest] = useState<SavedRequest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!token) return;
     const load = async () => {
       try {
-        const data = await workspaceService.getSharedRequest(params.token);
+        const data = await workspaceService.getSharedRequest(token);
         if (!data) {
           setError('Shared request not found');
           return;
@@ -33,7 +32,7 @@ export default function SharePage({ params }: SharePageProps) {
       }
     };
     load();
-  }, [params.token]);
+  }, [token]);
 
   const handleOpenInBuilder = () => {
     if (!request) return;
@@ -74,9 +73,7 @@ export default function SharePage({ params }: SharePageProps) {
               </span>
             </div>
 
-            <div className="text-xs text-text-muted">
-              {request.name}
-            </div>
+            <div className="text-xs text-text-muted">{request.name}</div>
 
             <div className="flex gap-2">
               <Button variant="primary" size="sm" onClick={handleOpenInBuilder}>

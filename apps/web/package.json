@@ -4,7 +4,7 @@
   "description": "REST API testing tool frontend",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint src",
     "test": "vitest run",
