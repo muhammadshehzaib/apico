@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CollectionItem } from './CollectionItem';
 import { CreateCollectionModal } from './CreateCollectionModal';
 import { CreateFolderModal } from './CreateFolderModal';
+import { ClearWorkspaceModal } from './ClearWorkspaceModal';
 import { RenameModal } from './RenameModal';
 import { RequestItem } from './RequestItem';
 
@@ -70,6 +71,7 @@ export function CollectionsSidebar({
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const [renameModalOpen, setRenameModalOpen] = useState(false);
+  const [clearModalOpen, setClearModalOpen] = useState(false);
   const [renameTarget, setRenameTarget] = useState<{
     type: 'collection' | 'request' | 'folder';
     id: string;
@@ -600,11 +602,6 @@ export function CollectionsSidebar({
   const handleClearAll = async () => {
     if (!workspaceId) return;
 
-    const confirmed = window.confirm(
-      'This will delete all collections, requests, folders, and tags in this workspace. This cannot be undone. Continue?'
-    );
-    if (!confirmed) return;
-
     setIsClearing(true);
     try {
       const result = await workspaceService.clearWorkspaceData(workspaceId);
@@ -624,6 +621,11 @@ export function CollectionsSidebar({
     } finally {
       setIsClearing(false);
     }
+  };
+
+  const handleClearConfirm = async () => {
+    await handleClearAll();
+    setClearModalOpen(false);
   };
 
 
@@ -770,7 +772,7 @@ export function CollectionsSidebar({
             {isImporting ? 'Importing...' : 'Import'}
           </button>
           <button
-            onClick={handleClearAll}
+            onClick={() => setClearModalOpen(true)}
             className="text-danger hover:text-danger/80 text-xs transition-colors border border-danger/40 rounded-md px-2 py-1"
             title="Delete all collections, requests, folders, and tags"
             disabled={isClearing}
@@ -939,6 +941,13 @@ export function CollectionsSidebar({
         onClose={() => setCreateFolderOpen(false)}
         onConfirm={handleCreateFolder}
         isLoading={isCreatingFolder}
+      />
+
+      <ClearWorkspaceModal
+        isOpen={clearModalOpen}
+        onClose={() => setClearModalOpen(false)}
+        onConfirm={handleClearConfirm}
+        isLoading={isClearing}
       />
 
       <RenameModal
