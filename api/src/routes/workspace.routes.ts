@@ -11,6 +11,7 @@ import {
   removeMemberController,
   updateMemberRoleController,
   leaveWorkspaceController,
+  clearWorkspaceDataController,
 } from '../controllers/workspace.controller';
 import { importApicoController } from '../controllers/import.controller';
 
@@ -29,5 +30,6 @@ router.delete('/:id/members/:userId', removeMemberController);
 router.patch('/:id/members/:userId', updateMemberRoleController);
 router.post('/:id/leave', leaveWorkspaceController);
 router.post('/:id/import', importApicoController);
+router.delete('/:id/clear-data', clearWorkspaceDataController);
 
 export default router;

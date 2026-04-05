@@ -23,6 +23,7 @@ import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace
 import { WorkspaceRole } from '../types';
 import crypto from 'crypto';
 import { env } from '../config/env.config';
+import { prisma } from '../config/prisma.config';
 
 export const createWorkspaceService = async (name: string, userId: string) => {
   const workspace = await createWorkspace({
@@ -386,4 +387,28 @@ export const declineWorkspaceInvite = async (token: string, userId: string) => {
   }
 
   await updateWorkspaceInvite(invite.id, { status: 'REVOKED' });
+};
+
+export const clearWorkspaceDataService = async (workspaceId: string, userId: string) => {
+  await requireWorkspaceRole(workspaceId, userId, WorkspaceRole.EDITOR);
+
+  return prisma.$transaction(async (tx) => {
+    const collectionsResult = await tx.collection.deleteMany({
+      where: { workspaceId },
+    });
+
+    const foldersResult = await tx.folder.deleteMany({
+      where: { workspaceId },
+    });
+
+    const tagsResult = await tx.tag.deleteMany({
+      where: { workspaceId },
+    });
+
+    return {
+      collectionsDeleted: collectionsResult.count,
+      foldersDeleted: foldersResult.count,
+      tagsDeleted: tagsResult.count,
+    };
+  });
 };

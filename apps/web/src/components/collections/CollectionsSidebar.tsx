@@ -92,6 +92,7 @@ export function CollectionsSidebar({
   const [isSearching, setIsSearching] = useState(false);
   const [expandedFolderIds, setExpandedFolderIds] = useState<Set<string>>(new Set());
   const [isImporting, setIsImporting] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCreateCollection = async (name: string) => {
@@ -596,6 +597,35 @@ export function CollectionsSidebar({
     }
   };
 
+  const handleClearAll = async () => {
+    if (!workspaceId) return;
+
+    const confirmed = window.confirm(
+      'This will delete all collections, requests, folders, and tags in this workspace. This cannot be undone. Continue?'
+    );
+    if (!confirmed) return;
+
+    setIsClearing(true);
+    try {
+      const result = await workspaceService.clearWorkspaceData(workspaceId);
+      await fetchCollections(workspaceId);
+      await fetchFolders(workspaceId);
+      await fetchTags(workspaceId);
+      if (result) {
+        showToast(
+          `Cleared ${result.collectionsDeleted} collections, ${result.foldersDeleted} folders, ${result.tagsDeleted} tags`,
+          'success'
+        );
+      } else {
+        showToast('Workspace data cleared', 'success');
+      }
+    } catch (err) {
+      showToast('Failed to clear workspace data', 'error');
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
 
   if (!workspaceId) {
     return (
@@ -738,6 +768,14 @@ export function CollectionsSidebar({
             disabled={isImporting}
           >
             {isImporting ? 'Importing...' : 'Import'}
+          </button>
+          <button
+            onClick={handleClearAll}
+            className="text-danger hover:text-danger/80 text-xs transition-colors border border-danger/40 rounded-md px-2 py-1"
+            title="Delete all collections, requests, folders, and tags"
+            disabled={isClearing}
+          >
+            {isClearing ? 'Clearing...' : 'Clear'}
           </button>
           <button
             onClick={() => setCreateFolderOpen(true)}

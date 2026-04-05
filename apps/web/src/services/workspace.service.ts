@@ -101,6 +101,13 @@ class WorkspaceService {
     await apiService.post(API_ENDPOINTS.LEAVE_WORKSPACE(workspaceId));
   }
 
+  async clearWorkspaceData(workspaceId: string): Promise<{ collectionsDeleted: number; foldersDeleted: number; tagsDeleted: number } | null> {
+    const response = await apiService.delete<{ collectionsDeleted: number; foldersDeleted: number; tagsDeleted: number }>(
+      API_ENDPOINTS.CLEAR_WORKSPACE_DATA(workspaceId)
+    );
+    return response.data.data ?? null;
+  }
+
   async createCollection(workspaceId: string, name: string): Promise<Collection | null> {
     const response = await apiService.post<Collection>(
       API_ENDPOINTS.COLLECTIONS_BY_WORKSPACE(workspaceId),

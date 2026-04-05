@@ -12,6 +12,7 @@ import {
   removeWorkspaceMemberService,
   updateMemberRoleService,
   leaveWorkspaceService,
+  clearWorkspaceDataService,
 } from '../services/workspace.service';
 import { createWorkspaceSchema, inviteSchema, updateMemberRoleSchema } from '../validations/workspace.validation';
 
@@ -104,4 +105,13 @@ export const leaveWorkspaceController = asyncHandler(async (req: Request, res: R
   await leaveWorkspaceService(id, userId);
 
   success(res, null, 'You have left the workspace');
+});
+
+export const clearWorkspaceDataController = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+
+  const result = await clearWorkspaceDataService(id, userId);
+
+  success(res, result, 'Workspace data cleared');
 });

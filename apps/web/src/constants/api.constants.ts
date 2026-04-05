@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
   WORKSPACE_INVITES: (id: string) => `/workspaces/${id}/invites`,
   REVOKE_WORKSPACE_INVITE: (id: string, inviteId: string) => `/workspaces/${id}/invites/${inviteId}/revoke`,
   LEAVE_WORKSPACE: (id: string) => `/workspaces/${id}/leave`,
+  CLEAR_WORKSPACE_DATA: (id: string) => `/workspaces/${id}/clear-data`,
 
   // Collections
   COLLECTIONS_BY_WORKSPACE: (workspaceId: string) => `/workspaces/${workspaceId}/collections`,
