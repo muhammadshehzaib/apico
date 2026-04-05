@@ -1,0 +1,3075 @@
+{
+  "format": "apico",
+  "version": 1,
+  "exportedAt": "2026-04-05T19:40:54.073Z",
+  "folders": [],
+  "collections": [
+    {
+      "id": "c1",
+      "name": "01 - Auth",
+      "order": 0
+    },
+    {
+      "id": "c2",
+      "name": "02 - Workspaces",
+      "order": 1
+    },
+    {
+      "id": "c3",
+      "name": "03 - Collections",
+      "order": 2
+    },
+    {
+      "id": "c4",
+      "name": "04 - Saved Requests",
+      "order": 3
+    },
+    {
+      "id": "c5",
+      "name": "05 - Execute Request",
+      "order": 4
+    },
+    {
+      "id": "c6",
+      "name": "06 - Request History",
+      "order": 5
+    },
+    {
+      "id": "c7",
+      "name": "07 - Shared Links",
+      "order": 6
+    },
+    {
+      "id": "c8",
+      "name": "08 - Environments",
+      "order": 7
+    },
+    {
+      "id": "c9",
+      "name": "09 - Folders",
+      "order": 8
+    },
+    {
+      "id": "c10",
+      "name": "10 - Edge Cases",
+      "order": 9
+    },
+    {
+      "id": "c11",
+      "name": "11 - Tags",
+      "order": 10
+    },
+    {
+      "id": "c12",
+      "name": "12 - Workspace Invites",
+      "order": 11
+    },
+    {
+      "id": "c13",
+      "name": "13 - Health",
+      "order": 12
+    }
+  ],
+  "requests": [
+    {
+      "id": "r1",
+      "name": "Register User",
+      "collectionId": "c1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/register",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test User\",\"email\": \"{{USER_EMAIL}}\",\"password\": \"{{USER_PASSWORD}}\"}",
+      "order": 0
+    },
+    {
+      "id": "r2",
+      "name": "Register Duplicate (expect 400)",
+      "collectionId": "c1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/register",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test User 2\",\"email\": \"{{USER_EMAIL}}\",\"password\": \"{{USER_PASSWORD}}\"}",
+      "order": 1
+    },
+    {
+      "id": "r3",
+      "name": "Login User",
+      "collectionId": "c1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/login",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\": \"{{USER_EMAIL}}\",\"password\": \"{{USER_PASSWORD}}\"}",
+      "order": 2
+    },
+    {
+      "id": "r4",
+      "name": "Login Wrong Password (expect 401)",
+      "collectionId": "c1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/login",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\": \"{{USER_EMAIL}}\",\"password\": \"wrongpassword\"}",
+      "order": 3
+    },
+    {
+      "id": "r5",
+      "name": "Refresh Token",
+      "collectionId": "c1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/refresh",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"refreshToken\": \"{{REFRESH_TOKEN}}\"}",
+      "order": 4
+    },
+    {
+      "id": "r6",
+      "name": "Logout",
+      "collectionId": "c1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/logout",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 5
+    },
+    {
+      "id": "r7",
+      "name": "Create Workspace",
+      "collectionId": "c2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test Workspace\"}",
+      "order": 0
+    },
+    {
+      "id": "r8",
+      "name": "Get All Workspaces",
+      "collectionId": "c2",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 1
+    },
+    {
+      "id": "r9",
+      "name": "Get Workspace By ID",
+      "collectionId": "c2",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 2
+    },
+    {
+      "id": "r10",
+      "name": "Get Invalid Workspace (expect 403)",
+      "collectionId": "c2",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/invalid-workspace-id-999",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 3
+    },
+    {
+      "id": "r11",
+      "name": "Invite Member to Workspace",
+      "collectionId": "c2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\": \"member@apico.dev\",\"role\": \"EDITOR\"}",
+      "order": 4
+    },
+    {
+      "id": "r12",
+      "name": "Get Workspace Members",
+      "collectionId": "c2",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 5
+    },
+    {
+      "id": "r13",
+      "name": "Get Workspace Invites",
+      "collectionId": "c2",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invites",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 6
+    },
+    {
+      "id": "r14",
+      "name": "Revoke Workspace Invite",
+      "collectionId": "c2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invites/{{INVITE_ID}}/revoke",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 7
+    },
+    {
+      "id": "r15",
+      "name": "Remove Workspace Member",
+      "collectionId": "c2",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 8
+    },
+    {
+      "id": "r16",
+      "name": "Update Workspace Member Role",
+      "collectionId": "c2",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"role\": \"EDITOR\"}",
+      "order": 9
+    },
+    {
+      "id": "r17",
+      "name": "Leave Workspace",
+      "collectionId": "c2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/leave",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 10
+    },
+    {
+      "id": "r18",
+      "name": "Import Workspace (Apico)",
+      "collectionId": "c2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/import",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"format\": \"apico\", \"version\": 1, \"collections\": []}",
+      "order": 11
+    },
+    {
+      "id": "r19",
+      "name": "Create Collection",
+      "collectionId": "c3",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test Collection\"}",
+      "order": 0
+    },
+    {
+      "id": "r20",
+      "name": "Get Collections in Workspace",
+      "collectionId": "c3",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 1
+    },
+    {
+      "id": "r21",
+      "name": "Update Collection",
+      "collectionId": "c3",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Updated Collection Name\"}",
+      "order": 2
+    },
+    {
+      "id": "r22",
+      "name": "Reorder Collections",
+      "collectionId": "c3",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/collections/reorder",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"items\": [{\"id\": \"{{COLLECTION_ID}}\", \"order\": 1, \"folderId\": null}]}",
+      "order": 3
+    },
+    {
+      "id": "r23",
+      "name": "Delete Collection",
+      "collectionId": "c3",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 4
+    },
+    {
+      "id": "r24",
+      "name": "Create Collection (Base)",
+      "collectionId": "c3",
+      "method": "POST",
+      "url": "{{BASE_URL}}/collections",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test Collection\", \"workspaceId\": \"{{WORKSPACE_ID}}\"}",
+      "order": 5
+    },
+    {
+      "id": "r25",
+      "name": "Get Collections (Base)",
+      "collectionId": "c3",
+      "method": "GET",
+      "url": "{{BASE_URL}}/collections",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [
+        {
+          "key": "workspaceId",
+          "value": "{{WORKSPACE_ID}}",
+          "enabled": true
+        }
+      ],
+      "body": "",
+      "order": 6
+    },
+    {
+      "id": "r26",
+      "name": "Update Collection (Workspace Route)",
+      "collectionId": "c3",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/{{COLLECTION_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Updated Collection Name\"}",
+      "order": 7
+    },
+    {
+      "id": "r27",
+      "name": "Delete Collection (Workspace Route)",
+      "collectionId": "c3",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/{{COLLECTION_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 8
+    },
+    {
+      "id": "r28",
+      "name": "Reorder Collections (Workspace Route)",
+      "collectionId": "c3",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/reorder",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"items\": [{\"id\": \"{{COLLECTION_ID}}\", \"order\": 1, \"folderId\": null}]}",
+      "order": 9
+    },
+    {
+      "id": "r29",
+      "name": "Create Collection (for requests)",
+      "collectionId": "c4",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test Collection for Requests\"}",
+      "order": 0
+    },
+    {
+      "id": "r30",
+      "name": "Save Request to Collection",
+      "collectionId": "c4",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Get All Posts\",\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [{\"key\": \"Accept\",\"value\": \"application/json\",\"enabled\": true}],\"params\": [{\"key\": \"userId\",\"value\": \"1\",\"enabled\": true}],\"body\": \"\",\"auth\": {\"type\": \"none\"}}",
+      "order": 1
+    },
+    {
+      "id": "r31",
+      "name": "Get Saved Requests",
+      "collectionId": "c4",
+      "method": "GET",
+      "url": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 2
+    },
+    {
+      "id": "r32",
+      "name": "Update Saved Request",
+      "collectionId": "c4",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Get Posts by User\",\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [],\"params\": [{\"key\": \"userId\",\"value\": \"2\",\"enabled\": true}]}",
+      "order": 3
+    },
+    {
+      "id": "r33",
+      "name": "Update Request Tags",
+      "collectionId": "c4",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/requests/{{REQUEST_ID}}/tags",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"tags\": [\"tag1\", \"tag2\"]}",
+      "order": 4
+    },
+    {
+      "id": "r34",
+      "name": "Search Requests",
+      "collectionId": "c4",
+      "method": "GET",
+      "url": "{{BASE_URL}}/requests/search",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [
+        {
+          "key": "workspaceId",
+          "value": "{{WORKSPACE_ID}}",
+          "enabled": true
+        },
+        {
+          "key": "q",
+          "value": "{{SEARCH_QUERY}}",
+          "enabled": true
+        }
+      ],
+      "body": "",
+      "order": 5
+    },
+    {
+      "id": "r35",
+      "name": "Reorder Requests",
+      "collectionId": "c4",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/requests/reorder",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"items\": [{\"id\": \"{{REQUEST_ID}}\", \"order\": 1}]}",
+      "order": 6
+    },
+    {
+      "id": "r36",
+      "name": "Delete Saved Request",
+      "collectionId": "c4",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 7
+    },
+    {
+      "id": "r37",
+      "name": "Execute GET (no auth)",
+      "collectionId": "c5",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/1\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}",
+      "order": 0
+    },
+    {
+      "id": "r38",
+      "name": "Execute GET (with token)",
+      "collectionId": "c5",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/2\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}",
+      "order": 1
+    },
+    {
+      "id": "r39",
+      "name": "Execute POST with Body",
+      "collectionId": "c5",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\": \"POST\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [{\"key\": \"Content-Type\",\"value\": \"application/json\",\"enabled\": true}],\"params\": [],\"body\": \"{\\\"title\\\": \\\"Test Post\\\", \\\"body\\\": \\\"Hello World\\\", \\\"userId\\\": 1}\",\"auth\": {\"type\": \"none\"}}",
+      "order": 2
+    },
+    {
+      "id": "r40",
+      "name": "Execute with Query Params",
+      "collectionId": "c5",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts\",\"headers\": [],\"params\": [{\"key\": \"userId\",\"value\": \"1\",\"enabled\": true},{\"key\": \"disabled_param\",\"value\": \"should_not_appear\",\"enabled\": false}],\"body\": \"\",\"auth\": {\"type\": \"none\"}}",
+      "order": 3
+    },
+    {
+      "id": "r41",
+      "name": "Execute with Bearer Auth",
+      "collectionId": "c5",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\": \"GET\",\"url\": \"https://httpbin.org/bearer\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"bearer\",\"token\": \"test-token-123\"}}",
+      "order": 4
+    },
+    {
+      "id": "r42",
+      "name": "Execute with Basic Auth",
+      "collectionId": "c5",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\": \"GET\",\"url\": \"https://httpbin.org/basic-auth/user/passwd\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"basic\",\"username\": \"user\",\"password\": \"passwd\"}}",
+      "order": 5
+    },
+    {
+      "id": "r43",
+      "name": "Execute Invalid URL (expect 400)",
+      "collectionId": "c5",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\": \"GET\",\"url\": \"not-a-valid-url\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}",
+      "order": 6
+    },
+    {
+      "id": "r44",
+      "name": "Execute as Guest (no JWT)",
+      "collectionId": "c5",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/1\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}",
+      "order": 7
+    },
+    {
+      "id": "r45",
+      "name": "Get History",
+      "collectionId": "c6",
+      "method": "GET",
+      "url": "{{BASE_URL}}/history",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 0
+    },
+    {
+      "id": "r46",
+      "name": "Delete History Entry",
+      "collectionId": "c6",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/history/{{HISTORY_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 1
+    },
+    {
+      "id": "r47",
+      "name": "Clear All History",
+      "collectionId": "c6",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/history",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 2
+    },
+    {
+      "id": "r48",
+      "name": "Save Request First",
+      "collectionId": "c7",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Shareable Request\",\"method\": \"GET\",\"url\": \"https://jsonplaceholder.typicode.com/posts/1\",\"headers\": [],\"params\": [],\"body\": \"\",\"auth\": {\"type\": \"none\"}}",
+      "order": 0
+    },
+    {
+      "id": "r49",
+      "name": "Create Shared Link",
+      "collectionId": "c7",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 1
+    },
+    {
+      "id": "r50",
+      "name": "Create Shared Link with Expiry",
+      "collectionId": "c7",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"expiresAt\": \"2099-12-31T23:59:59.000Z\"}",
+      "order": 2
+    },
+    {
+      "id": "r51",
+      "name": "Get Shared Request (public)",
+      "collectionId": "c7",
+      "method": "GET",
+      "url": "{{BASE_URL}}/requests/share/{{SHARE_TOKEN}}",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "order": 3
+    },
+    {
+      "id": "r52",
+      "name": "Create Collection Share Link",
+      "collectionId": "c7",
+      "method": "POST",
+      "url": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/share",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"expiresAt\": \"2026-12-31T00:00:00.000Z\"}",
+      "order": 4
+    },
+    {
+      "id": "r53",
+      "name": "Get Shared Collection (public)",
+      "collectionId": "c7",
+      "method": "GET",
+      "url": "{{BASE_URL}}/collections/share/{{COLLECTION_SHARE_TOKEN}}",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "order": 5
+    },
+    {
+      "id": "r54",
+      "name": "Create Collection Share Link (Workspace Route)",
+      "collectionId": "c7",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/{{COLLECTION_ID}}/share",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"expiresAt\": \"2026-12-31T00:00:00.000Z\"}",
+      "order": 6
+    },
+    {
+      "id": "r55",
+      "name": "Get Shared Collection (public, Workspace Route)",
+      "collectionId": "c7",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections/share/{{COLLECTION_SHARE_TOKEN}}",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "order": 7
+    },
+    {
+      "id": "r56",
+      "name": "Create Environment",
+      "collectionId": "c8",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Local Development\"}",
+      "order": 0
+    },
+    {
+      "id": "r57",
+      "name": "Get Environments",
+      "collectionId": "c8",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 1
+    },
+    {
+      "id": "r58",
+      "name": "Get Environment by ID",
+      "collectionId": "c8",
+      "method": "GET",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 2
+    },
+    {
+      "id": "r59",
+      "name": "Update Environment",
+      "collectionId": "c8",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Local Dev Updated\"}",
+      "order": 3
+    },
+    {
+      "id": "r60",
+      "name": "Bulk Update Variables",
+      "collectionId": "c8",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"variables\": [{\"key\": \"BASE_URL\",\"value\": \"localhost:4000\",\"enabled\": true,\"isSecret\": false},{\"key\": \"API_TOKEN\",\"value\": \"my-secret-token\",\"enabled\": true,\"isSecret\": true},{\"key\": \"VERSION\",\"value\": \"v1\",\"enabled\": true,\"isSecret\": false}]}",
+      "order": 4
+    },
+    {
+      "id": "r61",
+      "name": "Delete Environment",
+      "collectionId": "c8",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 5
+    },
+    {
+      "id": "r62",
+      "name": "Create Environment (Base)",
+      "collectionId": "c8",
+      "method": "POST",
+      "url": "{{BASE_URL}}/environments",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Local Development\", \"workspaceId\": \"{{WORKSPACE_ID}}\"}",
+      "order": 6
+    },
+    {
+      "id": "r63",
+      "name": "Get Environments (Base)",
+      "collectionId": "c8",
+      "method": "GET",
+      "url": "{{BASE_URL}}/environments",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [
+        {
+          "key": "workspaceId",
+          "value": "{{WORKSPACE_ID}}",
+          "enabled": true
+        }
+      ],
+      "body": "",
+      "order": 7
+    },
+    {
+      "id": "r64",
+      "name": "Get Environment by ID (Workspace Route)",
+      "collectionId": "c8",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 8
+    },
+    {
+      "id": "r65",
+      "name": "Update Environment (Workspace Route)",
+      "collectionId": "c8",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Local Dev Updated\"}",
+      "order": 9
+    },
+    {
+      "id": "r66",
+      "name": "Bulk Update Variables (Workspace Route)",
+      "collectionId": "c8",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}/variables",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"variables\": [{\"key\": \"BASE_URL\",\"value\": \"localhost:4000\",\"enabled\": true,\"isSecret\": false},{\"key\": \"API_TOKEN\",\"value\": \"my-secret-token\",\"enabled\": true,\"isSecret\": true},{\"key\": \"VERSION\",\"value\": \"v1\",\"enabled\": true,\"isSecret\": false}]}",
+      "order": 10
+    },
+    {
+      "id": "r67",
+      "name": "Delete Environment (Workspace Route)",
+      "collectionId": "c8",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 11
+    },
+    {
+      "id": "r68",
+      "name": "Create Folder",
+      "collectionId": "c9",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test Folder\"}",
+      "order": 0
+    },
+    {
+      "id": "r69",
+      "name": "Get Folders",
+      "collectionId": "c9",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 1
+    },
+    {
+      "id": "r70",
+      "name": "Reorder Folders",
+      "collectionId": "c9",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/reorder",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"items\": [{\"id\": \"{{FOLDER_ID}}\", \"order\": 1, \"parentId\": null}]}",
+      "order": 2
+    },
+    {
+      "id": "r71",
+      "name": "Update Folder",
+      "collectionId": "c9",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Updated Folder\"}",
+      "order": 3
+    },
+    {
+      "id": "r72",
+      "name": "Delete Folder",
+      "collectionId": "c9",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 4
+    },
+    {
+      "id": "r73",
+      "name": "No Auth Header (expect 401)",
+      "collectionId": "c10",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "order": 0,
+      "auth": {
+        "type": "none"
+      }
+    },
+    {
+      "id": "r74",
+      "name": "Invalid JWT (expect 401)",
+      "collectionId": "c10",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer invalid.jwt.token",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 1,
+      "auth": {
+        "type": "bearer",
+        "token": "invalid.jwt.token"
+      }
+    },
+    {
+      "id": "r75",
+      "name": "Missing Required Fields (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/register",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\": \"incomplete@test.com\"}",
+      "order": 2
+    },
+    {
+      "id": "r76",
+      "name": "Access Other User Data (expect 403)",
+      "collectionId": "c10",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/some-other-workspace-id",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 3
+    },
+    {
+      "id": "r77",
+      "name": "Invalid Email (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/register",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\":\"Bad Email\",\"email\":\"not-an-email\",\"password\":\"password123\"}",
+      "order": 4
+    },
+    {
+      "id": "r78",
+      "name": "Update Environment Missing Name (expect 400)",
+      "collectionId": "c10",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 5
+    },
+    {
+      "id": "r79",
+      "name": "Get Shared Collection Invalid Token (expect 404)",
+      "collectionId": "c10",
+      "method": "GET",
+      "url": "{{BASE_URL}}/collections/share/invalid-token",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "order": 6
+    },
+    {
+      "id": "r80",
+      "name": "Short Password (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/register",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\":\"Short Pass\",\"email\":\"shortpass@test.com\",\"password\":\"short\"}",
+      "order": 7
+    },
+    {
+      "id": "r81",
+      "name": "Login Invalid Email Format (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/login",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\":\"bad-email\",\"password\":\"whatever\"}",
+      "order": 8
+    },
+    {
+      "id": "r82",
+      "name": "Refresh Missing Token (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/refresh",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 9
+    },
+    {
+      "id": "r83",
+      "name": "Refresh Invalid Token (expect 401)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/refresh",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"refreshToken\":\"invalid.token.value\"}",
+      "order": 10
+    },
+    {
+      "id": "r84",
+      "name": "Create Workspace Missing Name (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 11
+    },
+    {
+      "id": "r85",
+      "name": "Create Collection Invalid Folder (expect 404)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\":\"Bad Folder Collection\",\"folderId\":\"non-existent-folder\"}",
+      "order": 12
+    },
+    {
+      "id": "r86",
+      "name": "Bulk Update Variables Missing Key (expect 400)",
+      "collectionId": "c10",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"variables\":[{\"value\":\"x\",\"enabled\":true,\"isSecret\":false}]}",
+      "order": 13
+    },
+    {
+      "id": "r87",
+      "name": "Get Shared Request Invalid Token (expect 404)",
+      "collectionId": "c10",
+      "method": "GET",
+      "url": "{{BASE_URL}}/requests/share/invalid-token",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "order": 14
+    },
+    {
+      "id": "r88",
+      "name": "Invite Member Invalid Role (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\":\"member@apico.dev\",\"role\":\"ADMIN\"}",
+      "order": 15
+    },
+    {
+      "id": "r89",
+      "name": "Update Member Role Invalid (expect 400)",
+      "collectionId": "c10",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"role\":\"OWNER\"}",
+      "order": 16
+    },
+    {
+      "id": "r90",
+      "name": "Create Folder Missing Name (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 17
+    },
+    {
+      "id": "r91",
+      "name": "Create Tag Missing Name (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 18
+    },
+    {
+      "id": "r92",
+      "name": "Save Request Invalid URL (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\":\"Bad URL\",\"method\":\"GET\",\"url\":\"not-a-url\",\"headers\":[],\"params\":[],\"body\":\"\",\"auth\":{\"type\":\"none\"}}",
+      "order": 19
+    },
+    {
+      "id": "r93",
+      "name": "Execute Request Invalid URL (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\":\"GET\",\"url\":\"not-a-url\",\"headers\":[],\"params\":[],\"body\":\"\",\"auth\":{\"type\":\"none\"}}",
+      "order": 20
+    },
+    {
+      "id": "r94",
+      "name": "Update Request Tags Invalid Body (expect 400)",
+      "collectionId": "c10",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/requests/{{REQUEST_ID}}/tags",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"tags\":\"not-an-array\"}",
+      "order": 21
+    },
+    {
+      "id": "r95",
+      "name": "Reorder Requests Missing Order (expect 400)",
+      "collectionId": "c10",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/requests/reorder",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"items\":[{\"id\":\"{{REQUEST_ID}}\"}]}",
+      "order": 22
+    },
+    {
+      "id": "r96",
+      "name": "Reorder Folders Missing Order (expect 400)",
+      "collectionId": "c10",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/reorder",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"items\":[{\"id\":\"{{FOLDER_ID}}\"}]}",
+      "order": 23
+    },
+    {
+      "id": "r97",
+      "name": "Create Environment Missing Name (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 24
+    },
+    {
+      "id": "r98",
+      "name": "Share Request Invalid Expiry (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{SHARE_REQUEST_ID}}/share",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"expiresAt\":\"not-a-date\"}",
+      "order": 25
+    },
+    {
+      "id": "r99",
+      "name": "Share Collection Invalid Expiry (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/share",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"expiresAt\":\"not-a-date\"}",
+      "order": 26
+    },
+    {
+      "id": "r100",
+      "name": "Register Empty Name (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/register",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\":\"\",\"email\":\"emptyname@test.com\",\"password\":\"password123\"}",
+      "order": 27
+    },
+    {
+      "id": "r101",
+      "name": "Login Missing Password (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/login",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\":\"user@test.com\"}",
+      "order": 28
+    },
+    {
+      "id": "r102",
+      "name": "Refresh With Access Token (expect 401)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/refresh",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"refreshToken\":\"{{ACCESS_TOKEN}}\"}",
+      "order": 29
+    },
+    {
+      "id": "r103",
+      "name": "Invite Member Invalid Email (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\":\"not-an-email\",\"role\":\"EDITOR\"}",
+      "order": 30
+    },
+    {
+      "id": "r104",
+      "name": "Invite Member Missing Role (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\":\"member@apico.dev\"}",
+      "order": 31
+    },
+    {
+      "id": "r105",
+      "name": "Update Member Role Missing Role (expect 400)",
+      "collectionId": "c10",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 32
+    },
+    {
+      "id": "r106",
+      "name": "Remove Member Invalid ID (expect 404)",
+      "collectionId": "c10",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/invalid-user-id",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 33
+    },
+    {
+      "id": "r107",
+      "name": "Create Collection Missing Name (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 34
+    },
+    {
+      "id": "r108",
+      "name": "Update Collection Empty Name (expect 400)",
+      "collectionId": "c10",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\":\"\"}",
+      "order": 35
+    },
+    {
+      "id": "r109",
+      "name": "Reorder Collections Missing Order (expect 400)",
+      "collectionId": "c10",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/collections/reorder",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"items\":[{\"id\":\"{{COLLECTION_ID}}\"}]}",
+      "order": 36
+    },
+    {
+      "id": "r110",
+      "name": "Save Request Missing Name (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\":\"GET\",\"url\":\"https://example.com\",\"headers\":[],\"params\":[],\"body\":\"\",\"auth\":{\"type\":\"none\"}}",
+      "order": 37
+    },
+    {
+      "id": "r111",
+      "name": "Save Request Invalid Method (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\":\"Bad Method\",\"method\":\"FETCH\",\"url\":\"https://example.com\",\"headers\":[],\"params\":[],\"body\":\"\",\"auth\":{\"type\":\"none\"}}",
+      "order": 38
+    },
+    {
+      "id": "r112",
+      "name": "Update Request Invalid Method (expect 400)",
+      "collectionId": "c10",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\":\"FETCH\"}",
+      "order": 39
+    },
+    {
+      "id": "r113",
+      "name": "Search Missing WorkspaceId (expect 400)",
+      "collectionId": "c10",
+      "method": "GET",
+      "url": "{{BASE_URL}}/requests/search",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 40
+    },
+    {
+      "id": "r114",
+      "name": "Execute Request Invalid Method (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\":\"FETCH\",\"url\":\"https://example.com\",\"headers\":[],\"params\":[],\"body\":\"\",\"auth\":{\"type\":\"none\"}}",
+      "order": 41
+    },
+    {
+      "id": "r115",
+      "name": "Execute Request Missing Headers Params (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"method\":\"GET\",\"url\":\"https://example.com\",\"headers\":null,\"params\":null,\"body\":\"\",\"auth\":{\"type\":\"none\"}}",
+      "order": 42
+    },
+    {
+      "id": "r116",
+      "name": "Update Folder Self Parent (expect 400)",
+      "collectionId": "c10",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"parentId\":\"{{FOLDER_ID}}\"}",
+      "order": 43
+    },
+    {
+      "id": "r117",
+      "name": "Reorder Folders Self Parent (expect 400)",
+      "collectionId": "c10",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/reorder",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"items\":[{\"id\":\"{{FOLDER_ID}}\",\"order\":1,\"parentId\":\"{{FOLDER_ID}}\"}]}",
+      "order": 44
+    },
+    {
+      "id": "r118",
+      "name": "Update Tag Missing Name (expect 400)",
+      "collectionId": "c10",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "order": 45
+    },
+    {
+      "id": "r119",
+      "name": "Delete Tag Invalid ID (expect 404)",
+      "collectionId": "c10",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/invalid-tag-id",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 46
+    },
+    {
+      "id": "r120",
+      "name": "Bulk Update Variables Invalid Types (expect 400)",
+      "collectionId": "c10",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"variables\":[{\"key\":\"A\",\"value\":\"x\",\"enabled\":\"yes\",\"isSecret\":false}]}",
+      "order": 47
+    },
+    {
+      "id": "r121",
+      "name": "Update Environment Invalid ID (expect 404)",
+      "collectionId": "c10",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/environments/invalid-env-id",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\":\"Does Not Exist\"}",
+      "order": 48
+    },
+    {
+      "id": "r122",
+      "name": "Delete History Invalid ID (expect 404)",
+      "collectionId": "c10",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/history/invalid-history-id",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 49
+    },
+    {
+      "id": "r123",
+      "name": "Get Invite Invalid Token (expect 404)",
+      "collectionId": "c10",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspace-invites/invalid-token",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "order": 50
+    },
+    {
+      "id": "r124",
+      "name": "Accept Invite Invalid Token (expect 404)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspace-invites/invalid-token/accept",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 51
+    },
+    {
+      "id": "r125",
+      "name": "Decline Invite Invalid Token (expect 404)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspace-invites/invalid-token/decline",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 52
+    },
+    {
+      "id": "r126",
+      "name": "Setup Member User (Register)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/register",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\":\"Member User\",\"email\":\"{{MEMBER_EMAIL}}\",\"password\":\"{{MEMBER_PASSWORD}}\"}",
+      "order": 53
+    },
+    {
+      "id": "r127",
+      "name": "Login Member User",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/login",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\":\"{{MEMBER_EMAIL}}\",\"password\":\"{{MEMBER_PASSWORD}}\"}",
+      "order": 54
+    },
+    {
+      "id": "r128",
+      "name": "Invite Member as Viewer",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\":\"{{MEMBER_EMAIL}}\",\"role\":\"VIEWER\"}",
+      "order": 55
+    },
+    {
+      "id": "r129",
+      "name": "Accept Invite as Member",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspace-invites/{{MEMBER_INVITE_TOKEN}}/accept",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 56
+    },
+    {
+      "id": "r130",
+      "name": "Accept Invite Twice (expect 410)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspace-invites/{{MEMBER_INVITE_TOKEN}}/accept",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 57
+    },
+    {
+      "id": "r131",
+      "name": "Owner Cannot Change Own Role (expect 400)",
+      "collectionId": "c10",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{USER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"role\":\"EDITOR\"}",
+      "order": 58
+    },
+    {
+      "id": "r132",
+      "name": "Owner Cannot Remove Self (expect 400)",
+      "collectionId": "c10",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{USER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 59
+    },
+    {
+      "id": "r133",
+      "name": "Invite Existing Member (expect 400)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\":\"{{MEMBER_EMAIL}}\",\"role\":\"VIEWER\"}",
+      "order": 60
+    },
+    {
+      "id": "r134",
+      "name": "Viewer Cannot Invite Members (expect 403)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"email\":\"someone@apico.dev\",\"role\":\"VIEWER\"}",
+      "order": 61
+    },
+    {
+      "id": "r135",
+      "name": "Viewer Cannot Create Collection (expect 403)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test Collection\"}",
+      "order": 62
+    },
+    {
+      "id": "r136",
+      "name": "Viewer Cannot Create Folder (expect 403)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test Folder\"}",
+      "order": 63
+    },
+    {
+      "id": "r137",
+      "name": "Viewer Cannot Create Tag (expect 403)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Test Tag\"}",
+      "order": 64
+    },
+    {
+      "id": "r138",
+      "name": "Viewer Cannot Create Environment (expect 403)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"Local Development\"}",
+      "order": 65
+    },
+    {
+      "id": "r139",
+      "name": "Viewer Cannot Import Workspace (expect 403)",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/import",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"format\": \"apico\", \"version\": 1, \"collections\": []}",
+      "order": 66
+    },
+    {
+      "id": "r140",
+      "name": "Viewer Cannot Update Member Role (expect 403)",
+      "collectionId": "c10",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"role\": \"EDITOR\"}",
+      "order": 67
+    },
+    {
+      "id": "r141",
+      "name": "Viewer Cannot Remove Member (expect 403)",
+      "collectionId": "c10",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{MEMBER_USER_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{MEMBER_ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 68
+    },
+    {
+      "id": "r142",
+      "name": "Clear History (Idempotent) #1",
+      "collectionId": "c10",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/history",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 69
+    },
+    {
+      "id": "r143",
+      "name": "Clear History (Idempotent) #2",
+      "collectionId": "c10",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/history",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 70
+    },
+    {
+      "id": "r144",
+      "name": "Logout (Idempotent) #1",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/logout",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 71
+    },
+    {
+      "id": "r145",
+      "name": "Logout (Idempotent) #2",
+      "collectionId": "c10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/logout",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 72
+    },
+    {
+      "id": "r146",
+      "name": "Create Tag",
+      "collectionId": "c11",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"{{TAG_NAME}}\"}",
+      "order": 0
+    },
+    {
+      "id": "r147",
+      "name": "Get Tags",
+      "collectionId": "c11",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 1
+    },
+    {
+      "id": "r148",
+      "name": "Update Tag",
+      "collectionId": "c11",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\"name\": \"{{TAG_NAME_UPDATED}}\"}",
+      "order": 2
+    },
+    {
+      "id": "r149",
+      "name": "Delete Tag",
+      "collectionId": "c11",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 3
+    },
+    {
+      "id": "r150",
+      "name": "Get Pending Invites",
+      "collectionId": "c12",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspace-invites/pending",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 0
+    },
+    {
+      "id": "r151",
+      "name": "Get Invite by Token",
+      "collectionId": "c12",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "order": 1
+    },
+    {
+      "id": "r152",
+      "name": "Accept Invite",
+      "collectionId": "c12",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}/accept",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 2
+    },
+    {
+      "id": "r153",
+      "name": "Decline Invite",
+      "collectionId": "c12",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}/decline",
+      "headers": [
+        {
+          "key": "Authorization",
+          "value": "Bearer {{ACCESS_TOKEN}}",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "",
+      "order": 3
+    },
+    {
+      "id": "r154",
+      "name": "Health Check",
+      "collectionId": "c13",
+      "method": "GET",
+      "url": "{{BASE_URL}}/health",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "order": 0
+    }
+  ],
+  "tags": []
+}
