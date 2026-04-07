@@ -25,6 +25,7 @@ interface HistorySidebarProps {
   onSaveRequest: (collectionId: string, data: SaveRequestInput) => Promise<void | SavedRequest>;
   pinnedRequestIds?: Set<string>;
   onTogglePinRequest?: (request: SavedRequest) => void;
+  className?: string;
 }
 
 const methodColors: Record<HttpMethod, string> = {
@@ -44,6 +45,7 @@ export function HistorySidebar({
   onSaveRequest,
   pinnedRequestIds,
   onTogglePinRequest,
+  className = '',
 }: HistorySidebarProps) {
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -114,7 +116,7 @@ export function HistorySidebar({
   };
 
   return (
-    <aside className="w-72 bg-bg-secondary/90 border-r border-bg-tertiary/60 h-screen flex flex-col overflow-hidden backdrop-blur">
+    <aside className={`w-full bg-bg-secondary/90 border-r border-bg-tertiary/60 h-screen flex flex-col overflow-hidden backdrop-blur ${className}`}>
       {/* Header */}
       <div className="p-6 border-b border-bg-tertiary/60 flex-shrink-0 space-y-4">
         <Link 

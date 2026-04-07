@@ -41,6 +41,13 @@ export function RequestBuilder() {
   const dragStartHeight = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Draggable sidebar width
+  const [sidebarWidth, setSidebarWidth] = useState(288);
+  const isResizingSidebar = useRef(false);
+  const dragStartX = useRef(0);
+  const dragStartWidth = useRef(288);
+  const sidebarContainerRef = useRef<HTMLDivElement>(null);
+
   const handleDividerMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     isDragging.current = true;
@@ -51,6 +58,18 @@ export function RequestBuilder() {
   }, [requestPanelHeight]);
 
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem('apico_sidebar_width');
+      if (saved) {
+        const parsed = Number(saved);
+        if (!Number.isNaN(parsed)) {
+          setSidebarWidth(parsed);
+        }
+      }
+    } catch {
+      // ignore
+    }
+
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
       const delta = e.clientY - dragStartY.current;
@@ -65,13 +84,50 @@ export function RequestBuilder() {
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     };
+
+    const handleSidebarMouseMove = (e: MouseEvent) => {
+      if (!isResizingSidebar.current) return;
+      const delta = e.clientX - dragStartX.current;
+      const containerWidth = sidebarContainerRef.current?.parentElement?.clientWidth ?? 1200;
+      const minWidth = 240;
+      const maxWidth = Math.min(520, Math.floor(containerWidth * 0.6));
+      const nextWidth = Math.min(Math.max(dragStartWidth.current + delta, minWidth), maxWidth);
+      setSidebarWidth(nextWidth);
+    };
+    const handleSidebarMouseUp = () => {
+      if (!isResizingSidebar.current) return;
+      isResizingSidebar.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleSidebarMouseMove);
+    document.addEventListener('mouseup', handleSidebarMouseUp);
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleSidebarMouseMove);
+      document.removeEventListener('mouseup', handleSidebarMouseUp);
     };
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('apico_sidebar_width', String(sidebarWidth));
+    } catch {
+      // ignore
+    }
+  }, [sidebarWidth]);
+
+  const handleSidebarResizeMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizingSidebar.current = true;
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = sidebarWidth;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, [sidebarWidth]);
   const activeWorkspaceId = useSelector((state: RootState) => state.workspace.activeWorkspaceId);
 
   const { collections, searchRequests } = useCollections(activeWorkspaceId);
@@ -325,27 +381,39 @@ export function RequestBuilder() {
 
   return (
     <div className="flex h-screen bg-bg-primary">
-      <ErrorBoundary>
-        <HistorySidebar
-          history={history}
-          onNewRequest={resetAll}
-          onLoadRequest={handleLoadRequest}
-          isLoading={historyLoading}
-          currentRequest={{
-            method: method,
-            url: url,
-            headers: headers,
-            params: params,
-            body: bodyType === 'form-data'
-              ? JSON.stringify({ __bodyType: 'form-data', fields: formDataFields })
-              : body,
-            auth: auth,
-          } as any}
-          onSaveRequest={handleSaveRequest}
-          pinnedRequestIds={pinnedRequestIds}
-          onTogglePinRequest={togglePinRequest}
-        />
-      </ErrorBoundary>
+      <div
+        ref={sidebarContainerRef}
+        className="flex-shrink-0"
+        style={{ width: sidebarWidth }}
+      >
+        <ErrorBoundary>
+          <HistorySidebar
+            history={history}
+            onNewRequest={resetAll}
+            onLoadRequest={handleLoadRequest}
+            isLoading={historyLoading}
+            currentRequest={{
+              method: method,
+              url: url,
+              headers: headers,
+              params: params,
+              body: bodyType === 'form-data'
+                ? JSON.stringify({ __bodyType: 'form-data', fields: formDataFields })
+                : body,
+              auth: auth,
+            } as any}
+            onSaveRequest={handleSaveRequest}
+            pinnedRequestIds={pinnedRequestIds}
+            onTogglePinRequest={togglePinRequest}
+          />
+        </ErrorBoundary>
+      </div>
+
+      <div
+        onMouseDown={handleSidebarResizeMouseDown}
+        className="relative w-1 flex-shrink-0 cursor-col-resize bg-bg-tertiary/70 hover:bg-accent/30 transition-colors"
+        title="Drag to resize sidebar"
+      />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <ErrorBoundary>
