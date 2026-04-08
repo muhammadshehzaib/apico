@@ -96,9 +96,9 @@ export function VariableEditor({
 
   return (
     <div className="p-4 space-y-4">
-      <div className="space-y-2 max-h-96 overflow-y-auto">
+      <div className="space-y-2 max-h-96 overflow-y-auto min-w-0 overflow-x-hidden">
         {/* Header row */}
-        <div className="grid grid-cols-[30px_1fr_1.5fr_60px_30px] gap-2 px-2 py-1 text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-2">
+        <div className="grid grid-cols-[24px_minmax(0,1fr)_minmax(0,1fr)_56px_24px] gap-2 px-2 py-1 text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-2">
           <div>✓</div>
           <div>Variable</div>
           <div>Value</div>
@@ -110,7 +110,7 @@ export function VariableEditor({
         {variables.map((variable, index) => (
           <div
             key={index}
-            className={`grid grid-cols-[30px_1fr_1.5fr_60px_30px] gap-2 p-2 bg-bg-primary/80 border border-stroke rounded-md transition-opacity ${
+            className={`grid grid-cols-[24px_minmax(0,1fr)_minmax(0,1fr)_56px_24px] gap-2 p-2 bg-bg-primary/80 border border-stroke rounded-md transition-opacity min-w-0 ${
               !variable.enabled ? 'opacity-40' : ''
             }`}
           >
@@ -126,7 +126,7 @@ export function VariableEditor({
               value={variable.key}
               onChange={(e) => handleKeyChange(index, e.target.value)}
               placeholder="Variable name"
-              className="px-3 py-2 bg-bg-secondary/80 border border-stroke rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/60"
+              className="min-w-0 px-3 py-2 bg-bg-secondary/80 border border-stroke rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/60"
             />
 
             <input
@@ -134,7 +134,7 @@ export function VariableEditor({
               value={variable.value}
               onChange={(e) => handleValueChange(index, e.target.value)}
               placeholder="Value"
-              className="px-3 py-2 bg-bg-secondary/80 border border-stroke rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/60"
+              className="min-w-0 px-3 py-2 bg-bg-secondary/80 border border-stroke rounded-md text-sm font-mono focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent/60"
             />
 
             <button
@@ -181,3 +181,6 @@ export function VariableEditor({
     </div>
   );
 }
+
+
+
