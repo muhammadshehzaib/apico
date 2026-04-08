@@ -177,5 +177,5 @@ export const importApicoService = async (
       requestsImported: requests.length,
       tagsImported: tagNameMap.size,
     };
-  });
+  }, { maxWait: 20000, timeout: 60000 });
 };
