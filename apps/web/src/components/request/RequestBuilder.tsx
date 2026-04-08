@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/useToast';
 import { useCollections } from '@/hooks/useCollections';
 import { CommandPalette, CommandPaletteItem } from '@/components/ui/CommandPalette';
 import { PinnedTabs } from '@/components/request/PinnedTabs';
+import { EnvironmentManager } from '@/components/environment/EnvironmentManager';
 
 export function RequestBuilder() {
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -187,8 +188,13 @@ export function RequestBuilder() {
   const {
     environments,
     activeEnvironment,
+    activeEnvironmentId,
     isManagerOpen,
     setActiveEnvironment,
+    createEnvironment,
+    updateEnvironment,
+    deleteEnvironment,
+    saveVariables,
     openManager: openEnvironmentManager,
     closeManager: closeEnvironmentManager,
   } = useEnvironment(activeWorkspaceId);
@@ -520,6 +526,18 @@ export function RequestBuilder() {
           setIsCurlModalOpen(false);
           showToast('Request imported from curl!', 'success');
         }}
+      />
+
+      <EnvironmentManager
+        isOpen={isManagerOpen}
+        onClose={closeEnvironmentManager}
+        environments={environments}
+        activeEnvironmentId={activeEnvironmentId}
+        onSelectEnvironment={(id) => setActiveEnvironment(id)}
+        onCreateEnvironment={createEnvironment}
+        onUpdateEnvironment={updateEnvironment}
+        onDeleteEnvironment={deleteEnvironment}
+        onSaveVariables={saveVariables}
       />
 
       <CommandPalette
