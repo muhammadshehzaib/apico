@@ -73,7 +73,9 @@ export function useEnvironment(workspaceId: string | null) {
 
   const createEnvironment = useCallback(
     async (name: string) => {
-      if (!workspaceId) return;
+      if (!workspaceId) {
+        throw new Error('Workspace is required to create an environment');
+      }
 
       try {
         const newEnv = await environmentServiceFrontend.createEnvironment(workspaceId, name);
