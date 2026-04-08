@@ -46,7 +46,8 @@ export function EnvironmentManager({
 
   useEffect(() => {
     if (isOpen && selectedEnv) {
-      setEditingVariables([...selectedEnv.variables]);
+      const vars = Array.isArray(selectedEnv.variables) ? selectedEnv.variables : [];
+      setEditingVariables([...vars]);
     }
   }, [isOpen, selectedEnv]);
 

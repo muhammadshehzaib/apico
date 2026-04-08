@@ -27,16 +27,20 @@ export function useEnvironment(workspaceId: string | null) {
     setIsLoading(true);
     try {
       const data = await environmentServiceFrontend.getEnvironments(wsId);
-      setEnvironments(data);
+      const normalized = data.map((env) => ({
+        ...env,
+        variables: Array.isArray(env.variables) ? env.variables : [],
+      }));
+      setEnvironments(normalized);
       setError(null);
 
       // Load active environment from localStorage
       const saved = localStorage.getItem(getStorageKey(wsId));
-      if (saved && data.some((e) => e.id === saved)) {
+      if (saved && normalized.some((e) => e.id === saved)) {
         setActiveEnvironmentIdState(saved);
-      } else if (data.length > 0) {
+      } else if (normalized.length > 0) {
         // Set first environment as active by default
-        setActiveEnvironmentIdState(data[0].id);
+        setActiveEnvironmentIdState(normalized[0].id);
       } else {
         setActiveEnvironmentIdState(null);
       }
@@ -73,11 +77,15 @@ export function useEnvironment(workspaceId: string | null) {
 
       try {
         const newEnv = await environmentServiceFrontend.createEnvironment(workspaceId, name);
-        setEnvironments((prev) => [newEnv, ...prev]);
-        setActiveEnvironmentIdState(newEnv.id);
-        localStorage.setItem(getStorageKey(workspaceId), newEnv.id);
+        const normalized = {
+          ...newEnv,
+          variables: Array.isArray(newEnv.variables) ? newEnv.variables : [],
+        };
+        setEnvironments((prev) => [normalized, ...prev]);
+        setActiveEnvironmentIdState(normalized.id);
+        localStorage.setItem(getStorageKey(workspaceId), normalized.id);
         setError(null);
-        return newEnv;
+        return normalized;
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Failed to create environment';
         setError(errorMsg);
@@ -90,8 +98,12 @@ export function useEnvironment(workspaceId: string | null) {
   const updateEnvironment = useCallback(async (id: string, name: string) => {
     try {
       const updated = await environmentServiceFrontend.updateEnvironment(id, name);
+      const normalized = {
+        ...updated,
+        variables: Array.isArray(updated.variables) ? updated.variables : [],
+      };
       setEnvironments((prev) =>
-        prev.map((e) => (e.id === id ? updated : e))
+        prev.map((e) => (e.id === id ? normalized : e))
       );
       setError(null);
     } catch (err) {
