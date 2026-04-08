@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { HttpMethod } from '@/types';
-import { HTTP_METHOD_TAILWIND } from '@/constants/app.constants';
+import { HTTP_METHOD_COLORS } from '@/constants/app.constants';
 
 interface MethodSelectorProps {
   method: HttpMethod;
@@ -11,12 +11,13 @@ interface MethodSelectorProps {
 
 const methods: HttpMethod[] = [HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE];
 
-const methodColors: Record<HttpMethod, string> = {
-  [HttpMethod.GET]: 'before:bg-success text-success border-success/40',
-  [HttpMethod.POST]: 'before:bg-accent text-accent border-accent/40',
-  [HttpMethod.PUT]: 'before:bg-warning text-warning border-warning/40',
-  [HttpMethod.PATCH]: 'before:bg-info text-info border-info/40',
-  [HttpMethod.DELETE]: 'before:bg-danger text-danger border-danger/40',
+// Postman-like palette for method accents
+const methodAccent: Record<HttpMethod, string> = {
+  [HttpMethod.GET]: '#6BBE45',
+  [HttpMethod.POST]: '#FF6C37',
+  [HttpMethod.PUT]: '#4A90E2',
+  [HttpMethod.PATCH]: '#B38CF6',
+  [HttpMethod.DELETE]: '#E74C3C',
 };
 
 export function MethodSelector({ method, onChange }: MethodSelectorProps) {
@@ -41,13 +42,19 @@ export function MethodSelector({ method, onChange }: MethodSelectorProps) {
     <div className="relative z-[120]" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative overflow-hidden bg-bg-secondary ${methodColors[method]} border font-mono font-semibold px-4 py-2 rounded-md min-w-[110px] text-center transition-all hover:shadow-[0_10px_30px_rgba(0,0,0,0.25)] before:content-[''] before:absolute before:inset-0 before:opacity-20 before:pointer-events-none`}
+        className="relative overflow-hidden bg-bg-secondary/90 border border-stroke font-mono font-semibold px-4 py-2 rounded-md min-w-[110px] text-center transition-all hover:bg-bg-tertiary/70 hover:border-accent/40"
       >
-        <span className="relative z-10">{method}</span>
+        <span
+          className="absolute left-0 top-0 h-full w-1"
+          style={{ backgroundColor: methodAccent[method] }}
+        />
+        <span className="relative z-10" style={{ color: methodAccent[method] }}>
+          {method}
+        </span>
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-bg-secondary border border-stroke rounded-md shadow-[0_24px_60px_rgba(0,0,0,0.45)] z-[200] min-w-[110px] overflow-hidden">
+        <div className="absolute top-full left-0 mt-2 bg-bg-secondary/95 border border-stroke rounded-md shadow-[0_24px_60px_rgba(0,0,0,0.45)] z-[200] min-w-[110px] overflow-hidden">
           {methods.map((m) => (
             <button
               key={m}
@@ -55,9 +62,15 @@ export function MethodSelector({ method, onChange }: MethodSelectorProps) {
                 onChange(m);
                 setIsOpen(false);
               }}
-              className={`relative overflow-hidden bg-bg-secondary w-full text-left px-4 py-2 ${methodColors[m]} border font-semibold hover:brightness-110 transition-all first:rounded-t last:rounded-b before:content-[''] before:absolute before:inset-0 before:opacity-20 before:pointer-events-none`}
+              className="relative overflow-hidden bg-bg-secondary/95 w-full text-left px-4 py-2 font-semibold transition-all hover:bg-bg-tertiary/70 border-b border-bg-tertiary/60 last:border-b-0"
             >
-              <span className="relative z-10">{m}</span>
+              <span
+                className="absolute left-0 top-0 h-full w-1"
+                style={{ backgroundColor: methodAccent[m] }}
+              />
+              <span className="relative z-10" style={{ color: methodAccent[m] }}>
+                {m}
+              </span>
             </button>
           ))}
         </div>
