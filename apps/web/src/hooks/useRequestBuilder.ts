@@ -234,7 +234,8 @@ export function useRequestBuilder() {
       return;
     }
 
-    if (!isValidUrl(state.url)) {
+    const resolvedUrl = resolveVariables(state.url, state.activeVariables);
+    if (!isValidUrl(resolvedUrl)) {
       setState((prev) => ({ ...prev, urlError: 'Invalid URL' }));
       return;
     }
