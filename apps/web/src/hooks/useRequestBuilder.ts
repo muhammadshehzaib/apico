@@ -17,13 +17,12 @@ import {
   resolveKeyValuePairs,
   EnvironmentVariable,
 } from '@/utils/variable.util';
-import { useScriptRunner } from './useScriptRunner';
+import { useScriptRunner, type RuntimeVariables } from './useScriptRunner';
 import type { ParsedCurl } from '@/utils/curl.parser';
 import type { ConsoleLine } from '@/utils/sandbox/pm.context';
+import { executeRequestSchema, type ExecuteRequestInput } from '@/validations/request.validation';
 
 const STORAGE_KEY = 'apico_last_request';
-
-type RuntimeVariables = Record<string, string>;
 
 interface RequestState {
   method: HttpMethod;
@@ -238,13 +237,22 @@ export function useRequestBuilder() {
       return;
     }
 
+    const runtimeEntries =
+      state.runtimeVariables &&
+      typeof state.runtimeVariables === 'object' &&
+      !Array.isArray(state.runtimeVariables)
+        ? Object.entries(state.runtimeVariables)
+        : [];
+
+    const activeVariables = Array.isArray(state.activeVariables) ? state.activeVariables : [];
+
     const resolutionVariables: EnvironmentVariable[] = [
-      ...Object.entries(state.runtimeVariables || {}).map(([key, value]) => ({
+      ...runtimeEntries.map(([key, value]) => ({
         key,
         value,
         enabled: true,
       })),
-      ...(state.activeVariables || []),
+      ...activeVariables,
     ];
 
     const resolvedUrl = resolveVariables(state.url, resolutionVariables);
@@ -286,6 +294,7 @@ export function useRequestBuilder() {
 
       let runtimeVariables: RuntimeVariables = state.runtimeVariables || {};
       let result: ExecuteRequestResult;
+      let executedRequest: ExecuteRequestInput | null = null;
 
       if (state.bodyType === 'form-data') {
         // Resolve variables in form-data text fields
@@ -321,9 +330,17 @@ export function useRequestBuilder() {
         }
 
         result = await workspaceService.executeFormDataRequest(fd);
+        executedRequest = {
+          method: state.method as ExecuteRequestInput['method'],
+          url: resolveVariables(state.url, resolutionVariables),
+          headers: resolvedHeaders,
+          params: resolvedParams,
+          body: '',
+          auth: resolvedAuth,
+        };
       } else {
-        let resolvedPayload: any = {
-          method: state.method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+        let resolvedPayload: ExecuteRequestInput = {
+          method: state.method as ExecuteRequestInput['method'],
           url: resolveVariables(state.url, resolutionVariables),
           headers: resolvedHeaders,
           params: resolvedParams,
@@ -334,15 +351,22 @@ export function useRequestBuilder() {
         // Run pre-request script if provided
         if (state.preRequestScript.trim()) {
           const preResult = await runPreRequestScript(
-            resolvedPayload as any,
-            state.activeVariables as any,
+            resolvedPayload,
+            state.activeVariables,
             runtimeVariables
           );
-          resolvedPayload = preResult.request as any;
+          resolvedPayload = preResult.request;
           runtimeVariables = preResult.variables;
         }
 
-        result = await workspaceService.executeRequest(resolvedPayload as any);
+        const parsed = executeRequestSchema.safeParse(resolvedPayload);
+        if (!parsed.success) {
+          const issue = parsed.error.issues[0];
+          throw new Error(issue?.message || 'Request validation failed');
+        }
+
+        executedRequest = parsed.data;
+        result = await workspaceService.executeRequest(executedRequest);
       }
 
       setState((prev) => ({ ...prev, response: result, isLoading: false, runtimeVariables }));
@@ -360,9 +384,16 @@ export function useRequestBuilder() {
       if (state.postResponseScript.trim()) {
         const testResult = await runTestScript(
           state.postResponseScript,
-          { method: state.method, url: state.url, headers: resolvedHeaders, params: resolvedParams, auth: resolvedAuth } as any,
+          executedRequest ?? {
+            method: state.method as ExecuteRequestInput['method'],
+            url: resolveVariables(state.url, resolutionVariables),
+            headers: resolvedHeaders,
+            params: resolvedParams,
+            body: resolveVariables(state.body, resolutionVariables),
+            auth: resolvedAuth,
+          },
           result,
-          state.activeVariables as any,
+          state.activeVariables,
           runtimeVariables
         );
         runtimeVariables = testResult.variables;

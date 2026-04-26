@@ -3,11 +3,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { scriptRunner } from '@/utils/sandbox/script.runner';
 import type { ConsoleLine, PmContext, PmResult, PmTestResult, PmResponse, TestResult } from '@/utils/sandbox/pm.context';
-import type { ExecuteRequestInput } from '@/validations/request.validation';
+import { executeRequestSchema, type ExecuteRequestInput } from '@/validations/request.validation';
 import type { ExecuteRequestResult } from '@/types';
-import type { EnvironmentVariable } from '@/services/environment.service';
+import type { EnvironmentVariable } from '@/utils/variable.util';
 
 export type RuntimeVariables = Record<string, string>;
+
+const coerceRuntimeVariables = (
+  value: unknown,
+  fallback: RuntimeVariables
+): RuntimeVariables => {
+  if (typeof value !== 'object' || value === null) return fallback;
+  const record = value as Record<string, unknown>;
+  const next: RuntimeVariables = {};
+  for (const [key, v] of Object.entries(record)) {
+    if (typeof v === 'string') next[key] = v;
+  }
+  return next;
+};
 
 export function useScriptRunner(preRequestScript: string) {
   const [consoleLogs, setConsoleLogs] = useState<ConsoleLine[]>([]);
@@ -148,7 +161,17 @@ export function useScriptRunner(preRequestScript: string) {
           }
         }
 
-        return { request: modifiedRequest, variables: result.variables || runtimeVariables };
+        const parsed = executeRequestSchema.safeParse(modifiedRequest);
+        if (!parsed.success) {
+          const issue = parsed.error.issues[0];
+          setScriptError(issue?.message || 'Pre-request script produced an invalid request');
+          return { request, variables: runtimeVariables };
+        }
+
+        return {
+          request: parsed.data,
+          variables: coerceRuntimeVariables(result.variables, runtimeVariables),
+        };
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown script error';
@@ -215,7 +238,7 @@ export function useScriptRunner(preRequestScript: string) {
         };
 
         // Build PM context with response
-        const pmContext: PmContext & { response: PmResponse } = {
+        const pmContext: PmContext = {
           request: {
             method: request.method,
             url: request.url,
@@ -227,13 +250,12 @@ export function useScriptRunner(preRequestScript: string) {
           environment: environmentMap,
           requestName: '',
           eventName: 'test',
-          response: pmResponse,
         };
 
         // Run the test script
         const result = await scriptRunner.runTestScript({
           script: testScript,
-          pmContext: pmContext as any,
+          pmContext,
           response: pmResponse,
           timeout: 10000,
         });
@@ -249,7 +271,7 @@ export function useScriptRunner(preRequestScript: string) {
         setTestsPassed(result.testsPassed);
         setTestsFailed(result.testsFailed);
 
-        return { variables: result.variables || runtimeVariables };
+        return { variables: coerceRuntimeVariables(result.variables, runtimeVariables) };
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown test error';

@@ -1,5 +1,61 @@
 import type { PmContext, PmResult, PmTestResult, PmResponse } from './pm.context';
 
+export type SandboxResultMessage =
+  | { type: 'SCRIPT_RESULT'; requestId: string; result: PmResult }
+  | { type: 'TEST_SCRIPT_RESULT'; requestId: string; result: PmTestResult };
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const isConsoleLineArray = (value: unknown): boolean =>
+  Array.isArray(value) &&
+  value.every(
+    (v) =>
+      isRecord(v) &&
+      typeof v.type === 'string' &&
+      typeof v.message === 'string' &&
+      typeof v.timestamp === 'number'
+  );
+
+const isPmRequestLike = (value: unknown): boolean =>
+  isRecord(value) &&
+  typeof value.method === 'string' &&
+  typeof value.url === 'string' &&
+  typeof value.body === 'string' &&
+  Array.isArray(value.headers) &&
+  Array.isArray(value.params);
+
+const isVariablesLike = (value: unknown): boolean =>
+  isRecord(value) && Object.values(value).every((v) => typeof v === 'string');
+
+const isPmResultLike = (value: unknown): boolean =>
+  isRecord(value) &&
+  isPmRequestLike(value.request) &&
+  isVariablesLike(value.variables) &&
+  isConsoleLineArray(value.logs) &&
+  (typeof value.error === 'string' || value.error === null);
+
+const isPmTestResultLike = (value: unknown): boolean =>
+  isPmResultLike(value) &&
+  Array.isArray((value as Record<string, unknown>).tests) &&
+  typeof (value as Record<string, unknown>).testsPassed === 'number' &&
+  typeof (value as Record<string, unknown>).testsFailed === 'number';
+
+export const isSandboxResultMessage = (data: unknown): data is SandboxResultMessage => {
+  if (!isRecord(data)) return false;
+  if (typeof data.type !== 'string' || typeof data.requestId !== 'string') return false;
+
+  if (data.type === 'SCRIPT_RESULT') {
+    return isPmResultLike(data.result);
+  }
+
+  if (data.type === 'TEST_SCRIPT_RESULT') {
+    return isPmTestResultLike(data.result);
+  }
+
+  return false;
+};
+
 interface RunScriptOptions {
   script: string;
   pmContext: PmContext;
@@ -11,9 +67,10 @@ interface RunTestScriptOptions extends RunScriptOptions {
 }
 
 interface PendingRequest {
-  resolve: (result: PmResult) => void;
+  expectedType: SandboxResultMessage['type'];
+  resolve: (result: PmResult | PmTestResult) => void;
   reject: (error: Error) => void;
-  timeout: NodeJS.Timeout;
+  timeout: ReturnType<typeof setTimeout>;
 }
 
 class ScriptRunner {
@@ -63,7 +120,8 @@ class ScriptRunner {
       }, timeout);
 
       this.pendingRequests.set(requestId, {
-        resolve: resolve as any,
+        expectedType: 'SCRIPT_RESULT',
+        resolve: (result) => resolve(result as PmResult),
         reject,
         timeout: timeoutHandle,
       });
@@ -96,7 +154,8 @@ class ScriptRunner {
       }, timeout);
 
       this.pendingRequests.set(requestId, {
-        resolve: resolve as any,
+        expectedType: 'TEST_SCRIPT_RESULT',
+        resolve: (result) => resolve(result as PmTestResult),
         reject,
         timeout: timeoutHandle,
       });
@@ -123,14 +182,13 @@ class ScriptRunner {
     if (event.source !== this.iframe.contentWindow) return;
     if (event.origin !== window.location.origin) return;
 
-    const data = event.data as any;
-    if (data?.type !== 'SCRIPT_RESULT' && data?.type !== 'TEST_SCRIPT_RESULT') return;
+    if (!isSandboxResultMessage(event.data)) return;
 
-    const { requestId, result } = data;
-    if (typeof requestId !== 'string') return;
+    const { requestId, result, type } = event.data;
     const pending = this.pendingRequests.get(requestId);
 
     if (!pending) return;
+    if (pending.expectedType !== type) return;
 
     clearTimeout(pending.timeout);
     this.pendingRequests.delete(requestId);
