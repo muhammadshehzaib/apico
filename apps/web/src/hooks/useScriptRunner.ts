@@ -7,6 +7,8 @@ import type { ExecuteRequestInput } from '@/validations/request.validation';
 import type { ExecuteRequestResult } from '@/types';
 import type { EnvironmentVariable } from '@/services/environment.service';
 
+export type RuntimeVariables = Record<string, string>;
+
 export function useScriptRunner(preRequestScript: string) {
   const [consoleLogs, setConsoleLogs] = useState<ConsoleLine[]>([]);
   const [scriptError, setScriptError] = useState<string | null>(null);
@@ -32,10 +34,11 @@ export function useScriptRunner(preRequestScript: string) {
   const runPreRequestScript = useCallback(
     async (
       request: ExecuteRequestInput,
-      activeVariables: EnvironmentVariable[]
-    ): Promise<ExecuteRequestInput> => {
+      activeVariables: EnvironmentVariable[],
+      runtimeVariables: RuntimeVariables
+    ): Promise<{ request: ExecuteRequestInput; variables: RuntimeVariables }> => {
       if (!preRequestScript.trim()) {
-        return request;
+        return { request, variables: runtimeVariables };
       }
 
       setIsRunning(true);
@@ -72,7 +75,7 @@ export function useScriptRunner(preRequestScript: string) {
             params,
             body: request.body || '',
           },
-          variables: {},
+          variables: { ...runtimeVariables },
           environment: environmentMap,
           requestName: '',
           eventName: 'prerequest',
@@ -90,7 +93,7 @@ export function useScriptRunner(preRequestScript: string) {
 
         if (result.error) {
           setScriptError(result.error);
-          return request; // Return original request on error
+          return { request, variables: runtimeVariables }; // Return original request on error
         }
 
         // Merge script results back into request
@@ -145,13 +148,13 @@ export function useScriptRunner(preRequestScript: string) {
           }
         }
 
-        return modifiedRequest;
+        return { request: modifiedRequest, variables: result.variables || runtimeVariables };
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown script error';
         setScriptError(errorMessage);
         setLastRunDuration(Date.now() - startTime);
-        return request; // Return original request on error
+        return { request, variables: runtimeVariables }; // Return original request on error
       } finally {
         setIsRunning(false);
       }
@@ -169,10 +172,11 @@ export function useScriptRunner(preRequestScript: string) {
       testScript: string,
       request: ExecuteRequestInput,
       response: ExecuteRequestResult,
-      activeVariables: EnvironmentVariable[]
-    ): Promise<void> => {
+      activeVariables: EnvironmentVariable[],
+      runtimeVariables: RuntimeVariables
+    ): Promise<{ variables: RuntimeVariables }> => {
       if (!testScript.trim()) {
-        return;
+        return { variables: runtimeVariables };
       }
 
       setIsTestRunning(true);
@@ -219,7 +223,7 @@ export function useScriptRunner(preRequestScript: string) {
             params,
             body: request.body || '',
           },
-          variables: {},
+          variables: { ...runtimeVariables },
           environment: environmentMap,
           requestName: '',
           eventName: 'test',
@@ -244,6 +248,8 @@ export function useScriptRunner(preRequestScript: string) {
         setTestResults(result.tests);
         setTestsPassed(result.testsPassed);
         setTestsFailed(result.testsFailed);
+
+        return { variables: result.variables || runtimeVariables };
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown test error';
@@ -252,6 +258,7 @@ export function useScriptRunner(preRequestScript: string) {
         setTestResults([]);
         setTestsPassed(0);
         setTestsFailed(0);
+        return { variables: runtimeVariables };
       } finally {
         setIsTestRunning(false);
       }

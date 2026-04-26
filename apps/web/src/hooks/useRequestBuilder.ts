@@ -23,6 +23,8 @@ import type { ConsoleLine } from '@/utils/sandbox/pm.context';
 
 const STORAGE_KEY = 'apico_last_request';
 
+type RuntimeVariables = Record<string, string>;
+
 interface RequestState {
   method: HttpMethod;
   url: string;
@@ -40,6 +42,7 @@ interface RequestState {
   error: string | null;
   urlError: string | null;
   activeVariables: EnvironmentVariable[];
+  runtimeVariables: RuntimeVariables;
 }
 
 const defaultState: RequestState = {
@@ -59,6 +62,7 @@ const defaultState: RequestState = {
   error: null,
   urlError: null,
   activeVariables: [],
+  runtimeVariables: {},
 };
 
 export function useRequestBuilder() {
@@ -234,7 +238,16 @@ export function useRequestBuilder() {
       return;
     }
 
-    const resolvedUrl = resolveVariables(state.url, state.activeVariables);
+    const resolutionVariables: EnvironmentVariable[] = [
+      ...Object.entries(state.runtimeVariables || {}).map(([key, value]) => ({
+        key,
+        value,
+        enabled: true,
+      })),
+      ...(state.activeVariables || []),
+    ];
+
+    const resolvedUrl = resolveVariables(state.url, resolutionVariables);
     if (!isValidUrl(resolvedUrl)) {
       setState((prev) => ({ ...prev, urlError: 'Invalid URL' }));
       return;
@@ -250,30 +263,37 @@ export function useRequestBuilder() {
 
     try {
       // Resolve variables in all request fields
-      const resolvedHeaders = resolveKeyValuePairs(state.headers, state.activeVariables).filter(h => h.enabled && h.key.trim() !== '');
-      const resolvedParams = resolveKeyValuePairs(state.params, state.activeVariables).filter(p => p.enabled && p.key.trim() !== '');
+      const resolvedHeaders = resolveKeyValuePairs(state.headers, resolutionVariables).filter(h => h.enabled && h.key.trim() !== '');
+      const resolvedParams = resolveKeyValuePairs(state.params, resolutionVariables).filter(p => p.enabled && p.key.trim() !== '');
       const resolvedAuth = {
         ...state.auth,
         token: state.auth.token
-          ? resolveVariables(state.auth.token, state.activeVariables)
+          ? resolveVariables(state.auth.token, resolutionVariables)
           : undefined,
         username: state.auth.username
-          ? resolveVariables(state.auth.username, state.activeVariables)
+          ? resolveVariables(state.auth.username, resolutionVariables)
           : undefined,
         password: state.auth.password
-          ? resolveVariables(state.auth.password, state.activeVariables)
+          ? resolveVariables(state.auth.password, resolutionVariables)
+          : undefined,
+        apiKey: state.auth.apiKey
+          ? resolveVariables(state.auth.apiKey, resolutionVariables)
+          : undefined,
+        apiValue: state.auth.apiValue
+          ? resolveVariables(state.auth.apiValue, resolutionVariables)
           : undefined,
       };
 
+      let runtimeVariables: RuntimeVariables = state.runtimeVariables || {};
       let result: ExecuteRequestResult;
 
       if (state.bodyType === 'form-data') {
         // Resolve variables in form-data text fields
         const resolvedFields = state.formDataFields.map((field) => ({
           ...field,
-          key: resolveVariables(field.key, state.activeVariables),
+          key: resolveVariables(field.key, resolutionVariables),
           value: field.type === 'text'
-            ? resolveVariables(field.value, state.activeVariables)
+            ? resolveVariables(field.value, resolutionVariables)
             : field.value,
         }));
 
@@ -281,7 +301,7 @@ export function useRequestBuilder() {
         const fd = new FormData();
         fd.append('__metadata', JSON.stringify({
           method: state.method,
-          url: resolveVariables(state.url, state.activeVariables),
+          url: resolveVariables(state.url, resolutionVariables),
           headers: resolvedHeaders,
           params: resolvedParams,
           bodyType: 'form-data',
@@ -304,25 +324,28 @@ export function useRequestBuilder() {
       } else {
         let resolvedPayload: any = {
           method: state.method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-          url: resolveVariables(state.url, state.activeVariables),
+          url: resolveVariables(state.url, resolutionVariables),
           headers: resolvedHeaders,
           params: resolvedParams,
-          body: resolveVariables(state.body, state.activeVariables),
+          body: resolveVariables(state.body, resolutionVariables),
           auth: resolvedAuth,
         };
 
         // Run pre-request script if provided
         if (state.preRequestScript.trim()) {
-          resolvedPayload = await runPreRequestScript(
+          const preResult = await runPreRequestScript(
             resolvedPayload as any,
-            state.activeVariables as any
+            state.activeVariables as any,
+            runtimeVariables
           );
+          resolvedPayload = preResult.request as any;
+          runtimeVariables = preResult.variables;
         }
 
         result = await workspaceService.executeRequest(resolvedPayload as any);
       }
 
-      setState((prev) => ({ ...prev, response: result, isLoading: false }));
+      setState((prev) => ({ ...prev, response: result, isLoading: false, runtimeVariables }));
 
       const responseKey = getResponseKey(state.method, state.url);
       setResponseHistory((prev) => {
@@ -335,16 +358,19 @@ export function useRequestBuilder() {
 
       // Run test script if provided
       if (state.postResponseScript.trim()) {
-        await runTestScript(
+        const testResult = await runTestScript(
           state.postResponseScript,
           { method: state.method, url: state.url, headers: resolvedHeaders, params: resolvedParams, auth: resolvedAuth } as any,
           result,
-          state.activeVariables as any
+          state.activeVariables as any,
+          runtimeVariables
         );
+        runtimeVariables = testResult.variables;
+        setState((prev) => ({ ...prev, runtimeVariables }));
       }
 
       // Persist to localStorage (exclude non-serializable formDataFiles)
-      const toSave = { ...state, response: null };
+      const toSave = { ...state, runtimeVariables, response: null };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Request failed';

@@ -20,7 +20,7 @@ npm install
 cp .env.example .env.local
 ```
 
-3. Update `NEXT_PUBLIC_API_URL` in `.env.local` if needed.
+3. Update `NEXT_PUBLIC_API_BASE_URL` in `.env.local` if needed.
 
 ### Development
 

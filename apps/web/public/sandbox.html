@@ -31,6 +31,9 @@ const originalConsole = {
 
 // Listen for script execution request
 window.addEventListener('message', async (event) => {
+  if (event.origin !== location.origin) return;
+  if (event.source !== window.parent) return;
+
   if (event.data.type === 'RUN_SCRIPT') {
     handleRunScript(event);
   } else if (event.data.type === 'RUN_TEST_SCRIPT') {
@@ -69,7 +72,7 @@ async function handleRunScript(event) {
       logs: [...logs],
       error,
     }
-  }, '*');
+  }, event.origin || location.origin);
 }
 
 async function handleRunTestScript(event) {
@@ -107,7 +110,7 @@ async function handleRunTestScript(event) {
       testsPassed: tests.filter(t => t.passed).length,
       testsFailed: tests.filter(t => !t.passed).length,
     }
-  }, '*');
+  }, event.origin || location.origin);
 }
 
 function buildPmObject(context) {

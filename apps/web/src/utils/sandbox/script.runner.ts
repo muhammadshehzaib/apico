@@ -20,6 +20,7 @@ class ScriptRunner {
   private iframe: HTMLIFrameElement | null = null;
   private pendingRequests: Map<string, PendingRequest> = new Map();
   private isInitialized = false;
+  private readonly boundHandleMessage = (event: MessageEvent) => this.handleMessage(event);
 
   initialize(): void {
     if (this.isInitialized) return;
@@ -36,7 +37,7 @@ class ScriptRunner {
       }
 
       // Add message listener
-      window.addEventListener('message', this.handleMessage.bind(this));
+      window.addEventListener('message', this.boundHandleMessage);
 
       // Append to body
       document.body.appendChild(this.iframe);
@@ -75,7 +76,7 @@ class ScriptRunner {
           pmContext: options.pmContext,
           requestId,
         },
-        '*'
+        window.location.origin
       );
     });
   }
@@ -112,15 +113,21 @@ class ScriptRunner {
           },
           requestId,
         },
-        '*'
+        window.location.origin
       );
     });
   }
 
   private handleMessage(event: MessageEvent): void {
-    if (event.data.type !== 'SCRIPT_RESULT' && event.data.type !== 'TEST_SCRIPT_RESULT') return;
+    if (!this.iframe?.contentWindow) return;
+    if (event.source !== this.iframe.contentWindow) return;
+    if (event.origin !== window.location.origin) return;
 
-    const { requestId, result } = event.data;
+    const data = event.data as any;
+    if (data?.type !== 'SCRIPT_RESULT' && data?.type !== 'TEST_SCRIPT_RESULT') return;
+
+    const { requestId, result } = data;
+    if (typeof requestId !== 'string') return;
     const pending = this.pendingRequests.get(requestId);
 
     if (!pending) return;
@@ -136,7 +143,7 @@ class ScriptRunner {
   }
 
   destroy(): void {
-    window.removeEventListener('message', this.handleMessage.bind(this));
+    window.removeEventListener('message', this.boundHandleMessage);
 
     if (this.iframe?.parentNode) {
       this.iframe.parentNode.removeChild(this.iframe);
