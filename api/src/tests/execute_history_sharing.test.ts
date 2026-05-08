@@ -1,6 +1,19 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import app from '../app';
+
+const mockExecuteResult = {
+    statusCode: 200,
+    statusText: 'OK',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: 1, title: 'Test post', body: 'Test body', userId: 1 }),
+    duration: 45,
+    size: 83,
+};
+
+vi.mock('../proxy/executor', () => ({
+    executeRequest: vi.fn().mockResolvedValue(mockExecuteResult),
+}));
 
 describe('Execute, History & Sharing API', () => {
     let testUser = {
@@ -24,10 +37,7 @@ describe('Execute, History & Sharing API', () => {
 
         const loginRes = await request(app)
             .post('/api/auth/login')
-            .send({
-                email: testUser.email,
-                password: testUser.password
-            });
+            .send({ email: testUser.email, password: testUser.password });
         expect(loginRes.status, `Login failed: ${JSON.stringify(loginRes.body)}`).toBe(200);
         accessToken = loginRes.body.data.accessToken;
 
@@ -46,7 +56,7 @@ describe('Execute, History & Sharing API', () => {
         collectionId = createCRes.body.data.id;
     };
 
-    it('🟢 STEP 7 — should execute a request with auth', async () => {
+    it('should execute a request with auth', async () => {
         await setupAuth();
 
         const res = await request(app)
@@ -54,7 +64,7 @@ describe('Execute, History & Sharing API', () => {
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 method: 'GET',
-                url: 'https://jsonplaceholder.typicode.com/posts/1',
+                url: 'https://example.com/api/posts/1',
                 headers: [],
                 params: [],
                 body: '',
@@ -69,12 +79,12 @@ describe('Execute, History & Sharing API', () => {
         expect(res.body.data.size).toBeDefined();
     });
 
-    it('🟢 STEP 8 — should execute a request without auth (guest)', async () => {
+    it('should execute a request without auth (guest)', async () => {
         const res = await request(app)
             .post('/api/requests/execute')
             .send({
                 method: 'GET',
-                url: 'https://jsonplaceholder.typicode.com/posts/1',
+                url: 'https://example.com/api/posts/1',
                 headers: [],
                 params: [],
                 body: '',
@@ -86,7 +96,7 @@ describe('Execute, History & Sharing API', () => {
         expect(res.body.data.statusCode).toBe(200);
     });
 
-    it('🟢 STEP 9 — should save a request', async () => {
+    it('should save a request', async () => {
         await setupAuth();
 
         const res = await request(app)
@@ -95,7 +105,7 @@ describe('Execute, History & Sharing API', () => {
             .send({
                 name: 'Get Post by ID',
                 method: 'GET',
-                url: 'https://jsonplaceholder.typicode.com/posts/1',
+                url: 'https://example.com/api/posts/1',
                 headers: [],
                 params: [],
                 body: '',
@@ -108,16 +118,15 @@ describe('Execute, History & Sharing API', () => {
         requestId = res.body.data.id;
     });
 
-    it('🟢 STEP 10 — should get saved requests', async () => {
+    it('should get saved requests', async () => {
         await setupAuth();
-        // Save a request first
         const saveRes = await request(app)
             .post(`/api/requests/${collectionId}/requests`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 name: 'Get Post by ID',
                 method: 'GET',
-                url: 'https://jsonplaceholder.typicode.com/posts/1',
+                url: 'https://example.com/api/posts/1',
                 headers: [],
                 params: [],
                 body: '',
@@ -135,15 +144,14 @@ describe('Execute, History & Sharing API', () => {
         expect(res.body.data.some((r: any) => r.id === requestId)).toBe(true);
     });
 
-    it('🔵 STEP 11 — should get history', async () => {
+    it('should get history', async () => {
         await setupAuth();
-        // Execute a request with auth to create history
         await request(app)
             .post('/api/requests/execute')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 method: 'GET',
-                url: 'https://jsonplaceholder.typicode.com/posts/1',
+                url: 'https://example.com/api/posts/1',
                 headers: [],
                 params: [],
                 body: '',
@@ -160,16 +168,15 @@ describe('Execute, History & Sharing API', () => {
         expect(res.body.data.length).toBeGreaterThan(0);
     });
 
-    it('🔵 STEP 12 — should create a shared link', async () => {
+    it('should create a shared link', async () => {
         await setupAuth();
-        // Save a request first
         const saveRes = await request(app)
             .post(`/api/requests/${collectionId}/requests`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 name: 'Get Post by ID',
                 method: 'GET',
-                url: 'https://jsonplaceholder.typicode.com/posts/1',
+                url: 'https://example.com/api/posts/1',
                 headers: [],
                 params: [],
                 body: '',
@@ -188,23 +195,22 @@ describe('Execute, History & Sharing API', () => {
         shareToken = res.body.data.token;
     });
 
-    it('🔵 STEP 13 — should get a shared request publicly', async () => {
+    it('should get a shared request publicly', async () => {
         await setupAuth();
-        // Save a request
         const saveRes = await request(app)
             .post(`/api/requests/${collectionId}/requests`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 name: 'Get Post by ID',
                 method: 'GET',
-                url: 'https://jsonplaceholder.typicode.com/posts/1',
+                url: 'https://example.com/api/posts/1',
                 headers: [],
                 params: [],
                 body: '',
                 auth: { type: 'none' }
             });
         requestId = saveRes.body.data.id;
-        // Share it
+
         const shareRes = await request(app)
             .post(`/api/requests/${requestId}/share`)
             .set('Authorization', `Bearer ${accessToken}`)
@@ -216,6 +222,6 @@ describe('Execute, History & Sharing API', () => {
 
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);
-        expect(res.body.data.url).toBe('https://jsonplaceholder.typicode.com/posts/1');
+        expect(res.body.data.url).toBe('https://example.com/api/posts/1');
     });
 });

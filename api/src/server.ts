@@ -2,28 +2,28 @@ import 'express';
 import { env } from './config/env.config';
 import { prisma } from './config/prisma.config';
 import app from './app';
+import logger from './utils/logger';
 
 const startServer = async () => {
   try {
     await prisma.$connect();
-    console.log('✓ Database connected');
+    logger.info('Database connected');
 
     const server = app.listen(env.PORT, () => {
-      console.log(`✓ Server running on http://localhost:${env.PORT}`);
-      console.log(`✓ Environment: ${env.NODE_ENV}`);
+      logger.info({ port: env.PORT, env: env.NODE_ENV }, 'Server started');
     });
 
     const gracefulShutdown = async (signal: string) => {
-      console.log(`\n${signal} received, shutting down gracefully...`);
+      logger.info({ signal }, 'Shutting down gracefully');
 
       server.close(async () => {
         await prisma.$disconnect();
-        console.log('✓ Database disconnected');
+        logger.info('Database disconnected');
         process.exit(0);
       });
 
       setTimeout(() => {
-        console.error('Forced shutdown');
+        logger.error('Forced shutdown after timeout');
         process.exit(1);
       }, 10000);
     };
@@ -31,7 +31,7 @@ const startServer = async () => {
     process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
     process.on('SIGINT', () => gracefulShutdown('SIGINT'));
   } catch (err) {
-    console.error('Failed to start server:', err);
+    logger.error({ err }, 'Failed to start server');
     process.exit(1);
   }
 };

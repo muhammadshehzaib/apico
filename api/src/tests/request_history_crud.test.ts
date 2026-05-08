@@ -1,6 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
 import app from '../app';
+
+vi.mock('../proxy/executor', () => ({
+  executeRequest: vi.fn().mockResolvedValue({
+    statusCode: 200,
+    statusText: 'OK',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: 1, title: 'Test post' }),
+    duration: 45,
+    size: 50,
+  }),
+}));
 
 describe('Request Update/Delete & History Cleanup API', () => {
   const createUser = async () => {
@@ -50,7 +61,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
       .send({
         name: 'Get Post',
         method: 'GET',
-        url: 'https://jsonplaceholder.typicode.com/posts/1',
+        url: 'https://example.com/api/posts/1',
         headers: [],
         params: [],
         body: '',
@@ -98,7 +109,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         method: 'GET',
-        url: 'https://jsonplaceholder.typicode.com/posts/1',
+        url: 'https://example.com/api/posts/1',
         headers: [],
         params: [],
         body: '',
@@ -128,7 +139,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         method: 'GET',
-        url: 'https://jsonplaceholder.typicode.com/posts/1',
+        url: 'https://example.com/api/posts/1',
         headers: [],
         params: [],
         body: '',

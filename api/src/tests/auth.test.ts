@@ -10,7 +10,7 @@ describe('Authentication API', () => {
         password: 'Test1234!'
     };
 
-    it('🔴 STEP 1 — should register a new user', async () => {
+    it('should register a new user', async () => {
         const res = await request(app)
             .post('/api/auth/register')
             .send(testUser);
@@ -23,8 +23,7 @@ describe('Authentication API', () => {
         expect(res.body.data.refreshToken).toBeDefined();
     });
 
-    it('🔴 STEP 2 — should login the user', async () => {
-        // Register first
+    it('should login the user', async () => {
         await request(app).post('/api/auth/register').send(testUser);
 
         const res = await request(app)
@@ -40,28 +39,7 @@ describe('Authentication API', () => {
         expect(res.body.data.refreshToken).toBeDefined();
     });
 
-    it('🔴 STEP 19 — should refresh the token', async () => {
-        // Register and login to get refreshToken
-        await request(app).post('/api/auth/register').send(testUser);
-        const loginRes = await request(app)
-            .post('/api/auth/login')
-            .send({
-                email: testUser.email,
-                password: testUser.password
-            });
-
-        const refreshToken = loginRes.body.data.refreshToken;
-
-        const res = await request(app)
-            .post('/api/auth/auth/refresh') // Wait, the user said /api/auth/refresh, let me check the prefix
-            .send({ refreshToken });
-
-        // Check if it's /api/auth/refresh or /api/auth/auth/refresh
-        // App.use('/api', routes) and routes.use('/auth', authRoutes) means /api/auth/refresh
-    });
-
-    // Re-checking the refresh endpoint
-    it('🔴 STEP 19 (Correct Route) — should refresh the token', async () => {
+    it('should refresh the token', async () => {
         await request(app).post('/api/auth/register').send(testUser);
         const loginRes = await request(app)
             .post('/api/auth/login')
@@ -81,7 +59,7 @@ describe('Authentication API', () => {
         expect(res.body.data.accessToken).toBeDefined();
     });
 
-    it('🔴 STEP 20 — should logout the user', async () => {
+    it('should logout the user', async () => {
         await request(app).post('/api/auth/register').send(testUser);
         const loginRes = await request(app)
             .post('/api/auth/login')
@@ -98,5 +76,23 @@ describe('Authentication API', () => {
 
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);
+    });
+
+    it('should reject weak passwords on registration', async () => {
+        const res = await request(app)
+            .post('/api/auth/register')
+            .send({ name: 'Test', email: 'weak@test.com', password: 'password' });
+
+        expect(res.status).toBe(400);
+    });
+
+    it('should reject invalid credentials on login', async () => {
+        await request(app).post('/api/auth/register').send(testUser);
+
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({ email: testUser.email, password: 'WrongPass1!' });
+
+        expect(res.status).toBe(401);
     });
 });

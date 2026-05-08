@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import { authenticate } from '../middleware/auth.middleware';
 import { optionalAuthenticate } from '../middleware/optionalAuth.middleware';
+import { executeLimiter } from '../middleware/rateLimiter.middleware';
 import {
   executeController,
   saveController,
@@ -22,7 +23,7 @@ const upload = multer({
 
 const router = Router({ mergeParams: true });
 
-router.post('/execute', optionalAuthenticate, upload.any(), executeController);
+router.post('/execute', optionalAuthenticate, upload.any(), executeLimiter, executeController);
 
 router.get('/share/:token', getSharedController);
 
