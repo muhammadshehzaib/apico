@@ -2,7 +2,15 @@
 
 import { ExecuteRequestResult } from '@/types';
 import { StatusBadge } from './StatusBadge';
-import { ResponseViewer } from './ResponseViewer';
+import dynamic from 'next/dynamic';
+
+const ResponseViewer = dynamic(
+  () => import('./ResponseViewer').then((m) => ({ default: m.ResponseViewer })),
+  {
+    loading: () => <div className="animate-pulse h-48 bg-bg-secondary rounded" />,
+    ssr: false,
+  }
+);
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { formatDuration, formatBytes } from '@/utils/format.util';
 

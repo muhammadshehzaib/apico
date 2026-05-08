@@ -13,6 +13,7 @@ import { collectionService } from '@/services/collection.service';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { KeyboardShortcutsModal } from '@/components/ui/KeyboardShortcutsModal';
 import { CurlImportModal } from './CurlImportModal';
+import { toCurl } from '@/utils/curl.generator';
 import { UrlBar } from './UrlBar';
 import { RequestTabs } from './RequestTabs';
 import { ResponsePanel } from './ResponsePanel';
@@ -328,6 +329,16 @@ export function RequestBuilder() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showShortcuts, resetAll]);
 
+  const handleCurlExport = useCallback(async () => {
+    const curlString = toCurl({ method, url, headers, params, body, auth });
+    try {
+      await navigator.clipboard.writeText(curlString);
+      showToast('Copied as cURL', 'success');
+    } catch {
+      showToast('Failed to copy to clipboard', 'error');
+    }
+  }, [method, url, headers, params, body, auth, showToast]);
+
   const handleSendRequest = useCallback(async () => {
     await sendRequest();
     // Refresh history after sending (no-op if unauthenticated)
@@ -432,6 +443,7 @@ export function RequestBuilder() {
             onUrlChange={setUrl}
             onSend={handleSendRequest}
             onCurlImport={() => setIsCurlModalOpen(true)}
+            onCurlExport={handleCurlExport}
             environments={environments}
             activeEnvironment={activeEnvironment}
             onEnvironmentSelect={setActiveEnvironment}

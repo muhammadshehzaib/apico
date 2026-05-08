@@ -8,6 +8,7 @@ import {
   createCollectionShareLink,
   findCollectionShareLinkByToken,
   getMaxCollectionOrder,
+  reorderCollectionsQuery,
 } from '../queries/collection.queries';
 import { findFolderById } from '../queries/folder.queries';
 import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
@@ -66,6 +67,22 @@ export const updateCollectionService = async (
   }
 
   return updateCollection(id, data);
+};
+
+export const reorderCollectionsService = async (
+  items: { id: string; order: number; folderId?: string | null }[],
+  userId: string
+) => {
+  for (const item of items) {
+    const collection = await findCollectionById(item.id);
+    if (!collection) throw new NotFoundError('Collection');
+    await requireWorkspaceRole(collection.workspaceId, userId, WorkspaceRole.EDITOR);
+    if (item.folderId) {
+      const folder = await findFolderById(item.folderId);
+      if (!folder || folder.workspaceId !== collection.workspaceId) throw new NotFoundError('Folder');
+    }
+  }
+  return reorderCollectionsQuery(items);
 };
 
 export const deleteCollectionService = async (id: string, userId: string) => {

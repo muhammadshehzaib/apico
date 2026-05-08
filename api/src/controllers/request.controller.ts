@@ -11,6 +11,7 @@ import {
   getSharedLink,
   searchRequestsService,
   updateRequestTagsService,
+  reorderSavedRequestsService,
 } from '../services/request.service';
 import {
   executeRequestSchema,
@@ -62,10 +63,12 @@ export const saveController = asyncHandler(async (req: Request, res: Response) =
 export const getAllController = asyncHandler(async (req: Request, res: Response) => {
   const { collectionId } = req.params;
   const userId = req.user!.id;
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.max(1, parseInt(req.query.limit as string) || 50);
 
-  const requests = await getSavedRequests(collectionId, userId);
+  const result = await getSavedRequests(collectionId, userId, page, limit);
 
-  success(res, requests, 'Requests fetched successfully');
+  success(res, result, 'Requests fetched successfully');
 });
 
 export const updateController = asyncHandler(async (req: Request, res: Response) => {
@@ -146,17 +149,6 @@ export const updateTagsController = asyncHandler(async (req: Request, res: Respo
 export const reorderRequestsController = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const body = reorderRequestsSchema.parse(req.body);
-
-  for (const item of body.items) {
-    await updateSavedRequestService(
-      item.id,
-      {
-        order: item.order,
-        collectionId: item.collectionId,
-      },
-      userId
-    );
-  }
-
+  await reorderSavedRequestsService(body.items, userId);
   success(res, null, 'Requests reordered successfully');
 });

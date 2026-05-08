@@ -5,6 +5,7 @@ import {
   updateFolder,
   deleteFolder,
   getMaxFolderOrder,
+  reorderFoldersQuery,
 } from '../queries/folder.queries';
 import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
 import { WorkspaceRole } from '../types';
@@ -96,9 +97,7 @@ export const reorderFoldersService = async (
     if (item.parentId === folder.id) {
       throw new BadRequestError('Folder cannot be its own parent');
     }
-    await updateFolder(folder.id, {
-      order: item.order,
-      parentId: item.parentId ?? null,
-    });
   }
+
+  return reorderFoldersQuery(items);
 };

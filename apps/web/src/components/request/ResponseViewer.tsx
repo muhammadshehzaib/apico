@@ -55,8 +55,10 @@ export function ResponseViewer({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex border-b border-bg-tertiary">
+      <div role="tablist" aria-label="Response panels" className="flex border-b border-bg-tertiary">
         <button
+          role="tab"
+          aria-selected={activeTab === 'body'}
           onClick={() => setActiveTab('body')}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'body'
@@ -67,6 +69,8 @@ export function ResponseViewer({
           Body
         </button>
         <button
+          role="tab"
+          aria-selected={activeTab === 'headers'}
           onClick={() => setActiveTab('headers')}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'headers'
@@ -77,6 +81,8 @@ export function ResponseViewer({
           Headers
         </button>
         <button
+          role="tab"
+          aria-selected={activeTab === 'diff'}
           onClick={() => setActiveTab('diff')}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'diff'

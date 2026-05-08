@@ -18,6 +18,7 @@ interface UrlBarProps {
   onUrlChange: (url: string) => void;
   onSend: () => void;
   onCurlImport: () => void;
+  onCurlExport: () => void;
   environments: (Environment | GuestEnvironment)[];
   activeEnvironment: Environment | GuestEnvironment | null;
   onEnvironmentSelect: (id: string | null) => void;
@@ -33,6 +34,7 @@ export function UrlBar({
   onUrlChange,
   onSend,
   onCurlImport,
+  onCurlExport,
   environments,
   activeEnvironment,
   onEnvironmentSelect,
@@ -98,8 +100,20 @@ export function UrlBar({
           size="md"
           title="Import from curl command"
           className="px-3"
+          aria-label="Import from cURL command"
         >
           ↓ curl
+        </Button>
+
+        <Button
+          onClick={onCurlExport}
+          variant="ghost"
+          size="md"
+          title="Copy as curl command"
+          className="px-3"
+          aria-label="Copy request as cURL command"
+        >
+          ↑ curl
         </Button>
 
         <EnvironmentSelector
@@ -116,6 +130,7 @@ export function UrlBar({
           isLoading={isLoading}
           disabled={isLoading}
           title="Ctrl+Enter to send"
+          aria-label="Send request"
         >
           {isLoading ? '' : 'Send'}
         </Button>

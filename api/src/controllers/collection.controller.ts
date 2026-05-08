@@ -8,6 +8,7 @@ import {
   deleteCollectionService,
   shareCollectionService,
   getSharedCollectionService,
+  reorderCollectionsService,
 } from '../services/collection.service';
 import {
   createCollectionSchema,
@@ -88,17 +89,6 @@ export const getSharedCollectionController = asyncHandler(async (req: Request, r
 export const reorderCollectionsController = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.id;
   const body = reorderCollectionsSchema.parse(req.body);
-
-  for (const item of body.items) {
-    await updateCollectionService(
-      item.id,
-      {
-        order: item.order,
-        folderId: item.folderId ?? null,
-      },
-      userId
-    );
-  }
-
+  await reorderCollectionsService(body.items, userId);
   success(res, null, 'Collections reordered successfully');
 });

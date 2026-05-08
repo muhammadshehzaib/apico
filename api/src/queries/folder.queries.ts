@@ -32,6 +32,16 @@ export const updateFolder = async (
   });
 };
 
+export const reorderFoldersQuery = async (
+  items: { id: string; order: number; parentId?: string | null }[]
+) => {
+  return prisma.$transaction(
+    items.map(({ id, order, parentId }) =>
+      prisma.folder.update({ where: { id }, data: { order, parentId: parentId ?? null } })
+    )
+  );
+};
+
 export const deleteFolder = async (id: string) => {
   return prisma.folder.delete({
     where: { id },

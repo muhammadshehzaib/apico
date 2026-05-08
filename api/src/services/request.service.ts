@@ -11,6 +11,7 @@ import {
   getMaxRequestOrder,
   searchSavedRequests,
   replaceRequestTags,
+  reorderSavedRequestsQuery,
 } from '../queries/request.queries';
 import { findCollectionById } from '../queries/collection.queries';
 import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
@@ -95,14 +96,24 @@ export const saveRequest = async (
   });
 };
 
-export const getSavedRequests = async (collectionId: string, userId: string) => {
+export const getSavedRequests = async (
+  collectionId: string,
+  userId: string,
+  page = 1,
+  limit = 50
+) => {
   await verifyCollectionAccess(collectionId, userId);
 
-  const requests = await findSavedRequestsByCollectionId(collectionId);
-  return requests.map((request) => ({
-    ...request,
-    tags: request.tags.map((tagLink) => tagLink.tag),
-  }));
+  const clampedLimit = Math.min(limit, 100);
+  const skip = (page - 1) * clampedLimit;
+  const { data, total } = await findSavedRequestsByCollectionId(collectionId, skip, clampedLimit);
+  return {
+    data: data.map((request) => ({ ...request, tags: request.tags.map((t) => t.tag) })),
+    total,
+    page,
+    limit: clampedLimit,
+    totalPages: Math.ceil(total / clampedLimit),
+  };
 };
 
 export const updateSavedRequestService = async (
@@ -142,6 +153,21 @@ export const updateSavedRequestService = async (
     ...updated,
     tags: updated.tags.map((tagLink) => tagLink.tag),
   };
+};
+
+export const reorderSavedRequestsService = async (
+  items: { id: string; order: number; collectionId?: string }[],
+  userId: string
+) => {
+  for (const item of items) {
+    const request = await findSavedRequestWithCollection(item.id);
+    if (!request) throw new NotFoundError('Request');
+    await verifyCollectionWriteAccess(request.collectionId, userId);
+    if (item.collectionId && item.collectionId !== request.collectionId) {
+      await verifyCollectionWriteAccess(item.collectionId, userId);
+    }
+  }
+  return reorderSavedRequestsQuery(items);
 };
 
 export const deleteSavedRequestService = async (id: string, userId: string) => {

@@ -35,16 +35,22 @@ export const findSavedRequestWithCollection = async (id: string) => {
   });
 };
 
-export const findSavedRequestsByCollectionId = async (collectionId: string) => {
-  return prisma.savedRequest.findMany({
-    where: { collectionId },
-    orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
-    include: {
-      tags: {
-        include: { tag: true },
-      },
-    },
-  });
+export const findSavedRequestsByCollectionId = async (
+  collectionId: string,
+  skip = 0,
+  take = 50
+) => {
+  const [data, total] = await Promise.all([
+    prisma.savedRequest.findMany({
+      where: { collectionId },
+      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
+      include: { tags: { include: { tag: true } } },
+      skip,
+      take,
+    }),
+    prisma.savedRequest.count({ where: { collectionId } }),
+  ]);
+  return { data, total };
 };
 
 export const updateSavedRequest = async (
@@ -65,6 +71,16 @@ export const updateSavedRequest = async (
     where: { id },
     data,
   });
+};
+
+export const reorderSavedRequestsQuery = async (
+  items: { id: string; order: number; collectionId?: string }[]
+) => {
+  return prisma.$transaction(
+    items.map(({ id, order, collectionId }) =>
+      prisma.savedRequest.update({ where: { id }, data: { order, ...(collectionId && { collectionId }) } })
+    )
+  );
 };
 
 export const deleteSavedRequest = async (id: string) => {

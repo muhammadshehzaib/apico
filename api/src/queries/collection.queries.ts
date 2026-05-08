@@ -33,6 +33,16 @@ export const updateCollection = async (
   });
 };
 
+export const reorderCollectionsQuery = async (
+  items: { id: string; order: number; folderId?: string | null }[]
+) => {
+  return prisma.$transaction(
+    items.map(({ id, order, folderId }) =>
+      prisma.collection.update({ where: { id }, data: { order, folderId: folderId ?? null } })
+    )
+  );
+};
+
 export const deleteCollection = async (id: string) => {
   return prisma.collection.delete({
     where: { id },

@@ -32,10 +32,12 @@ export function AuthEditor({ auth, onChange }: AuthEditorProps) {
         <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
           Authentication Type
         </label>
-        <div className="flex gap-3 flex-wrap">
+        <div role="group" aria-label="Authorization type" className="flex gap-3 flex-wrap">
           {(['none', 'bearer', 'basic', 'apikey'] as const).map((type) => (
             <button
               key={type}
+              role="radio"
+              aria-checked={auth.type === type}
               onClick={() => handleTypeChange(type)}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors border ${auth.type === type
                   ? 'bg-accent/15 text-accent border-accent/40'

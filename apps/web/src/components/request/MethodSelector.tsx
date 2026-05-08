@@ -42,6 +42,9 @@ export function MethodSelector({ method, onChange }: MethodSelectorProps) {
     <div className="relative z-[120]" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={`HTTP method: ${method}`}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
         className="relative overflow-hidden bg-bg-secondary/90 border border-stroke font-mono font-semibold px-4 py-2 rounded-md min-w-[110px] text-center transition-all hover:bg-bg-tertiary/70 hover:border-accent/40"
       >
         <span
@@ -54,10 +57,16 @@ export function MethodSelector({ method, onChange }: MethodSelectorProps) {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-bg-secondary/95 border border-stroke rounded-md shadow-[0_24px_60px_rgba(0,0,0,0.45)] z-[200] min-w-[110px] overflow-hidden">
+        <div
+          role="listbox"
+          aria-label="Select HTTP method"
+          className="absolute top-full left-0 mt-2 bg-bg-secondary/95 border border-stroke rounded-md shadow-[0_24px_60px_rgba(0,0,0,0.45)] z-[200] min-w-[110px] overflow-hidden"
+        >
           {methods.map((m) => (
             <button
               key={m}
+              role="option"
+              aria-selected={m === method}
               onClick={() => {
                 onChange(m);
                 setIsOpen(false);

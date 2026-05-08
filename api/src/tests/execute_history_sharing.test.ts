@@ -140,8 +140,9 @@ describe('Execute, History & Sharing API', () => {
 
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);
-        expect(Array.isArray(res.body.data)).toBe(true);
-        expect(res.body.data.some((r: any) => r.id === requestId)).toBe(true);
+        expect(Array.isArray(res.body.data.data)).toBe(true);
+        expect(typeof res.body.data.total).toBe('number');
+        expect(res.body.data.data.some((r: any) => r.id === requestId)).toBe(true);
     });
 
     it('should get history', async () => {
