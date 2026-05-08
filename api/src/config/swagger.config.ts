@@ -8,7 +8,7 @@ const options: swaggerJsdoc.Options = {
       version: '1.0.0',
       description: 'Open-source REST API testing tool — backend API documentation',
     },
-    servers: [{ url: '/api', description: 'API base path' }],
+    servers: [{ url: '/api/v1', description: 'API v1' }],
     components: {
       securitySchemes: {
         bearerAuth: {

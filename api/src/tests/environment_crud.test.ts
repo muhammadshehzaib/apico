@@ -11,10 +11,10 @@ describe('Environment CRUD API', () => {
       password: 'Test1234!',
     };
 
-    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const registerRes = await request(app).post('/api/v1/auth/register').send(user);
     expect(registerRes.status).toBe(201);
 
-    const loginRes = await request(app).post('/api/auth/login').send({
+    const loginRes = await request(app).post('/api/v1/auth/login').send({
       email: user.email,
       password: user.password,
     });
@@ -28,7 +28,7 @@ describe('Environment CRUD API', () => {
 
   const createWorkspace = async (accessToken: string) => {
     const res = await request(app)
-      .post('/api/workspaces')
+      .post('/api/v1/workspaces')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Env Workspace' });
     expect(res.status).toBe(201);
@@ -37,7 +37,7 @@ describe('Environment CRUD API', () => {
 
   const createEnvironment = async (accessToken: string, workspaceId: string) => {
     const res = await request(app)
-      .post(`/api/workspaces/${workspaceId}/environments`)
+      .post(`/api/v1/workspaces/${workspaceId}/environments`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Env One' });
     expect(res.status).toBe(201);
@@ -50,7 +50,7 @@ describe('Environment CRUD API', () => {
     const envId = await createEnvironment(owner.accessToken, workspaceId);
 
     const res = await request(app)
-      .get(`/api/workspaces/${workspaceId}/environments`)
+      .get(`/api/v1/workspaces/${workspaceId}/environments`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -64,7 +64,7 @@ describe('Environment CRUD API', () => {
     const envId = await createEnvironment(owner.accessToken, workspaceId);
 
     const res = await request(app)
-      .get(`/api/environments/${envId}`)
+      .get(`/api/v1/environments/${envId}`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -78,7 +78,7 @@ describe('Environment CRUD API', () => {
     const envId = await createEnvironment(owner.accessToken, workspaceId);
 
     const res = await request(app)
-      .get(`/api/workspaces/${workspaceId}/environments/${envId}`)
+      .get(`/api/v1/workspaces/${workspaceId}/environments/${envId}`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -92,7 +92,7 @@ describe('Environment CRUD API', () => {
     const envId = await createEnvironment(owner.accessToken, workspaceId);
 
     const res = await request(app)
-      .put(`/api/environments/${envId}`)
+      .put(`/api/v1/environments/${envId}`)
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .send({ name: 'Env Updated' });
 
@@ -107,7 +107,7 @@ describe('Environment CRUD API', () => {
     const envId = await createEnvironment(owner.accessToken, workspaceId);
 
     const res = await request(app)
-      .put(`/api/workspaces/${workspaceId}/environments/${envId}`)
+      .put(`/api/v1/workspaces/${workspaceId}/environments/${envId}`)
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .send({ name: 'Env Updated (Workspace Route)' });
 
@@ -122,7 +122,7 @@ describe('Environment CRUD API', () => {
     const envId = await createEnvironment(owner.accessToken, workspaceId);
 
     const res = await request(app)
-      .delete(`/api/environments/${envId}`)
+      .delete(`/api/v1/environments/${envId}`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -135,7 +135,7 @@ describe('Environment CRUD API', () => {
     const envId = await createEnvironment(owner.accessToken, workspaceId);
 
     const res = await request(app)
-      .delete(`/api/workspaces/${workspaceId}/environments/${envId}`)
+      .delete(`/api/v1/workspaces/${workspaceId}/environments/${envId}`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -146,7 +146,7 @@ describe('Environment CRUD API', () => {
     const owner = await createUser();
 
     const res = await request(app)
-      .post('/api/environments')
+      .post('/api/v1/environments')
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .send({ name: 'Env Base Route' });
 
@@ -158,7 +158,7 @@ describe('Environment CRUD API', () => {
     const owner = await createUser();
 
     const res = await request(app)
-      .get('/api/environments')
+      .get('/api/v1/environments')
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(400);

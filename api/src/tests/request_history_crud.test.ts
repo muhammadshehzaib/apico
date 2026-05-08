@@ -22,10 +22,10 @@ describe('Request Update/Delete & History Cleanup API', () => {
       password: 'Test1234!',
     };
 
-    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const registerRes = await request(app).post('/api/v1/auth/register').send(user);
     expect(registerRes.status).toBe(201);
 
-    const loginRes = await request(app).post('/api/auth/login').send({
+    const loginRes = await request(app).post('/api/v1/auth/login').send({
       email: user.email,
       password: user.password,
     });
@@ -38,7 +38,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
 
   const createWorkspace = async (accessToken: string) => {
     const res = await request(app)
-      .post('/api/workspaces')
+      .post('/api/v1/workspaces')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Request Workspace' });
     expect(res.status).toBe(201);
@@ -47,7 +47,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
 
   const createCollection = async (accessToken: string, workspaceId: string) => {
     const res = await request(app)
-      .post(`/api/workspaces/${workspaceId}/collections`)
+      .post(`/api/v1/workspaces/${workspaceId}/collections`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Request Collection' });
     expect(res.status).toBe(201);
@@ -56,7 +56,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
 
   const createSavedRequest = async (accessToken: string, collectionId: string) => {
     const res = await request(app)
-      .post(`/api/requests/${collectionId}/requests`)
+      .post(`/api/v1/requests/${collectionId}/requests`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         name: 'Get Post',
@@ -78,7 +78,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
     const requestId = await createSavedRequest(accessToken, collectionId);
 
     const res = await request(app)
-      .put(`/api/requests/${requestId}`)
+      .put(`/api/v1/requests/${requestId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Updated Request Name' });
 
@@ -94,7 +94,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
     const requestId = await createSavedRequest(accessToken, collectionId);
 
     const res = await request(app)
-      .delete(`/api/requests/${requestId}`)
+      .delete(`/api/v1/requests/${requestId}`)
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(res.status).toBe(200);
@@ -105,7 +105,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
     const { accessToken } = await createUser();
 
     await request(app)
-      .post('/api/requests/execute')
+      .post('/api/v1/requests/execute')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         method: 'GET',
@@ -117,14 +117,14 @@ describe('Request Update/Delete & History Cleanup API', () => {
       });
 
     const listRes = await request(app)
-      .get('/api/history')
+      .get('/api/v1/history')
       .set('Authorization', `Bearer ${accessToken}`);
     expect(listRes.status).toBe(200);
     const historyId = listRes.body.data[0]?.id as string;
     expect(historyId).toBeDefined();
 
     const res = await request(app)
-      .delete(`/api/history/${historyId}`)
+      .delete(`/api/v1/history/${historyId}`)
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(res.status).toBe(200);
@@ -135,7 +135,7 @@ describe('Request Update/Delete & History Cleanup API', () => {
     const { accessToken } = await createUser();
 
     await request(app)
-      .post('/api/requests/execute')
+      .post('/api/v1/requests/execute')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         method: 'GET',
@@ -147,14 +147,14 @@ describe('Request Update/Delete & History Cleanup API', () => {
       });
 
     const clearRes = await request(app)
-      .delete('/api/history')
+      .delete('/api/v1/history')
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(clearRes.status).toBe(200);
     expect(clearRes.body.success).toBe(true);
 
     const listRes = await request(app)
-      .get('/api/history')
+      .get('/api/v1/history')
       .set('Authorization', `Bearer ${accessToken}`);
     expect(listRes.status).toBe(200);
     expect(listRes.body.data.length).toBe(0);

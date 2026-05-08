@@ -4,7 +4,7 @@ import app from '../app';
 
 describe('Health API', () => {
   it('should return API is running', async () => {
-    const res = await request(app).get('/api/health');
+    const res = await request(app).get('/api/v1/health');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);

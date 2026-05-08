@@ -17,11 +17,11 @@ describe('Environment API', () => {
         const uniqueId = Math.random().toString(36).substring(7);
         testUser.email = `env_test_${uniqueId}@apico.dev`;
 
-        const registerRes = await request(app).post('/api/auth/register').send(testUser);
+        const registerRes = await request(app).post('/api/v1/auth/register').send(testUser);
         expect(registerRes.status, `Registration failed: ${JSON.stringify(registerRes.body)}`).toBe(201);
 
         const loginRes = await request(app)
-            .post('/api/auth/login')
+            .post('/api/v1/auth/login')
             .send({
                 email: testUser.email,
                 password: testUser.password
@@ -30,7 +30,7 @@ describe('Environment API', () => {
         accessToken = loginRes.body.data.accessToken;
 
         const createWRes = await request(app)
-            .post('/api/workspaces')
+            .post('/api/v1/workspaces')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Workspace' });
         expect(createWRes.status, `Workspace creation failed: ${JSON.stringify(createWRes.body)}`).toBe(201);
@@ -41,7 +41,7 @@ describe('Environment API', () => {
         await setupAuth();
 
         const res = await request(app)
-            .post(`/api/workspaces/${workspaceId}/environments`)
+            .post(`/api/v1/workspaces/${workspaceId}/environments`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'Local Development' });
 
@@ -55,13 +55,13 @@ describe('Environment API', () => {
         await setupAuth();
         // Create environment
         const createERes = await request(app)
-            .post(`/api/workspaces/${workspaceId}/environments`)
+            .post(`/api/v1/workspaces/${workspaceId}/environments`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'Local Development' });
         environmentId = createERes.body.data.id;
 
         const res = await request(app)
-            .put(`/api/environments/${environmentId}/variables`)
+            .put(`/api/v1/environments/${environmentId}/variables`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 variables: [

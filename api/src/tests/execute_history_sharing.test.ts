@@ -32,24 +32,24 @@ describe('Execute, History & Sharing API', () => {
         const uniqueId = Math.random().toString(36).substring(7);
         testUser.email = `execute_test_${uniqueId}@apico.dev`;
 
-        const registerRes = await request(app).post('/api/auth/register').send(testUser);
+        const registerRes = await request(app).post('/api/v1/auth/register').send(testUser);
         expect(registerRes.status, `Registration failed: ${JSON.stringify(registerRes.body)}`).toBe(201);
 
         const loginRes = await request(app)
-            .post('/api/auth/login')
+            .post('/api/v1/auth/login')
             .send({ email: testUser.email, password: testUser.password });
         expect(loginRes.status, `Login failed: ${JSON.stringify(loginRes.body)}`).toBe(200);
         accessToken = loginRes.body.data.accessToken;
 
         const createWRes = await request(app)
-            .post('/api/workspaces')
+            .post('/api/v1/workspaces')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Workspace' });
         expect(createWRes.status, `Workspace creation failed: ${JSON.stringify(createWRes.body)}`).toBe(201);
         workspaceId = createWRes.body.data.id;
 
         const createCRes = await request(app)
-            .post(`/api/workspaces/${workspaceId}/collections`)
+            .post(`/api/v1/workspaces/${workspaceId}/collections`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Collection' });
         expect(createCRes.status, `Collection creation failed: ${JSON.stringify(createCRes.body)}`).toBe(201);
@@ -60,7 +60,7 @@ describe('Execute, History & Sharing API', () => {
         await setupAuth();
 
         const res = await request(app)
-            .post('/api/requests/execute')
+            .post('/api/v1/requests/execute')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 method: 'GET',
@@ -81,7 +81,7 @@ describe('Execute, History & Sharing API', () => {
 
     it('should execute a request without auth (guest)', async () => {
         const res = await request(app)
-            .post('/api/requests/execute')
+            .post('/api/v1/requests/execute')
             .send({
                 method: 'GET',
                 url: 'https://example.com/api/posts/1',
@@ -100,7 +100,7 @@ describe('Execute, History & Sharing API', () => {
         await setupAuth();
 
         const res = await request(app)
-            .post(`/api/requests/${collectionId}/requests`)
+            .post(`/api/v1/requests/${collectionId}/requests`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 name: 'Get Post by ID',
@@ -121,7 +121,7 @@ describe('Execute, History & Sharing API', () => {
     it('should get saved requests', async () => {
         await setupAuth();
         const saveRes = await request(app)
-            .post(`/api/requests/${collectionId}/requests`)
+            .post(`/api/v1/requests/${collectionId}/requests`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 name: 'Get Post by ID',
@@ -135,7 +135,7 @@ describe('Execute, History & Sharing API', () => {
         requestId = saveRes.body.data.id;
 
         const res = await request(app)
-            .get(`/api/requests/${collectionId}/requests`)
+            .get(`/api/v1/requests/${collectionId}/requests`)
             .set('Authorization', `Bearer ${accessToken}`);
 
         expect(res.status).toBe(200);
@@ -147,7 +147,7 @@ describe('Execute, History & Sharing API', () => {
     it('should get history', async () => {
         await setupAuth();
         await request(app)
-            .post('/api/requests/execute')
+            .post('/api/v1/requests/execute')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 method: 'GET',
@@ -159,7 +159,7 @@ describe('Execute, History & Sharing API', () => {
             });
 
         const res = await request(app)
-            .get('/api/history')
+            .get('/api/v1/history')
             .set('Authorization', `Bearer ${accessToken}`);
 
         expect(res.status).toBe(200);
@@ -171,7 +171,7 @@ describe('Execute, History & Sharing API', () => {
     it('should create a shared link', async () => {
         await setupAuth();
         const saveRes = await request(app)
-            .post(`/api/requests/${collectionId}/requests`)
+            .post(`/api/v1/requests/${collectionId}/requests`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 name: 'Get Post by ID',
@@ -185,7 +185,7 @@ describe('Execute, History & Sharing API', () => {
         requestId = saveRes.body.data.id;
 
         const res = await request(app)
-            .post(`/api/requests/${requestId}/share`)
+            .post(`/api/v1/requests/${requestId}/share`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({});
 
@@ -198,7 +198,7 @@ describe('Execute, History & Sharing API', () => {
     it('should get a shared request publicly', async () => {
         await setupAuth();
         const saveRes = await request(app)
-            .post(`/api/requests/${collectionId}/requests`)
+            .post(`/api/v1/requests/${collectionId}/requests`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({
                 name: 'Get Post by ID',
@@ -212,13 +212,13 @@ describe('Execute, History & Sharing API', () => {
         requestId = saveRes.body.data.id;
 
         const shareRes = await request(app)
-            .post(`/api/requests/${requestId}/share`)
+            .post(`/api/v1/requests/${requestId}/share`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({});
         shareToken = shareRes.body.data.token;
 
         const res = await request(app)
-            .get(`/api/requests/share/${shareToken}`);
+            .get(`/api/v1/requests/share/${shareToken}`);
 
         expect(res.status).toBe(200);
         expect(res.body.success).toBe(true);

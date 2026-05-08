@@ -11,10 +11,10 @@ describe('Collection CRUD & Share API', () => {
       password: 'Test1234!',
     };
 
-    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const registerRes = await request(app).post('/api/v1/auth/register').send(user);
     expect(registerRes.status).toBe(201);
 
-    const loginRes = await request(app).post('/api/auth/login').send({
+    const loginRes = await request(app).post('/api/v1/auth/login').send({
       email: user.email,
       password: user.password,
     });
@@ -27,7 +27,7 @@ describe('Collection CRUD & Share API', () => {
 
   const createWorkspace = async (accessToken: string) => {
     const res = await request(app)
-      .post('/api/workspaces')
+      .post('/api/v1/workspaces')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Collection Workspace' });
     expect(res.status).toBe(201);
@@ -36,7 +36,7 @@ describe('Collection CRUD & Share API', () => {
 
   const createCollection = async (accessToken: string, workspaceId: string) => {
     const res = await request(app)
-      .post(`/api/workspaces/${workspaceId}/collections`)
+      .post(`/api/v1/workspaces/${workspaceId}/collections`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Collection One' });
     expect(res.status).toBe(201);
@@ -49,7 +49,7 @@ describe('Collection CRUD & Share API', () => {
     const collectionId = await createCollection(accessToken, workspaceId);
 
     const res = await request(app)
-      .put(`/api/collections/${collectionId}`)
+      .put(`/api/v1/collections/${collectionId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Updated Collection' });
 
@@ -64,7 +64,7 @@ describe('Collection CRUD & Share API', () => {
     const collectionId = await createCollection(accessToken, workspaceId);
 
     const res = await request(app)
-      .put(`/api/workspaces/${workspaceId}/collections/${collectionId}`)
+      .put(`/api/v1/workspaces/${workspaceId}/collections/${collectionId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Updated Collection (Workspace Route)' });
 
@@ -79,7 +79,7 @@ describe('Collection CRUD & Share API', () => {
     const collectionId = await createCollection(accessToken, workspaceId);
 
     const res = await request(app)
-      .delete(`/api/collections/${collectionId}`)
+      .delete(`/api/v1/collections/${collectionId}`)
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(res.status).toBe(200);
@@ -92,7 +92,7 @@ describe('Collection CRUD & Share API', () => {
     const collectionId = await createCollection(accessToken, workspaceId);
 
     const res = await request(app)
-      .delete(`/api/workspaces/${workspaceId}/collections/${collectionId}`)
+      .delete(`/api/v1/workspaces/${workspaceId}/collections/${collectionId}`)
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(res.status).toBe(200);
@@ -105,13 +105,13 @@ describe('Collection CRUD & Share API', () => {
     const collectionId = await createCollection(accessToken, workspaceId);
 
     const shareRes = await request(app)
-      .post(`/api/collections/${collectionId}/share`)
+      .post(`/api/v1/collections/${collectionId}/share`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({});
     expect(shareRes.status).toBe(201);
     const token = shareRes.body.data.token as string;
 
-    const res = await request(app).get(`/api/collections/share/${token}`);
+    const res = await request(app).get(`/api/v1/collections/share/${token}`);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -124,13 +124,13 @@ describe('Collection CRUD & Share API', () => {
     const collectionId = await createCollection(accessToken, workspaceId);
 
     const shareRes = await request(app)
-      .post(`/api/workspaces/${workspaceId}/collections/${collectionId}/share`)
+      .post(`/api/v1/workspaces/${workspaceId}/collections/${collectionId}/share`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({});
     expect(shareRes.status).toBe(201);
     const token = shareRes.body.data.token as string;
 
-    const res = await request(app).get(`/api/collections/share/${token}`);
+    const res = await request(app).get(`/api/v1/collections/share/${token}`);
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -143,14 +143,14 @@ describe('Collection CRUD & Share API', () => {
     const collectionId = await createCollection(accessToken, workspaceId);
 
     const shareRes = await request(app)
-      .post(`/api/collections/${collectionId}/share`)
+      .post(`/api/v1/collections/${collectionId}/share`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({});
     expect(shareRes.status).toBe(201);
     const token = shareRes.body.data.token as string;
 
     const res = await request(app).get(
-      `/api/workspaces/${workspaceId}/collections/share/${token}`
+      `/api/v1/workspaces/${workspaceId}/collections/share/${token}`
     );
 
     expect(res.status).toBe(200);
@@ -162,7 +162,7 @@ describe('Collection CRUD & Share API', () => {
     const { accessToken } = await createUser();
 
     const res = await request(app)
-      .post('/api/collections')
+      .post('/api/v1/collections')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Base Collection' });
 
@@ -174,7 +174,7 @@ describe('Collection CRUD & Share API', () => {
     const { accessToken } = await createUser();
 
     const res = await request(app)
-      .get('/api/collections')
+      .get('/api/v1/collections')
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(res.status).toBe(400);

@@ -87,6 +87,9 @@ model Collection {
   requests    SavedRequest[]
   sharedLinks SharedCollectionLink[]
   folder      Folder?        @relation(fields: [folderId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@index([workspaceId, folderId])
 }
 
 model SavedRequest {
@@ -105,6 +108,10 @@ model SavedRequest {
   collection   Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   sharedLinks  SharedLink[]
   tags         RequestTag[]
+
+  @@index([collectionId])
+  @@index([collectionId, method])
+  @@index([collectionId, order])
 }
 
 model RequestHistory {
@@ -119,6 +126,9 @@ model RequestHistory {
   duration   Int?
   size       Int?
   createdAt  DateTime   @default(now())
+
+  @@index([userId])
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 model SharedLink {
@@ -153,6 +163,8 @@ model Environment {
   workspaceId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
 }
 
 model EnvironmentVariable {
@@ -164,6 +176,8 @@ model EnvironmentVariable {
   isSecret      Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([environmentId])
 }
 
 model Folder {

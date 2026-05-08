@@ -39,7 +39,7 @@ app.use(globalLimiter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use('/api', routes);
+app.use('/api/v1', routes);
 
 app.use((req, res) => {
   errorResponse(res, 'Route not found', 404);

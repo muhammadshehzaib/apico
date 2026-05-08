@@ -14,10 +14,10 @@ describe('Workspace Management API', () => {
       ...overrides,
     };
 
-    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const registerRes = await request(app).post('/api/v1/auth/register').send(user);
     expect(registerRes.status, `Registration failed: ${JSON.stringify(registerRes.body)}`).toBe(201);
 
-    const loginRes = await request(app).post('/api/auth/login').send({
+    const loginRes = await request(app).post('/api/v1/auth/login').send({
       email: user.email,
       password: user.password,
     });
@@ -31,7 +31,7 @@ describe('Workspace Management API', () => {
 
   const createWorkspace = async (accessToken: string, name = 'Managed Workspace') => {
     const res = await request(app)
-      .post('/api/workspaces')
+      .post('/api/v1/workspaces')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name });
     expect(res.status).toBe(201);
@@ -46,7 +46,7 @@ describe('Workspace Management API', () => {
   ) => {
     const inviteEmail = email || `invite_${Math.random().toString(36).substring(2)}@apico.dev`;
     const res = await request(app)
-      .post(`/api/workspaces/${workspaceId}/invite`)
+      .post(`/api/v1/workspaces/${workspaceId}/invite`)
       .set('Authorization', `Bearer ${ownerToken}`)
       .send({ email: inviteEmail, role });
     expect(res.status).toBe(201);
@@ -62,7 +62,7 @@ describe('Workspace Management API', () => {
     const workspaceId = await createWorkspace(owner.accessToken);
 
     const res = await request(app)
-      .get(`/api/workspaces/${workspaceId}`)
+      .get(`/api/v1/workspaces/${workspaceId}`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -75,7 +75,7 @@ describe('Workspace Management API', () => {
     const workspaceId = await createWorkspace(owner.accessToken);
 
     const res = await request(app)
-      .get(`/api/workspaces/${workspaceId}/members`)
+      .get(`/api/v1/workspaces/${workspaceId}/members`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -90,7 +90,7 @@ describe('Workspace Management API', () => {
     const invite = await inviteUser(owner.accessToken, workspaceId);
 
     const res = await request(app)
-      .get(`/api/workspaces/${workspaceId}/invites`)
+      .get(`/api/v1/workspaces/${workspaceId}/invites`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -104,7 +104,7 @@ describe('Workspace Management API', () => {
     const invite = await inviteUser(owner.accessToken, workspaceId);
 
     const res = await request(app)
-      .post(`/api/workspaces/${workspaceId}/invites/${invite.inviteId}/revoke`)
+      .post(`/api/v1/workspaces/${workspaceId}/invites/${invite.inviteId}/revoke`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -118,14 +118,14 @@ describe('Workspace Management API', () => {
 
     const member = await createUser({ email: invite.inviteEmail, name: 'Member User' });
     const acceptRes = await request(app)
-      .post(`/api/workspace-invites/${invite.token}/accept`)
+      .post(`/api/v1/workspace-invites/${invite.token}/accept`)
       .set('Authorization', `Bearer ${member.accessToken}`);
     expect(acceptRes.status).toBe(200);
 
     const memberId = acceptRes.body.data.userId as string;
 
     const res = await request(app)
-      .patch(`/api/workspaces/${workspaceId}/members/${memberId}`)
+      .patch(`/api/v1/workspaces/${workspaceId}/members/${memberId}`)
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .send({ role: 'VIEWER' });
 
@@ -141,14 +141,14 @@ describe('Workspace Management API', () => {
 
     const member = await createUser({ email: invite.inviteEmail, name: 'Member User' });
     const acceptRes = await request(app)
-      .post(`/api/workspace-invites/${invite.token}/accept`)
+      .post(`/api/v1/workspace-invites/${invite.token}/accept`)
       .set('Authorization', `Bearer ${member.accessToken}`);
     expect(acceptRes.status).toBe(200);
 
     const memberId = acceptRes.body.data.userId as string;
 
     const res = await request(app)
-      .delete(`/api/workspaces/${workspaceId}/members/${memberId}`)
+      .delete(`/api/v1/workspaces/${workspaceId}/members/${memberId}`)
       .set('Authorization', `Bearer ${owner.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -162,12 +162,12 @@ describe('Workspace Management API', () => {
 
     const member = await createUser({ email: invite.inviteEmail, name: 'Member User' });
     const acceptRes = await request(app)
-      .post(`/api/workspace-invites/${invite.token}/accept`)
+      .post(`/api/v1/workspace-invites/${invite.token}/accept`)
       .set('Authorization', `Bearer ${member.accessToken}`);
     expect(acceptRes.status).toBe(200);
 
     const res = await request(app)
-      .post(`/api/workspaces/${workspaceId}/leave`)
+      .post(`/api/v1/workspaces/${workspaceId}/leave`)
       .set('Authorization', `Bearer ${member.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -181,7 +181,7 @@ describe('Workspace Management API', () => {
 
     const invitee = await createUser({ email: invite.inviteEmail, name: 'Invitee User' });
     const res = await request(app)
-      .get('/api/workspace-invites/pending')
+      .get('/api/v1/workspace-invites/pending')
       .set('Authorization', `Bearer ${invitee.accessToken}`);
 
     expect(res.status).toBe(200);
@@ -196,7 +196,7 @@ describe('Workspace Management API', () => {
 
     const invitee = await createUser({ email: invite.inviteEmail, name: 'Invitee User' });
     const res = await request(app)
-      .post(`/api/workspace-invites/${invite.token}/decline`)
+      .post(`/api/v1/workspace-invites/${invite.token}/decline`)
       .set('Authorization', `Bearer ${invitee.accessToken}`);
 
     expect(res.status).toBe(200);

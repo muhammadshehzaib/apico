@@ -11,10 +11,10 @@ describe('Apico Import API', () => {
       password: 'Test1234!',
     };
 
-    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const registerRes = await request(app).post('/api/v1/auth/register').send(user);
     expect(registerRes.status).toBe(201);
 
-    const loginRes = await request(app).post('/api/auth/login').send({
+    const loginRes = await request(app).post('/api/v1/auth/login').send({
       email: user.email,
       password: user.password,
     });
@@ -22,7 +22,7 @@ describe('Apico Import API', () => {
     const accessToken = loginRes.body.data.accessToken as string;
 
     const workspaceRes = await request(app)
-      .post('/api/workspaces')
+      .post('/api/v1/workspaces')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ name: 'Import Workspace' });
     expect(workspaceRes.status).toBe(201);
@@ -76,7 +76,7 @@ describe('Apico Import API', () => {
     };
 
     const importRes = await request(app)
-      .post(`/api/workspaces/${workspaceId}/import`)
+      .post(`/api/v1/workspaces/${workspaceId}/import`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send(payload);
 
@@ -88,13 +88,13 @@ describe('Apico Import API', () => {
     expect(importRes.body.data.tagsImported).toBe(2);
 
     const foldersRes = await request(app)
-      .get(`/api/workspaces/${workspaceId}/folders`)
+      .get(`/api/v1/workspaces/${workspaceId}/folders`)
       .set('Authorization', `Bearer ${accessToken}`);
     expect(foldersRes.status).toBe(200);
     expect(foldersRes.body.data.length).toBe(2);
 
     const collectionsRes = await request(app)
-      .get(`/api/workspaces/${workspaceId}/collections`)
+      .get(`/api/v1/workspaces/${workspaceId}/collections`)
       .set('Authorization', `Bearer ${accessToken}`);
     expect(collectionsRes.status).toBe(200);
     const collections = collectionsRes.body.data as any[];
@@ -107,14 +107,14 @@ describe('Apico Import API', () => {
     expect(nestedCollection.folderId).toBeTruthy();
 
     const authRequestsRes = await request(app)
-      .get(`/api/requests/${authCollection.id}/requests`)
+      .get(`/api/v1/requests/${authCollection.id}/requests`)
       .set('Authorization', `Bearer ${accessToken}`);
     expect(authRequestsRes.status).toBe(200);
     expect(authRequestsRes.body.data.length).toBe(1);
     expect(authRequestsRes.body.data[0].tags.map((t: any) => t.name)).toContain('auth');
 
     const nestedRequestsRes = await request(app)
-      .get(`/api/requests/${nestedCollection.id}/requests`)
+      .get(`/api/v1/requests/${nestedCollection.id}/requests`)
       .set('Authorization', `Bearer ${accessToken}`);
     expect(nestedRequestsRes.status).toBe(200);
     expect(nestedRequestsRes.body.data.length).toBe(1);
@@ -123,7 +123,7 @@ describe('Apico Import API', () => {
     expect(nestedTags).toContain('auth');
 
     const tagsRes = await request(app)
-      .get(`/api/workspaces/${workspaceId}/tags`)
+      .get(`/api/v1/workspaces/${workspaceId}/tags`)
       .set('Authorization', `Bearer ${accessToken}`);
     expect(tagsRes.status).toBe(200);
     const tagNames = tagsRes.body.data.map((t: any) => t.name);
@@ -133,7 +133,7 @@ describe('Apico Import API', () => {
 
   it('should reject import without auth', async () => {
     const payload = { format: 'apico', version: 1 };
-    const res = await request(app).post('/api/workspaces/abc/import').send(payload);
+    const res = await request(app).post('/api/v1/workspaces/abc/import').send(payload);
     expect(res.status).toBe(401);
   });
 
@@ -141,7 +141,7 @@ describe('Apico Import API', () => {
     const { accessToken, workspaceId } = await createUserAndWorkspace();
 
     const res = await request(app)
-      .post(`/api/workspaces/${workspaceId}/import`)
+      .post(`/api/v1/workspaces/${workspaceId}/import`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send({ format: 'invalid', version: 1 });
 
@@ -169,7 +169,7 @@ describe('Apico Import API', () => {
     };
 
     const res = await request(app)
-      .post(`/api/workspaces/${workspaceId}/import`)
+      .post(`/api/v1/workspaces/${workspaceId}/import`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send(payload);
 

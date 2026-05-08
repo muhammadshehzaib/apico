@@ -12,12 +12,12 @@ describe('Error Cases API', () => {
     const setupUniqueUser = async () => {
         const uniqueId = Math.random().toString(36).substring(7);
         testUser.email = `error_test_${uniqueId}@apico.dev`;
-        const registerRes = await request(app).post('/api/auth/register').send(testUser);
+        const registerRes = await request(app).post('/api/v1/auth/register').send(testUser);
         expect(registerRes.status).toBe(201);
     };
 
     it('🔴 Test 1 — should return 401 when accessing protected route without token', async () => {
-        const res = await request(app).get('/api/workspaces');
+        const res = await request(app).get('/api/v1/workspaces');
         expect(res.status).toBe(401);
     });
 
@@ -26,7 +26,7 @@ describe('Error Cases API', () => {
         await setupUniqueUser();
 
         const res = await request(app)
-            .post('/api/auth/login')
+            .post('/api/v1/auth/login')
             .send({
                 email: testUser.email,
                 password: 'wrongpassword'
@@ -37,7 +37,7 @@ describe('Error Cases API', () => {
 
     it('🔴 Test 3 — should return 400 for invalid URL in execute', async () => {
         const res = await request(app)
-            .post('/api/requests/execute')
+            .post('/api/v1/requests/execute')
             .send({
                 method: 'GET',
                 url: 'not-a-url',
@@ -54,7 +54,7 @@ describe('Error Cases API', () => {
         // Register and login
         await setupUniqueUser();
         const loginRes = await request(app)
-            .post('/api/auth/login')
+            .post('/api/v1/auth/login')
             .send({
                 email: testUser.email,
                 password: testUser.password
@@ -62,7 +62,7 @@ describe('Error Cases API', () => {
         const accessToken = loginRes.body.data.accessToken;
 
         const res = await request(app)
-            .get('/api/workspaces/clrcu5y8h000008l24z6y1f4x') // A valid format cuid but doesn't exist
+            .get('/api/v1/workspaces/clrcu5y8h000008l24z6y1f4x') // A valid format cuid but doesn't exist
             .set('Authorization', `Bearer ${accessToken}`);
 
         // The code might return 404 or 403 depending on implementation

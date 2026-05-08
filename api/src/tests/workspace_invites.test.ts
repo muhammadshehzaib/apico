@@ -12,10 +12,10 @@ describe('Workspace Invites', () => {
       ...overrides,
     };
 
-    const registerRes = await request(app).post('/api/auth/register').send(user);
+    const registerRes = await request(app).post('/api/v1/auth/register').send(user);
     expect(registerRes.status, `Registration failed: ${JSON.stringify(registerRes.body)}`).toBe(201);
 
-    const loginRes = await request(app).post('/api/auth/login').send({
+    const loginRes = await request(app).post('/api/v1/auth/login').send({
       email: user.email,
       password: user.password,
     });
@@ -31,7 +31,7 @@ describe('Workspace Invites', () => {
     const owner = await createUser({ name: 'Owner User' });
 
     const workspaceRes = await request(app)
-      .post('/api/workspaces')
+      .post('/api/v1/workspaces')
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .send({ name: 'Invite Workspace' });
     expect(workspaceRes.status).toBe(201);
@@ -39,7 +39,7 @@ describe('Workspace Invites', () => {
 
     const inviteEmail = `invite_target_${Math.random().toString(36).substring(2)}@apico.dev`;
     const inviteRes = await request(app)
-      .post(`/api/workspaces/${workspaceId}/invite`)
+      .post(`/api/v1/workspaces/${workspaceId}/invite`)
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .send({ email: inviteEmail, role: 'VIEWER' });
 
@@ -48,24 +48,24 @@ describe('Workspace Invites', () => {
 
     const token = inviteRes.body.data.invite.token as string;
 
-    const inviteInfoRes = await request(app).get(`/api/workspace-invites/${token}`);
+    const inviteInfoRes = await request(app).get(`/api/v1/workspace-invites/${token}`);
     expect(inviteInfoRes.status).toBe(200);
     expect(inviteInfoRes.body.data.workspace.id).toBe(workspaceId);
 
     const invitee = await createUser({ email: inviteEmail, name: 'Invitee User' });
     const acceptRes = await request(app)
-      .post(`/api/workspace-invites/${token}/accept`)
+      .post(`/api/v1/workspace-invites/${token}/accept`)
       .set('Authorization', `Bearer ${invitee.accessToken}`);
     expect(acceptRes.status).toBe(200);
 
     const workspacesRes = await request(app)
-      .get('/api/workspaces')
+      .get('/api/v1/workspaces')
       .set('Authorization', `Bearer ${invitee.accessToken}`);
     expect(workspacesRes.status).toBe(200);
     expect(workspacesRes.body.data.some((w: any) => w.id === workspaceId)).toBe(true);
 
     const acceptAgainRes = await request(app)
-      .post(`/api/workspace-invites/${token}/accept`)
+      .post(`/api/v1/workspace-invites/${token}/accept`)
       .set('Authorization', `Bearer ${invitee.accessToken}`);
     expect(acceptAgainRes.status).toBe(410);
   });
@@ -74,7 +74,7 @@ describe('Workspace Invites', () => {
     const owner = await createUser({ name: 'Owner User' });
 
     const workspaceRes = await request(app)
-      .post('/api/workspaces')
+      .post('/api/v1/workspaces')
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .send({ name: 'Role Workspace' });
     expect(workspaceRes.status).toBe(201);
@@ -82,7 +82,7 @@ describe('Workspace Invites', () => {
 
     const inviteEmail = `viewer_${Math.random().toString(36).substring(2)}@apico.dev`;
     const inviteRes = await request(app)
-      .post(`/api/workspaces/${workspaceId}/invite`)
+      .post(`/api/v1/workspaces/${workspaceId}/invite`)
       .set('Authorization', `Bearer ${owner.accessToken}`)
       .send({ email: inviteEmail, role: 'VIEWER' });
     expect(inviteRes.status).toBe(201);
@@ -90,18 +90,18 @@ describe('Workspace Invites', () => {
 
     const viewer = await createUser({ email: inviteEmail, name: 'Viewer User' });
     const acceptRes = await request(app)
-      .post(`/api/workspace-invites/${token}/accept`)
+      .post(`/api/v1/workspace-invites/${token}/accept`)
       .set('Authorization', `Bearer ${viewer.accessToken}`);
     expect(acceptRes.status).toBe(200);
 
     const createCollectionRes = await request(app)
-      .post(`/api/workspaces/${workspaceId}/collections`)
+      .post(`/api/v1/workspaces/${workspaceId}/collections`)
       .set('Authorization', `Bearer ${viewer.accessToken}`)
       .send({ name: 'Blocked Collection' });
     expect(createCollectionRes.status).toBe(403);
 
     const createEnvRes = await request(app)
-      .post(`/api/workspaces/${workspaceId}/environments`)
+      .post(`/api/v1/workspaces/${workspaceId}/environments`)
       .set('Authorization', `Bearer ${viewer.accessToken}`)
       .send({ name: 'Blocked Env' });
     expect(createEnvRes.status).toBe(403);

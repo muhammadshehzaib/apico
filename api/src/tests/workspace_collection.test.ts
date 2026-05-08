@@ -18,11 +18,11 @@ describe('Workspace & Collection API', () => {
         const uniqueId = Math.random().toString(36).substring(7);
         testUser.email = `workspace_test_${uniqueId}@apico.dev`;
 
-        const registerRes = await request(app).post('/api/auth/register').send(testUser);
+        const registerRes = await request(app).post('/api/v1/auth/register').send(testUser);
         expect(registerRes.status, `Registration failed: ${JSON.stringify(registerRes.body)}`).toBe(201);
 
         const loginRes = await request(app)
-            .post('/api/auth/login')
+            .post('/api/v1/auth/login')
             .send({
                 email: testUser.email,
                 password: testUser.password
@@ -35,7 +35,7 @@ describe('Workspace & Collection API', () => {
         await setupAuth();
 
         const res = await request(app)
-            .post('/api/workspaces')
+            .post('/api/v1/workspaces')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Workspace' });
 
@@ -49,13 +49,13 @@ describe('Workspace & Collection API', () => {
         await setupAuth();
         // Create one workspace
         const createRes = await request(app)
-            .post('/api/workspaces')
+            .post('/api/v1/workspaces')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Workspace' });
         workspaceId = createRes.body.data.id;
 
         const res = await request(app)
-            .get('/api/workspaces')
+            .get('/api/v1/workspaces')
             .set('Authorization', `Bearer ${accessToken}`);
 
         expect(res.status).toBe(200);
@@ -67,13 +67,13 @@ describe('Workspace & Collection API', () => {
     it('🟡 STEP 5 — should create a collection', async () => {
         await setupAuth();
         const createWRes = await request(app)
-            .post('/api/workspaces')
+            .post('/api/v1/workspaces')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Workspace' });
         workspaceId = createWRes.body.data.id;
 
         const res = await request(app)
-            .post(`/api/workspaces/${workspaceId}/collections`)
+            .post(`/api/v1/workspaces/${workspaceId}/collections`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Collection' });
 
@@ -86,19 +86,19 @@ describe('Workspace & Collection API', () => {
     it('🟡 STEP 6 — should get collections', async () => {
         await setupAuth();
         const createWRes = await request(app)
-            .post('/api/workspaces')
+            .post('/api/v1/workspaces')
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Workspace' });
         workspaceId = createWRes.body.data.id;
 
         const createCRes = await request(app)
-            .post(`/api/workspaces/${workspaceId}/collections`)
+            .post(`/api/v1/workspaces/${workspaceId}/collections`)
             .set('Authorization', `Bearer ${accessToken}`)
             .send({ name: 'My First Collection' });
         collectionId = createCRes.body.data.id;
 
         const res = await request(app)
-            .get(`/api/workspaces/${workspaceId}/collections`)
+            .get(`/api/v1/workspaces/${workspaceId}/collections`)
             .set('Authorization', `Bearer ${accessToken}`);
 
         expect(res.status).toBe(200);
