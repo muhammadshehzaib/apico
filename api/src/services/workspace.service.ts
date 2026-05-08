@@ -24,6 +24,7 @@ import { WorkspaceRole } from '../types';
 import crypto from 'crypto';
 import { env } from '../config/env.config';
 import { prisma } from '../config/prisma.config';
+import { AppError, BadRequestError, ForbiddenError, GoneError, NotFoundError } from '../errors/AppError';
 
 export const createWorkspaceService = async (name: string, userId: string) => {
   const workspace = await createWorkspace({
@@ -68,9 +69,7 @@ export const inviteUserToWorkspace = async (
   const member = await findWorkspaceMember(workspaceId, inviterId);
 
   if (!member || member.role !== WorkspaceRole.OWNER) {
-    const error = new Error('Only workspace owners can invite members');
-    (error as any).statusCode = 403;
-    throw error;
+    throw new ForbiddenError('Only workspace owners can invite members');
   }
 
   const normalizedEmail = email.trim().toLowerCase();
@@ -79,24 +78,18 @@ export const inviteUserToWorkspace = async (
   if (existingUser) {
     const existingMember = await findWorkspaceMember(workspaceId, existingUser.id);
     if (existingMember) {
-      const error = new Error('User is already a member of this workspace');
-      (error as any).statusCode = 400;
-      throw error;
+      throw new BadRequestError('User is already a member of this workspace');
     }
   }
 
   const workspace = await findWorkspaceById(workspaceId);
   if (!workspace) {
-    const error = new Error('Workspace not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Workspace');
   }
 
   const inviter = await findUserById(inviterId);
   if (!inviter) {
-    const error = new Error('Inviter not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Inviter');
   }
 
   const existingInvite = await findPendingWorkspaceInvite(workspaceId, normalizedEmail);
@@ -152,9 +145,7 @@ export const getWorkspaceInvite = async (token: string) => {
   const invite = await findWorkspaceInviteByToken(token);
 
   if (!invite) {
-    const error = new Error('Invite not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Invite');
   }
 
   if (invite.status === 'PENDING' && invite.expiresAt && new Date() > invite.expiresAt) {
@@ -169,35 +160,25 @@ export const acceptWorkspaceInvite = async (token: string, userId: string) => {
   const invite = await findWorkspaceInviteByToken(token);
 
   if (!invite) {
-    const error = new Error('Invite not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Invite');
   }
 
   if (invite.status !== 'PENDING') {
-    const error = new Error('Invite is no longer valid');
-    (error as any).statusCode = 410;
-    throw error;
+    throw new GoneError('Invite is no longer valid');
   }
 
   if (invite.expiresAt && new Date() > invite.expiresAt) {
     await updateWorkspaceInvite(invite.id, { status: 'EXPIRED' });
-    const error = new Error('Invite has expired');
-    (error as any).statusCode = 410;
-    throw error;
+    throw new GoneError('Invite has expired');
   }
 
   const user = await findUserById(userId);
   if (!user) {
-    const error = new Error('User not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('User');
   }
 
   if (user.email.toLowerCase() !== invite.email.toLowerCase()) {
-    const error = new Error('This invite is not for your account');
-    (error as any).statusCode = 403;
-    throw error;
+    throw new ForbiddenError('This invite is not for your account');
   }
 
   const existingMember = await findWorkspaceMember(invite.workspaceId, userId);
@@ -251,15 +232,11 @@ export const revokeWorkspaceInviteService = async (
 
   const invite = await findWorkspaceInviteById(inviteId);
   if (!invite || invite.workspaceId !== workspaceId) {
-    const error = new Error('Invite not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Invite');
   }
 
   if (invite.status !== 'PENDING') {
-    const error = new Error('Invite is not pending');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('Invite is not pending');
   }
 
   await updateWorkspaceInvite(inviteId, { status: 'REVOKED' });
@@ -273,22 +250,16 @@ export const removeWorkspaceMemberService = async (
   await requireWorkspaceRole(workspaceId, requesterId, WorkspaceRole.OWNER);
 
   if (targetUserId === requesterId) {
-    const error = new Error('Cannot remove yourself from workspace');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('Cannot remove yourself from workspace');
   }
 
   const targetMember = await findWorkspaceMember(workspaceId, targetUserId);
   if (!targetMember) {
-    const error = new Error('Member not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Member');
   }
 
   if (targetMember.role === WorkspaceRole.OWNER) {
-    const error = new Error('Cannot remove another owner');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('Cannot remove another owner');
   }
 
   await removeWorkspaceMemberQuery(workspaceId, targetUserId);
@@ -303,16 +274,12 @@ export const updateMemberRoleService = async (
   await requireWorkspaceRole(workspaceId, requesterId, WorkspaceRole.OWNER);
 
   if (targetUserId === requesterId) {
-    const error = new Error('Cannot change your own role');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('Cannot change your own role');
   }
 
   const targetMember = await findWorkspaceMember(workspaceId, targetUserId);
   if (!targetMember) {
-    const error = new Error('Member not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Member');
   }
 
   return updateWorkspaceMemberRole(workspaceId, targetUserId, newRole);
@@ -321,9 +288,7 @@ export const updateMemberRoleService = async (
 export const getUserPendingInvites = async (userId: string) => {
   const user = await findUserById(userId);
   if (!user) {
-    const error = new Error('User not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('User');
   }
 
   const invites = await findPendingInvitesByEmail(user.email.toLowerCase());
@@ -344,15 +309,11 @@ export const getUserPendingInvites = async (userId: string) => {
 export const leaveWorkspaceService = async (workspaceId: string, userId: string) => {
   const member = await findWorkspaceMember(workspaceId, userId);
   if (!member) {
-    const error = new Error('You are not a member of this workspace');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new AppError('You are not a member of this workspace', 404);
   }
 
   if (member.role === WorkspaceRole.OWNER) {
-    const error = new Error('Owners cannot leave their workspace. Transfer ownership first or delete the workspace.');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('Owners cannot leave their workspace. Transfer ownership first or delete the workspace.');
   }
 
   await removeWorkspaceMemberQuery(workspaceId, userId);
@@ -362,28 +323,20 @@ export const declineWorkspaceInvite = async (token: string, userId: string) => {
   const invite = await findWorkspaceInviteByToken(token);
 
   if (!invite) {
-    const error = new Error('Invite not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Invite');
   }
 
   if (invite.status !== 'PENDING') {
-    const error = new Error('Invite is no longer valid');
-    (error as any).statusCode = 410;
-    throw error;
+    throw new GoneError('Invite is no longer valid');
   }
 
   const user = await findUserById(userId);
   if (!user) {
-    const error = new Error('User not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('User');
   }
 
   if (user.email.toLowerCase() !== invite.email.toLowerCase()) {
-    const error = new Error('This invite is not for your account');
-    (error as any).statusCode = 403;
-    throw error;
+    throw new ForbiddenError('This invite is not for your account');
   }
 
   await updateWorkspaceInvite(invite.id, { status: 'REVOKED' });

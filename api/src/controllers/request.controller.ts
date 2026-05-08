@@ -22,6 +22,7 @@ import {
   reorderRequestsSchema,
 } from '../validations/request.validation';
 import { ExecuteRequestPayload, HttpMethod } from '../types';
+import { BadRequestError } from '../errors/AppError';
 
 export const executeController = asyncHandler(async (req: Request, res: Response) => {
   let payload: ExecuteRequestPayload;
@@ -110,9 +111,7 @@ export const searchController = asyncHandler(async (req: Request, res: Response)
 
   const workspaceIdStr = String(workspaceId || '');
   if (!workspaceIdStr) {
-    const error = new Error('workspaceId is required');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('workspaceId is required');
   }
 
   const tagList =

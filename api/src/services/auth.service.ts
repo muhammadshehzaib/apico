@@ -2,13 +2,12 @@ import bcrypt from 'bcryptjs';
 import { findUserByEmail, createUser, findUserById } from '../queries/user.queries';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt.util';
 import { JwtPayload } from '../types';
+import { BadRequestError, NotFoundError, UnauthorizedError } from '../errors/AppError';
 
 export const register = async (name: string, email: string, password: string) => {
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
-    const error = new Error('Email already registered');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('Email already registered');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -42,16 +41,12 @@ export const register = async (name: string, email: string, password: string) =>
 export const login = async (email: string, password: string) => {
   const user = await findUserByEmail(email);
   if (!user) {
-    const error = new Error('Invalid credentials');
-    (error as any).statusCode = 401;
-    throw error;
+    throw new UnauthorizedError('Invalid credentials');
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    const error = new Error('Invalid credentials');
-    (error as any).statusCode = 401;
-    throw error;
+    throw new UnauthorizedError('Invalid credentials');
   }
 
   const payload: JwtPayload = {
@@ -79,9 +74,7 @@ export const refreshAccessToken = async (refreshToken: string) => {
   const user = await findUserById(decoded.id);
 
   if (!user) {
-    const error = new Error('User not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('User');
   }
 
   const payload: JwtPayload = {

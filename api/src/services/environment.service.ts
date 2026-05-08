@@ -12,6 +12,7 @@ import {
 } from '../queries/environment.queries';
 import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
 import { WorkspaceRole } from '../types';
+import { NotFoundError } from '../errors/AppError';
 
 export const createEnvironmentService = async (
   name: string,
@@ -43,9 +44,7 @@ export const getEnvironmentById = async (id: string, userId: string) => {
   const environment = await findEnvironmentById(id);
 
   if (!environment) {
-    const error = new Error('Environment not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Environment');
   }
 
   await requireWorkspaceMember(environment.workspaceId, userId);
@@ -66,9 +65,7 @@ export const updateEnvironmentService = async (
   const environment = await findEnvironmentById(id);
 
   if (!environment) {
-    const error = new Error('Environment not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Environment');
   }
 
   await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -80,9 +77,7 @@ export const deleteEnvironmentService = async (id: string, userId: string) => {
   const environment = await findEnvironmentById(id);
 
   if (!environment) {
-    const error = new Error('Environment not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Environment');
   }
 
   await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -104,9 +99,7 @@ export const createVariableService = async (
   const environment = await findEnvironmentById(environmentId);
 
   if (!environment) {
-    const error = new Error('Environment not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Environment');
   }
 
   await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -131,9 +124,7 @@ export const updateVariableService = async (
   const environment = await findEnvironmentById(environmentId);
 
   if (!environment) {
-    const error = new Error('Environment not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Environment');
   }
 
   await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -149,9 +140,7 @@ export const deleteVariableService = async (
   const environment = await findEnvironmentById(environmentId);
 
   if (!environment) {
-    const error = new Error('Environment not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Environment');
   }
 
   await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -172,9 +161,7 @@ export const bulkUpdateVariablesService = async (
   const environment = await findEnvironmentById(environmentId);
 
   if (!environment) {
-    const error = new Error('Environment not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Environment');
   }
 
   await requireWorkspaceRole(environment.workspaceId, userId, WorkspaceRole.EDITOR);

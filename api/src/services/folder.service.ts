@@ -8,13 +8,12 @@ import {
 } from '../queries/folder.queries';
 import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
 import { WorkspaceRole } from '../types';
+import { BadRequestError, NotFoundError } from '../errors/AppError';
 
 const ensureFolderInWorkspace = async (folderId: string, workspaceId: string) => {
   const folder = await findFolderById(folderId);
   if (!folder || folder.workspaceId !== workspaceId) {
-    const error = new Error('Folder not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Folder');
   }
   return folder;
 };
@@ -54,9 +53,7 @@ export const updateFolderService = async (
   const folder = await findFolderById(id);
 
   if (!folder) {
-    const error = new Error('Folder not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Folder');
   }
 
   await requireWorkspaceRole(folder.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -66,9 +63,7 @@ export const updateFolderService = async (
   }
 
   if (data.parentId === id) {
-    const error = new Error('Folder cannot be its own parent');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('Folder cannot be its own parent');
   }
 
   return updateFolder(id, data);
@@ -78,9 +73,7 @@ export const deleteFolderService = async (id: string, userId: string) => {
   const folder = await findFolderById(id);
 
   if (!folder) {
-    const error = new Error('Folder not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Folder');
   }
 
   await requireWorkspaceRole(folder.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -101,9 +94,7 @@ export const reorderFoldersService = async (
       await ensureFolderInWorkspace(item.parentId, workspaceId);
     }
     if (item.parentId === folder.id) {
-      const error = new Error('Folder cannot be its own parent');
-      (error as any).statusCode = 400;
-      throw error;
+      throw new BadRequestError('Folder cannot be its own parent');
     }
     await updateFolder(folder.id, {
       order: item.order,

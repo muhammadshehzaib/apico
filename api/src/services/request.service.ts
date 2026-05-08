@@ -18,14 +18,13 @@ import { createHistoryEntry } from '../queries/history.queries';
 import { executeRequest } from '../proxy/executor';
 import { ExecuteRequestPayload, HttpMethod, WorkspaceRole } from '../types';
 import { upsertTag } from '../queries/tag.queries';
+import { GoneError, NotFoundError } from '../errors/AppError';
 
 const verifyCollectionAccess = async (collectionId: string, userId: string) => {
   const collection = await findCollectionById(collectionId);
 
   if (!collection) {
-    const error = new Error('Collection not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Collection');
   }
 
   await requireWorkspaceMember(collection.workspaceId, userId);
@@ -35,9 +34,7 @@ const verifyCollectionWriteAccess = async (collectionId: string, userId: string)
   const collection = await findCollectionById(collectionId);
 
   if (!collection) {
-    const error = new Error('Collection not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Collection');
   }
 
   await requireWorkspaceRole(collection.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -126,9 +123,7 @@ export const updateSavedRequestService = async (
   const request = await findSavedRequestWithCollection(id);
 
   if (!request) {
-    const error = new Error('Request not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Request');
   }
 
   await verifyCollectionWriteAccess(request.collectionId, userId);
@@ -153,9 +148,7 @@ export const deleteSavedRequestService = async (id: string, userId: string) => {
   const request = await findSavedRequestById(id);
 
   if (!request) {
-    const error = new Error('Request not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Request');
   }
 
   await verifyCollectionWriteAccess(request.collectionId, userId);
@@ -171,9 +164,7 @@ export const createSharedLinkService = async (
   const request = await findSavedRequestById(savedRequestId);
 
   if (!request) {
-    const error = new Error('Request not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Request');
   }
 
   await verifyCollectionWriteAccess(request.collectionId, userId);
@@ -191,15 +182,11 @@ export const getSharedLink = async (token: string) => {
   const link = await findSharedLinkByToken(token);
 
   if (!link) {
-    const error = new Error('Shared link not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Shared link');
   }
 
   if (link.expiresAt && new Date() > link.expiresAt) {
-    const error = new Error('Shared link has expired');
-    (error as any).statusCode = 410;
-    throw error;
+    throw new GoneError('Shared link has expired');
   }
 
   return {
@@ -234,9 +221,7 @@ export const updateRequestTagsService = async (
   const request = await findSavedRequestWithCollection(requestId);
 
   if (!request) {
-    const error = new Error('Request not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Request');
   }
 
   await verifyCollectionWriteAccess(request.collectionId, userId);

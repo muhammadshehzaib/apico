@@ -1,6 +1,7 @@
 import axios from 'axios';
 import FormData from 'form-data';
 import { ExecuteRequestPayload, ExecuteRequestResult } from '../types';
+import { InternalError } from '../errors/AppError';
 
 export const executeRequest = async (payload: ExecuteRequestPayload): Promise<ExecuteRequestResult> => {
   const startTime = Date.now();
@@ -124,13 +125,10 @@ export const executeRequest = async (payload: ExecuteRequestPayload): Promise<Ex
       };
     }
 
-    const duration = Date.now() - startTime;
     const errorMessage = err.code === 'ECONNABORTED'
       ? 'Request timeout (30s)'
       : err.message || 'Network error';
 
-    const error = new Error(errorMessage);
-    (error as any).statusCode = 500;
-    throw error;
+    throw new InternalError(errorMessage);
   }
 };

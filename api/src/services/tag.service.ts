@@ -7,6 +7,7 @@ import {
 } from '../queries/tag.queries';
 import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
 import { WorkspaceRole } from '../types';
+import { NotFoundError } from '../errors/AppError';
 
 export const getTagsService = async (workspaceId: string, userId: string) => {
   await requireWorkspaceMember(workspaceId, userId);
@@ -22,9 +23,7 @@ export const updateTagService = async (workspaceId: string, userId: string, id: 
   await requireWorkspaceRole(workspaceId, userId, WorkspaceRole.EDITOR);
   const tag = await findTagById(id);
   if (!tag || tag.workspaceId !== workspaceId) {
-    const error = new Error('Tag not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Tag');
   }
   return updateTag(id, name);
 };
@@ -33,9 +32,7 @@ export const deleteTagService = async (workspaceId: string, userId: string, id: 
   await requireWorkspaceRole(workspaceId, userId, WorkspaceRole.EDITOR);
   const tag = await findTagById(id);
   if (!tag || tag.workspaceId !== workspaceId) {
-    const error = new Error('Tag not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Tag');
   }
   return deleteTag(id);
 };

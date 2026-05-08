@@ -1,13 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { error } from '../utils/response.util';
 import { ZodError } from 'zod';
-
-interface AppError extends Error {
-  statusCode?: number;
-}
+import { AppError } from '../errors/AppError';
 
 export const errorHandler = (
-  err: AppError,
+  err: Error,
   req: Request,
   res: Response,
   next: NextFunction
@@ -16,6 +13,11 @@ export const errorHandler = (
 
   if (err instanceof ZodError) {
     error(res, `Validation error: ${err.errors[0].message}`, 400);
+    return;
+  }
+
+  if (err instanceof AppError) {
+    error(res, err.message, err.statusCode);
     return;
   }
 
@@ -41,8 +43,5 @@ export const errorHandler = (
     return;
   }
 
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal server error';
-
-  error(res, message, statusCode);
+  error(res, err.message || 'Internal server error', 500);
 };

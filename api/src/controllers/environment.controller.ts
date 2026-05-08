@@ -15,13 +15,12 @@ import {
   bulkUpdateVariablesSchema,
 } from '../validations/environment.validation';
 import { getWorkspaceIdFromRequest } from '../utils/workspace-request.util';
+import { BadRequestError } from '../errors/AppError';
 
 export const createController = asyncHandler(async (req: Request, res: Response) => {
   const workspaceId = getWorkspaceIdFromRequest(req);
   if (!workspaceId) {
-    const error = new Error('workspaceId is required');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('workspaceId is required');
   }
   const body = createEnvironmentSchema.parse(req.body);
   const userId = req.user!.id;
@@ -34,9 +33,7 @@ export const createController = asyncHandler(async (req: Request, res: Response)
 export const getAllController = asyncHandler(async (req: Request, res: Response) => {
   const workspaceId = getWorkspaceIdFromRequest(req);
   if (!workspaceId) {
-    const error = new Error('workspaceId is required');
-    (error as any).statusCode = 400;
-    throw error;
+    throw new BadRequestError('workspaceId is required');
   }
   const userId = req.user!.id;
 

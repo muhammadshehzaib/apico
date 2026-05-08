@@ -3,6 +3,7 @@ import type { Prisma } from '@prisma/client';
 import { ImportApicoInput } from '../validations/import.validation';
 import { requireWorkspaceRole } from '../utils/workspace-access.util';
 import { WorkspaceRole } from '../types';
+import { BadRequestError } from '../errors/AppError';
 
 type IdMap = Map<string, string>;
 type DbClient = Prisma.TransactionClient;
@@ -100,9 +101,7 @@ export const importApicoService = async (
     }
 
     if (remaining.size > 0) {
-      const error = new Error('Folder hierarchy has invalid parent references');
-      (error as any).statusCode = 400;
-      throw error;
+      throw new BadRequestError('Folder hierarchy has invalid parent references');
     }
 
     const sortedCollections = [...collections].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -135,9 +134,7 @@ export const importApicoService = async (
     for (const request of sortedRequests) {
       const mappedCollectionId = collectionIdMap.get(request.collectionId);
       if (!mappedCollectionId) {
-        const error = new Error('Request references an unknown collection');
-        (error as any).statusCode = 400;
-        throw error;
+        throw new BadRequestError('Request references an unknown collection');
       }
 
       const created = await tx.savedRequest.create({

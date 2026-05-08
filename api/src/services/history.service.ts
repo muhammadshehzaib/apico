@@ -3,6 +3,7 @@ import {
   deleteHistoryEntry,
   deleteAllHistoryByUserId,
 } from '../queries/history.queries';
+import { NotFoundError } from '../errors/AppError';
 
 export const getHistory = async (userId: string, page: number = 1, limit: number = 50) => {
   const offset = (page - 1) * limit;
@@ -15,9 +16,7 @@ export const deleteHistoryEntryService = async (id: string, userId: string) => {
   const found = entry.find((e) => e.id === id);
 
   if (!found) {
-    const error = new Error('History entry not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('History entry');
   }
 
   return deleteHistoryEntry(id);

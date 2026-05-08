@@ -1,5 +1,6 @@
 import { findWorkspaceMember } from '../queries/workspace.queries';
 import { WorkspaceRole } from '../types';
+import { ForbiddenError } from '../errors/AppError';
 
 const ROLE_ORDER: Record<WorkspaceRole, number> = {
   [WorkspaceRole.OWNER]: 3,
@@ -10,9 +11,7 @@ const ROLE_ORDER: Record<WorkspaceRole, number> = {
 export const requireWorkspaceMember = async (workspaceId: string, userId: string) => {
   const member = await findWorkspaceMember(workspaceId, userId);
   if (!member) {
-    const error = new Error('Access denied');
-    (error as any).statusCode = 403;
-    throw error;
+    throw new ForbiddenError('Access denied');
   }
   return member;
 };
@@ -24,9 +23,7 @@ export const requireWorkspaceRole = async (
 ) => {
   const member = await requireWorkspaceMember(workspaceId, userId);
   if (ROLE_ORDER[member.role] < ROLE_ORDER[minRole]) {
-    const error = new Error('Insufficient permissions');
-    (error as any).statusCode = 403;
-    throw error;
+    throw new ForbiddenError('Insufficient permissions');
   }
   return member;
 };

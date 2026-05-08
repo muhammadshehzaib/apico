@@ -12,6 +12,7 @@ import {
 import { findFolderById } from '../queries/folder.queries';
 import { requireWorkspaceMember, requireWorkspaceRole } from '../utils/workspace-access.util';
 import { WorkspaceRole } from '../types';
+import { GoneError, NotFoundError } from '../errors/AppError';
 
 export const createCollectionService = async (
   name: string,
@@ -24,9 +25,7 @@ export const createCollectionService = async (
   if (folderId) {
     const folder = await findFolderById(folderId);
     if (!folder || folder.workspaceId !== workspaceId) {
-      const error = new Error('Folder not found');
-      (error as any).statusCode = 404;
-      throw error;
+      throw new NotFoundError('Folder');
     }
   }
 
@@ -54,9 +53,7 @@ export const updateCollectionService = async (
   const collection = await findCollectionById(id);
 
   if (!collection) {
-    const error = new Error('Collection not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Collection');
   }
 
   await requireWorkspaceRole(collection.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -64,9 +61,7 @@ export const updateCollectionService = async (
   if (data.folderId) {
     const folder = await findFolderById(data.folderId);
     if (!folder || folder.workspaceId !== collection.workspaceId) {
-      const error = new Error('Folder not found');
-      (error as any).statusCode = 404;
-      throw error;
+      throw new NotFoundError('Folder');
     }
   }
 
@@ -77,9 +72,7 @@ export const deleteCollectionService = async (id: string, userId: string) => {
   const collection = await findCollectionById(id);
 
   if (!collection) {
-    const error = new Error('Collection not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Collection');
   }
 
   await requireWorkspaceRole(collection.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -95,9 +88,7 @@ export const shareCollectionService = async (
   const collection = await findCollectionById(collectionId);
 
   if (!collection) {
-    const error = new Error('Collection not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Collection');
   }
 
   await requireWorkspaceRole(collection.workspaceId, userId, WorkspaceRole.EDITOR);
@@ -115,15 +106,11 @@ export const getSharedCollectionService = async (token: string) => {
   const link = await findCollectionShareLinkByToken(token);
 
   if (!link) {
-    const error = new Error('Shared collection not found');
-    (error as any).statusCode = 404;
-    throw error;
+    throw new NotFoundError('Shared collection');
   }
 
   if (link.expiresAt && new Date() > link.expiresAt) {
-    const error = new Error('Shared collection link has expired');
-    (error as any).statusCode = 410;
-    throw error;
+    throw new GoneError('Shared collection link has expired');
   }
 
   return link.collection;
