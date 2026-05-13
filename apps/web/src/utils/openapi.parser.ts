@@ -1,3 +1,4 @@
+import yaml from 'js-yaml';
 import { HttpMethod, type KeyValuePair, type RequestAuth } from '@/types';
 
 export interface ParsedEndpoint {
@@ -39,10 +40,20 @@ export function parseOpenAPI(input: string | object): ParsedOpenAPI {
   let spec: any;
 
   if (typeof input === 'string') {
-    try {
-      spec = JSON.parse(input);
-    } catch {
-      throw new OpenAPIParseError('Input is not valid JSON. YAML is not supported — convert to JSON first.');
+    const trimmed = input.trim();
+    const looksLikeJson = trimmed.startsWith('{') || trimmed.startsWith('[');
+    if (looksLikeJson) {
+      try {
+        spec = JSON.parse(trimmed);
+      } catch (err) {
+        throw new OpenAPIParseError(`Invalid JSON: ${err instanceof Error ? err.message : 'parse error'}`);
+      }
+    } else {
+      try {
+        spec = yaml.load(trimmed);
+      } catch (err) {
+        throw new OpenAPIParseError(`Invalid YAML: ${err instanceof Error ? err.message : 'parse error'}`);
+      }
     }
   } else {
     spec = input;

@@ -16,6 +16,7 @@ import { usePlaygroundEnvironment } from '@/hooks/usePlaygroundEnvironment';
 import { useToast } from '@/hooks/useToast';
 import { saveGuestLastRequest } from '@/utils/playground.storage';
 import type { ParsedCurl } from '@/utils/curl.parser';
+import { toCurl } from '@/utils/curl.generator';
 
 export default function PlaygroundPage() {
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -200,6 +201,15 @@ export default function PlaygroundPage() {
               onUrlChange={setUrl}
               onSend={sendRequest}
               onCurlImport={() => setIsCurlModalOpen(true)}
+              onCurlExport={async () => {
+                const curlString = toCurl({ method, url, headers, params, body, auth });
+                try {
+                  await navigator.clipboard.writeText(curlString);
+                  showToast('Copied as cURL', 'success');
+                } catch {
+                  showToast('Failed to copy to clipboard', 'error');
+                }
+              }}
               environments={environments}
               activeEnvironment={activeEnvironment}
               onEnvironmentSelect={setActiveEnvironment}

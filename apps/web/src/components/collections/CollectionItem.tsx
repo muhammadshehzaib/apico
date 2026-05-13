@@ -13,6 +13,7 @@ interface CollectionItemProps {
   onToggle: () => void;
   onRename: () => void;
   onDelete: () => void;
+  onRun?: () => void;
   onLoadRequest: (request: SavedRequest) => void;
   onRenameRequest: (request: SavedRequest) => void;
   onDeleteRequest: (request: SavedRequest) => void;
@@ -36,6 +37,7 @@ export function CollectionItem({
   onToggle,
   onRename,
   onDelete,
+  onRun,
   onLoadRequest,
   onRenameRequest,
   onDeleteRequest,
@@ -132,6 +134,18 @@ export function CollectionItem({
       {showMenu && !showConfirm && (
         <div className="flex justify-end pr-1">
           <div className="bg-bg-secondary/95 border border-stroke rounded-md shadow-[0_20px_50px_rgba(0,0,0,0.45)] min-w-max backdrop-blur">
+            {onRun && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRun();
+                  setShowMenu(false);
+                }}
+                className="block w-full text-left px-4 py-2 text-accent hover:bg-bg-tertiary/60 text-sm transition-colors"
+              >
+                ▶ Run all
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation();

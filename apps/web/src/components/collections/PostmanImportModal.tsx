@@ -4,34 +4,27 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import {
-  parseOpenAPI,
-  OpenAPIParseError,
-  type ParsedOpenAPI,
-  type ParsedEndpoint,
-} from '@/utils/openapi.parser';
+  parsePostman,
+  PostmanParseError,
+  type ParsedPostmanCollection,
+  type ParsedPostmanRequest,
+} from '@/utils/postman.parser';
 
-interface OpenAPIImportModalProps {
+interface PostmanImportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onImport: (collectionName: string, endpoints: ParsedEndpoint[]) => Promise<void>;
+  onImport: (collectionName: string, requests: ParsedPostmanRequest[]) => Promise<void>;
 }
 
-type SourceMode = 'paste' | 'url';
-
-export function OpenAPIImportModal({ isOpen, onClose, onImport }: OpenAPIImportModalProps) {
-  const [mode, setMode] = useState<SourceMode>('paste');
+export function PostmanImportModal({ isOpen, onClose, onImport }: PostmanImportModalProps) {
   const [rawInput, setRawInput] = useState('');
-  const [urlInput, setUrlInput] = useState('');
   const [collectionName, setCollectionName] = useState('');
-  const [fetchingUrl, setFetchingUrl] = useState(false);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setMode('paste');
       setRawInput('');
-      setUrlInput('');
       setCollectionName('');
       setError(null);
     }
@@ -45,11 +38,10 @@ export function OpenAPIImportModal({ isOpen, onClose, onImport }: OpenAPIImportM
     return () => document.removeEventListener('keydown', handler);
   }, [isOpen, onClose]);
 
-  const parsed = useMemo<ParsedOpenAPI | null>(() => {
+  const parsed = useMemo<ParsedPostmanCollection | null>(() => {
     if (!rawInput.trim()) return null;
     try {
-      const result = parseOpenAPI(rawInput);
-      return result;
+      return parsePostman(rawInput);
     } catch {
       return null;
     }
@@ -58,50 +50,34 @@ export function OpenAPIImportModal({ isOpen, onClose, onImport }: OpenAPIImportM
   const parseError = useMemo<string | null>(() => {
     if (!rawInput.trim()) return null;
     try {
-      parseOpenAPI(rawInput);
+      parsePostman(rawInput);
       return null;
     } catch (err) {
-      if (err instanceof OpenAPIParseError) return err.message;
+      if (err instanceof PostmanParseError) return err.message;
       return err instanceof Error ? err.message : 'Unknown parse error';
     }
   }, [rawInput]);
 
   useEffect(() => {
     if (parsed && !collectionName) {
-      setCollectionName(parsed.title);
+      setCollectionName(parsed.name);
     }
   }, [parsed, collectionName]);
 
-  const handleFetchUrl = async () => {
-    if (!urlInput.trim()) {
-      setError('Enter a URL');
-      return;
-    }
-    setError(null);
-    setFetchingUrl(true);
-    try {
-      const res = await fetch(urlInput.trim());
-      if (!res.ok) {
-        setError(`Fetch failed: HTTP ${res.status}`);
-        return;
-      }
-      const text = await res.text();
-      setRawInput(text);
-      setMode('paste');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Fetch failed');
-    } finally {
-      setFetchingUrl(false);
-    }
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    setRawInput(text);
   };
 
   const handleImport = async () => {
     if (!parsed) return;
-    const name = collectionName.trim() || parsed.title;
+    const name = collectionName.trim() || parsed.name;
     setImporting(true);
     setError(null);
     try {
-      await onImport(name, parsed.endpoints);
+      await onImport(name, parsed.requests);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed');
@@ -121,9 +97,9 @@ export function OpenAPIImportModal({ isOpen, onClose, onImport }: OpenAPIImportM
           {/* Header */}
           <div className="p-6 border-b border-bg-tertiary flex items-center justify-between flex-shrink-0">
             <div>
-              <h2 className="text-xl font-bold text-text-primary">Import from OpenAPI</h2>
+              <h2 className="text-xl font-bold text-text-primary">Import from Postman</h2>
               <p className="text-xs text-text-muted mt-1">
-                Supports OpenAPI 3.x and Swagger 2.0 — JSON or YAML
+                Supports Postman Collection v2.0 and v2.1 — pre-request and test scripts are preserved
               </p>
             </div>
             <button
@@ -134,69 +110,36 @@ export function OpenAPIImportModal({ isOpen, onClose, onImport }: OpenAPIImportM
             </button>
           </div>
 
-          {/* Mode tabs */}
-          <div className="flex border-b border-bg-tertiary flex-shrink-0">
-            <button
-              onClick={() => setMode('paste')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                mode === 'paste'
-                  ? 'text-text-primary border-b-2 border-accent'
-                  : 'text-text-muted hover:text-text-primary'
-              }`}
-            >
-              Paste JSON
-            </button>
-            <button
-              onClick={() => setMode('url')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                mode === 'url'
-                  ? 'text-text-primary border-b-2 border-accent'
-                  : 'text-text-muted hover:text-text-primary'
-              }`}
-            >
-              From URL
-            </button>
-          </div>
-
           {/* Content */}
           <div className="flex-1 overflow-auto p-6 space-y-4">
-            {mode === 'url' && (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-text-primary">
-                  OpenAPI spec URL
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    placeholder="https://api.example.com/openapi.json"
-                    className="flex-1 bg-bg-primary border border-bg-tertiary rounded px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
-                  />
-                  <Button onClick={handleFetchUrl} disabled={fetchingUrl}>
-                    {fetchingUrl ? 'Fetching…' : 'Fetch'}
-                  </Button>
-                </div>
-                <p className="text-xs text-text-muted">
-                  The server must allow CORS, or paste the JSON manually instead.
-                </p>
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                Upload exported `.postman_collection.json` file
+              </label>
+              <input
+                type="file"
+                accept=".json,application/json"
+                onChange={handleFileSelect}
+                className="block w-full text-sm text-text-muted file:mr-3 file:py-2 file:px-4 file:rounded file:border-0 file:bg-accent file:text-white file:cursor-pointer hover:file:bg-accent/80"
+              />
+              <p className="text-xs text-text-muted mt-2">
+                In Postman: right-click a collection → Export → Collection v2.1 → download.
+              </p>
+            </div>
 
-            {mode === 'paste' && (
-              <div>
-                <label className="block text-sm font-medium text-text-primary mb-2">
-                  Paste your OpenAPI/Swagger spec (JSON or YAML)
-                </label>
-                <textarea
-                  autoFocus
-                  value={rawInput}
-                  onChange={(e) => setRawInput(e.target.value)}
-                  placeholder={'{ "openapi": "3.0.0", ... }\n— or —\nopenapi: 3.0.0\ninfo:\n  title: ...'}
-                  className="w-full h-48 bg-bg-primary border border-bg-tertiary rounded px-3 py-2 text-xs font-mono text-text-primary focus:outline-none focus:border-accent resize-none"
-                />
-              </div>
-            )}
+            <div className="text-xs text-text-muted text-center">— or —</div>
+
+            <div>
+              <label className="block text-sm font-medium text-text-primary mb-2">
+                Paste the collection JSON
+              </label>
+              <textarea
+                value={rawInput}
+                onChange={(e) => setRawInput(e.target.value)}
+                placeholder='{ "info": { "name": "...", "schema": "...v2.1.0..." }, "item": [...] }'
+                className="w-full h-40 bg-bg-primary border border-bg-tertiary rounded px-3 py-2 text-xs font-mono text-text-primary focus:outline-none focus:border-accent resize-none"
+              />
+            </div>
 
             {parseError && (
               <div className="bg-red-500/10 border border-red-500/40 rounded px-3 py-2 text-sm text-red-400">
@@ -209,17 +152,14 @@ export function OpenAPIImportModal({ isOpen, onClose, onImport }: OpenAPIImportM
                 <div className="bg-bg-primary rounded p-3 border border-bg-tertiary">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm font-semibold text-text-primary">{parsed.title}</div>
+                      <div className="text-sm font-semibold text-text-primary">{parsed.name}</div>
                       <div className="text-xs text-text-muted">
-                        v{parsed.version}
-                        {parsed.baseUrl ? ` · ${parsed.baseUrl}` : ''}
+                        {parsed.folderCount} folder{parsed.folderCount === 1 ? '' : 's'}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-accent">
-                        {parsed.endpoints.length}
-                      </div>
-                      <div className="text-xs text-text-muted">endpoints</div>
+                      <div className="text-2xl font-bold text-accent">{parsed.requests.length}</div>
+                      <div className="text-xs text-text-muted">requests</div>
                     </div>
                   </div>
                 </div>
@@ -237,25 +177,28 @@ export function OpenAPIImportModal({ isOpen, onClose, onImport }: OpenAPIImportM
                 </div>
 
                 <div className="bg-bg-primary border border-bg-tertiary rounded max-h-48 overflow-auto">
-                  {parsed.endpoints.slice(0, 50).map((ep, i) => (
+                  {parsed.requests.slice(0, 50).map((req, i) => (
                     <div
                       key={i}
                       className="flex items-center gap-3 px-3 py-1.5 border-b border-bg-tertiary last:border-b-0"
                     >
                       <Badge variant="default" className="text-xs uppercase font-mono">
-                        {ep.method}
+                        {req.method}
                       </Badge>
-                      <span className="text-sm text-text-primary truncate flex-1">{ep.name}</span>
-                      {ep.tag && (
+                      <span className="text-sm text-text-primary truncate flex-1">{req.name}</span>
+                      {req.folderPath.length > 0 && (
                         <span className="text-xs text-text-muted bg-bg-tertiary px-2 py-0.5 rounded">
-                          {ep.tag}
+                          {req.folderPath[req.folderPath.length - 1]}
                         </span>
+                      )}
+                      {(req.preRequestScript || req.postResponseScript) && (
+                        <span className="text-xs text-accent" title="Has scripts">⚡</span>
                       )}
                     </div>
                   ))}
-                  {parsed.endpoints.length > 50 && (
+                  {parsed.requests.length > 50 && (
                     <div className="px-3 py-2 text-xs text-text-muted italic">
-                      + {parsed.endpoints.length - 50} more…
+                      + {parsed.requests.length - 50} more…
                     </div>
                   )}
                 </div>
@@ -278,7 +221,7 @@ export function OpenAPIImportModal({ isOpen, onClose, onImport }: OpenAPIImportM
               {importing
                 ? 'Importing…'
                 : parsed
-                  ? `Import ${parsed.endpoints.length} request${parsed.endpoints.length === 1 ? '' : 's'}`
+                  ? `Import ${parsed.requests.length} request${parsed.requests.length === 1 ? '' : 's'}`
                   : 'Import'}
             </Button>
           </div>
