@@ -108,6 +108,8 @@ export interface SavedRequest {
   params: KeyValuePair[];
   body?: string;
   auth?: RequestAuth;
+  preRequestScript?: string | null;
+  postResponseScript?: string | null;
   order?: number;
   tags?: Tag[];
   createdAt: string;

@@ -75,6 +75,8 @@ export const saveRequest = async (
     params: any;
     body?: string;
     auth?: any;
+    preRequestScript?: string;
+    postResponseScript?: string;
   },
   collectionId: string,
   userId: string
@@ -92,6 +94,8 @@ export const saveRequest = async (
     params: data.params,
     body: data.body,
     auth: data.auth,
+    preRequestScript: data.preRequestScript,
+    postResponseScript: data.postResponseScript,
     order,
   });
 };
@@ -126,6 +130,8 @@ export const updateSavedRequestService = async (
     params?: any;
     body?: string;
     auth?: any;
+    preRequestScript?: string;
+    postResponseScript?: string;
     collectionId?: string;
     order?: number;
   },

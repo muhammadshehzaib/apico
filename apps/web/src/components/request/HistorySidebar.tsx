@@ -94,6 +94,8 @@ export function HistorySidebar({
       const params = (currentRequest as any).params || [];
       const body = (currentRequest as any).body || '';
       const auth = (currentRequest as any).auth || { type: 'none' };
+      const preRequestScript = (currentRequest as any).preRequestScript || '';
+      const postResponseScript = (currentRequest as any).postResponseScript || '';
 
       const requestData: SaveRequestInput = {
         name,
@@ -103,6 +105,8 @@ export function HistorySidebar({
         params,
         body,
         auth,
+        preRequestScript,
+        postResponseScript,
       };
 
       await onSaveRequest(collectionId, requestData);

@@ -33,6 +33,8 @@ export const saveRequestSchema = z.object({
   params: z.array(keyValuePairSchema),
   body: z.string().optional(),
   auth: requestAuthSchema.optional(),
+  preRequestScript: z.string().optional(),
+  postResponseScript: z.string().optional(),
 });
 
 export type ExecuteRequestInput = z.infer<typeof executeRequestSchema>;

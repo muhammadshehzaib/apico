@@ -418,6 +418,8 @@ export function RequestBuilder() {
                 ? JSON.stringify({ __bodyType: 'form-data', fields: formDataFields })
                 : body,
               auth: auth,
+              preRequestScript: preRequestScript,
+              postResponseScript: postResponseScript,
             } as any}
             onSaveRequest={handleSaveRequest}
             pinnedRequestIds={pinnedRequestIds}
