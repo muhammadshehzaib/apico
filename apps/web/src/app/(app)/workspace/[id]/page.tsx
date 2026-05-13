@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
-import { workspaceService } from '@/services/workspace.service';
+import { useWorkspaceQuery, useInviteToWorkspaceMutation } from '@/hooks/queries/useWorkspaces';
+import { useCollectionsQuery, useCreateCollectionMutation } from '@/hooks/queries/useCollections';
 import { setActiveWorkspace } from '@/store/slices/workspace.slice';
-import { Workspace, Collection, WorkspaceRole } from '@/types';
+import { WorkspaceRole } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -22,37 +23,20 @@ export default function WorkspaceDetailPage() {
   const { user } = useAuth();
   const id = params.id as string;
 
-  const [workspace, setWorkspace] = useState<Workspace | null>(null);
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: workspace, isLoading: isWorkspaceLoading } = useWorkspaceQuery(id);
+  const { data: collections = [], isLoading: isCollectionsLoading } = useCollectionsQuery(id);
+  const createCollectionMutation = useCreateCollectionMutation();
+  const inviteMutation = useInviteToWorkspaceMutation();
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
-  const [isInviting, setIsInviting] = useState(false);
   const [isMembersOpen, setIsMembersOpen] = useState(false);
 
   useEffect(() => {
     dispatch(setActiveWorkspace(id));
   }, [id, dispatch]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [workspaceData, collectionsData] = await Promise.all([
-          workspaceService.getWorkspace(id),
-          workspaceService.getCollections(id),
-        ]);
-        setWorkspace(workspaceData);
-        setCollections(collectionsData);
-      } catch (error) {
-        console.error('Failed to fetch workspace:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [id]);
+  const isLoading = isWorkspaceLoading || isCollectionsLoading;
 
   if (isLoading) {
     return <SkeletonGroup type="full-page" count={3} />;
@@ -67,37 +51,21 @@ export default function WorkspaceDetailPage() {
   }
 
   const handleCreateCollection = async (name: string) => {
-    setIsCreating(true);
     try {
-      const created = await workspaceService.createCollection(id, name);
-      if (!created) {
-        throw new Error('Failed to create collection');
-      }
-      setCollections((prev) => [created, ...prev]);
+      await createCollectionMutation.mutateAsync({ workspaceId: id, name });
     } catch (error) {
       console.error('Failed to create collection:', error);
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Failed to create collection');
-    } finally {
-      setIsCreating(false);
+      throw error;
     }
   };
 
   const handleInvite = async (email: string, role: WorkspaceRole) => {
-    setIsInviting(true);
     try {
-      const result = await workspaceService.inviteToWorkspace(id, email, role);
+      const result = await inviteMutation.mutateAsync({ workspaceId: id, email, role });
       return result || null;
     } catch (error) {
       console.error('Failed to invite user:', error);
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Failed to send invite');
-    } finally {
-      setIsInviting(false);
+      throw error;
     }
   };
 
@@ -173,13 +141,13 @@ export default function WorkspaceDetailPage() {
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onConfirm={handleCreateCollection}
-        isLoading={isCreating}
+        isLoading={createCollectionMutation.isPending}
       />
       <InviteWorkspaceModal
         isOpen={isInviteOpen}
         onClose={() => setIsInviteOpen(false)}
         onConfirm={handleInvite}
-        isLoading={isInviting}
+        isLoading={inviteMutation.isPending}
       />
       <WorkspaceMembersModal
         isOpen={isMembersOpen}

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { workspaceService } from '@/services/workspace.service';
+import { useState } from 'react';
+import { useWorkspacesQuery, useCreateWorkspaceMutation } from '@/hooks/queries/useWorkspaces';
 import { Workspace } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
@@ -11,46 +11,20 @@ import { PendingInvitesBanner } from '@/components/workspace/PendingInvitesBanne
 import Link from 'next/link';
 
 export default function WorkspacesPage() {
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: workspaces = [], isLoading, refetch } = useWorkspacesQuery();
+  const createWorkspaceMutation = useCreateWorkspaceMutation();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-
-  useEffect(() => {
-    const fetchWorkspaces = async () => {
-      try {
-        const data = await workspaceService.getWorkspaces();
-        setWorkspaces(data);
-      } catch (error) {
-        console.error('Failed to fetch workspaces:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchWorkspaces();
-  }, []);
 
   if (isLoading) {
     return <SkeletonGroup type="full-page" count={3} />;
   }
 
   const handleCreateWorkspace = async (name: string) => {
-    setIsCreating(true);
     try {
-      const created = await workspaceService.createWorkspace(name);
-      if (!created) {
-        throw new Error('Failed to create workspace');
-      }
-      setWorkspaces((prev) => [created, ...prev]);
+      await createWorkspaceMutation.mutateAsync(name);
     } catch (error) {
       console.error('Failed to create workspace:', error);
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Failed to create workspace');
-    } finally {
-      setIsCreating(false);
+      throw error;
     }
   };
 
@@ -70,8 +44,7 @@ export default function WorkspacesPage() {
 
       <PendingInvitesBanner
         onInviteAccepted={async () => {
-          const data = await workspaceService.getWorkspaces();
-          setWorkspaces(data);
+          await refetch();
         }}
       />
 
@@ -113,7 +86,7 @@ export default function WorkspacesPage() {
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onConfirm={handleCreateWorkspace}
-        isLoading={isCreating}
+        isLoading={createWorkspaceMutation.isPending}
       />
     </div>
   );
