@@ -10,6 +10,8 @@ export const createSavedRequest = async (data: {
   params: any;
   body?: string;
   auth?: any;
+  preRequestScript?: string;
+  postResponseScript?: string;
   order?: number;
 }) => {
   return prisma.savedRequest.create({
@@ -63,6 +65,8 @@ export const updateSavedRequest = async (
     params?: any;
     body?: string;
     auth?: any;
+    preRequestScript?: string;
+    postResponseScript?: string;
     collectionId?: string;
     order?: number;
   }

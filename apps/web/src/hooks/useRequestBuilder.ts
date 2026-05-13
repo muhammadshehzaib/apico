@@ -206,6 +206,8 @@ export function useRequestBuilder() {
       bodyType,
       formDataFields,
       auth: request.auth || { type: 'none' },
+      preRequestScript: request.preRequestScript || '',
+      postResponseScript: request.postResponseScript || '',
       response: null,
       error: null,
       urlError: null,

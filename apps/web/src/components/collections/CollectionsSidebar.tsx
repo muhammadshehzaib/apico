@@ -13,8 +13,14 @@ import { CollectionItem } from './CollectionItem';
 import { CreateCollectionModal } from './CreateCollectionModal';
 import { CreateFolderModal } from './CreateFolderModal';
 import { ClearWorkspaceModal } from './ClearWorkspaceModal';
+import { OpenAPIImportModal } from './OpenAPIImportModal';
+import { PostmanImportModal } from './PostmanImportModal';
+import { CollectionRunnerModal } from './CollectionRunnerModal';
 import { RenameModal } from './RenameModal';
 import { RequestItem } from './RequestItem';
+import { useEnvironment } from '@/hooks/useEnvironment';
+import type { ParsedEndpoint } from '@/utils/openapi.parser';
+import type { ParsedPostmanRequest } from '@/utils/postman.parser';
 
 interface CollectionsSidebarProps {
   workspaceId: string | null;
@@ -47,6 +53,7 @@ export function CollectionsSidebar({
     fetchRequests,
     toggleExpand,
     createCollection,
+    saveRequest,
     renameCollection,
     deleteCollection,
     moveCollection,
@@ -95,7 +102,11 @@ export function CollectionsSidebar({
   const [expandedFolderIds, setExpandedFolderIds] = useState<Set<string>>(new Set());
   const [isImporting, setIsImporting] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [openApiModalOpen, setOpenApiModalOpen] = useState(false);
+  const [postmanModalOpen, setPostmanModalOpen] = useState(false);
+  const [runnerTarget, setRunnerTarget] = useState<CollectionWithRequests | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { activeVariables } = useEnvironment(workspaceId);
 
   const handleCreateCollection = async (name: string) => {
     setIsCreating(true);
@@ -578,6 +589,76 @@ export function CollectionsSidebar({
     fileInputRef.current?.click();
   };
 
+  const handlePostmanImport = async (collectionName: string, requests: ParsedPostmanRequest[]) => {
+    if (!workspaceId) {
+      showToast('No active workspace', 'error');
+      return;
+    }
+    const collection = await createCollection(collectionName);
+    if (!collection) {
+      throw new Error('Failed to create collection');
+    }
+    let succeeded = 0;
+    let failed = 0;
+    for (const req of requests) {
+      try {
+        await saveRequest(collection.id, {
+          name: req.name,
+          method: req.method,
+          url: req.url,
+          headers: req.headers,
+          params: req.params,
+          body: req.body,
+          auth: req.auth,
+          preRequestScript: req.preRequestScript,
+          postResponseScript: req.postResponseScript,
+        });
+        succeeded++;
+      } catch {
+        failed++;
+      }
+    }
+    if (failed === 0) {
+      showToast(`Imported ${succeeded} requests`, 'success');
+    } else {
+      showToast(`Imported ${succeeded}, failed ${failed}`, failed > succeeded ? 'error' : 'success');
+    }
+  };
+
+  const handleOpenAPIImport = async (collectionName: string, endpoints: ParsedEndpoint[]) => {
+    if (!workspaceId) {
+      showToast('No active workspace', 'error');
+      return;
+    }
+    const collection = await createCollection(collectionName);
+    if (!collection) {
+      throw new Error('Failed to create collection');
+    }
+    let succeeded = 0;
+    let failed = 0;
+    for (const ep of endpoints) {
+      try {
+        await saveRequest(collection.id, {
+          name: ep.name,
+          method: ep.method,
+          url: ep.url,
+          headers: ep.headers,
+          params: ep.params,
+          body: ep.body,
+          auth: ep.auth,
+        });
+        succeeded++;
+      } catch {
+        failed++;
+      }
+    }
+    if (failed === 0) {
+      showToast(`Imported ${succeeded} requests`, 'success');
+    } else {
+      showToast(`Imported ${succeeded}, failed ${failed}`, failed > succeeded ? 'error' : 'success');
+    }
+  };
+
   const handleImportFile = async (file: File) => {
     if (!workspaceId) return;
     setIsImporting(true);
@@ -649,6 +730,7 @@ export function CollectionsSidebar({
         onToggle={() => toggleExpand(collection.id)}
         onRename={() => handleRenameCollection(collection.id, collection.name)}
         onDelete={() => handleDeleteCollection(collection.id)}
+        onRun={() => setRunnerTarget(collection)}
         onLoadRequest={onLoadRequest}
         onRenameRequest={(request) => handleRenameRequest(request, collection.id)}
         onDeleteRequest={(request) => handleDeleteRequest(request, collection.id)}
@@ -770,6 +852,20 @@ export function CollectionsSidebar({
             disabled={isImporting}
           >
             {isImporting ? 'Importing...' : 'Import'}
+          </button>
+          <button
+            onClick={() => setOpenApiModalOpen(true)}
+            className="text-text-muted hover:text-text-primary text-xs transition-colors border border-stroke rounded-md px-2 py-1"
+            title="Import from OpenAPI / Swagger spec"
+          >
+            OpenAPI
+          </button>
+          <button
+            onClick={() => setPostmanModalOpen(true)}
+            className="text-text-muted hover:text-text-primary text-xs transition-colors border border-stroke rounded-md px-2 py-1"
+            title="Import from Postman collection (v2.0/v2.1)"
+          >
+            Postman
           </button>
           <button
             onClick={() => setClearModalOpen(true)}
@@ -935,6 +1031,28 @@ export function CollectionsSidebar({
         onConfirm={handleCreateCollection}
         isLoading={isCreating}
       />
+
+      <OpenAPIImportModal
+        isOpen={openApiModalOpen}
+        onClose={() => setOpenApiModalOpen(false)}
+        onImport={handleOpenAPIImport}
+      />
+
+      <PostmanImportModal
+        isOpen={postmanModalOpen}
+        onClose={() => setPostmanModalOpen(false)}
+        onImport={handlePostmanImport}
+      />
+
+      {runnerTarget && (
+        <CollectionRunnerModal
+          isOpen={!!runnerTarget}
+          onClose={() => setRunnerTarget(null)}
+          collectionName={runnerTarget.name}
+          requests={runnerTarget.requests}
+          environmentVars={activeVariables}
+        />
+      )}
 
       <CreateFolderModal
         isOpen={createFolderOpen}

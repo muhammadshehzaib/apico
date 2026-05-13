@@ -93,18 +93,20 @@ model Collection {
 }
 
 model SavedRequest {
-  id           String       @id @default(cuid())
-  name         String
-  collectionId String
-  method       HttpMethod
-  url          String
-  headers      Json         @default("[]")
-  params       Json         @default("[]")
-  body         String?      @db.Text
-  auth         Json?
-  order        Int          @default(0)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id                 String       @id @default(cuid())
+  name               String
+  collectionId       String
+  method             HttpMethod
+  url                String
+  headers            Json         @default("[]")
+  params             Json         @default("[]")
+  body               String?      @db.Text
+  auth               Json?
+  preRequestScript   String?      @db.Text
+  postResponseScript String?      @db.Text
+  order              Int          @default(0)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
   collection   Collection   @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   sharedLinks  SharedLink[]
   tags         RequestTag[]
