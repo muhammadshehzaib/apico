@@ -1,6 +1,6 @@
 # Apico
 
-> An open-source REST API testing tool — built as a full-stack TypeScript project to demonstrate production-grade engineering practices.
+> An open-source REST API testing tool — built as a full-stack TypeScript project to demonstrate production-grade engineering practices.    
 
 <!-- Add a GIF/screenshot of the app here -->
 <!-- ![Apico Demo](docs/demo.gif) -->
