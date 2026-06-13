@@ -1,27 +1,24 @@
-# Apico
+# Apico ⚡
 
-> An open-source REST API testing tool — built as a full-stack TypeScript project to demonstrate production-grade engineering practices.
+> A privacy-first, open-source API workspace built for developer velocity. Self-hostable, keyboard-centric, and engineered with absolute production-grade full-stack standards.
 
-<!-- Add a GIF/screenshot of the app here -->
-<!-- ![Apico Demo](docs/demo.gif) -->
+---
 
-## Why I Built This
+## 🚀 Why Apico Exists
 
-Postman is great, but it's closed-source, increasingly bloated, and requires a cloud account for basic features. I built Apico to solve that — a self-hostable, keyboard-friendly API client where your data stays on your own infrastructure.
+Modern API clients are becoming increasingly bloated, slow, and cloud-locked—often forcing users to register accounts just to run a basic request, and silently syncing sensitive client payloads or authentication headers to third-party servers.
 
-Beyond the product goal, this project was a deliberate exercise in building production-quality software: proper error handling, structured logging, rate limiting, database indexing, CI/CD, and test coverage across both frontend and backend.
+**Apico solves this.** It is a lightweight, secure, and keyboard-friendly alternative where your environment secrets and API data stay completely under your control. 
 
-## Features
+Beyond its utility, Apico was designed to showcase **elite systems engineering practices**: strict database indexing, stateless authentication scaling, secure backend request proxying, and thorough automated test suites across both frontend and backend.
 
-- **Request Builder** — HTTP methods, params, headers, body (JSON/form-data/raw), auth (Bearer, Basic, API Key)
-- **Response Viewer** — Syntax-highlighted JSON, headers, response diff across history
-- **Collections & Folders** — Hierarchical organisation with drag-and-drop reordering
-- **Environment Variables** — `{{VARIABLE}}` syntax with per-workspace environments and secret masking
-- **Request History** — Auto-saved execution history per user
-- **Workspaces** — Multi-tenant with Owner / Editor / Viewer RBAC
-- **Invite System** — Email invites with token-based acceptance, 7-day expiry
-- **Sharing** — Public share links for individual requests and collections (with optional expiry)
-- **Import** — Import collections from `.apico` export format
+## ✨ High-Impact Features
+
+* **⚡ Advanced HTTP Client:** Complete support for REST methods, headers, query parameters, and raw, JSON, or form-data payloads.
+* **🔒 Dynamic Environment Interpolation:** Securely scope, mask, and inject variable values using clean `{{VARIABLE}}` syntax, isolating local, staging, and production states.
+* **👥 Multi-Tenant Team Workspaces:** Secure collaboration with granular Role-Based Access Control (RBAC) (Owner, Editor, Viewer) and secure token-based email invite flows.
+* **🌐 Secure Backend Proxying:** Integrated Node.js proxy to handle client request execution, bypassing CORS restrictions safely and isolating sensitive request contexts.
+* **🧪 Zero-Auth Sandbox:** A fast guest playground mode that lets developers instantly test requests without committing to database overhead.
 
 ## Architecture
 
