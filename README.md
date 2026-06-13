@@ -2,7 +2,26 @@
 
 > A privacy-first, open-source API workspace built for developer velocity. Self-hostable, keyboard-centric, and engineered with absolute production-grade full-stack standards.
 
----
+<p align="center">
+  <a href="https://apicomain.netlify.app/"><img src="https://img.shields.io/badge/Live%20Demo-Visit-2ea44f?style=for-the-badge&logo=netlify&logoColor=white" alt="Live Demo"></a>
+  <a href="https://github.com/muhammadshehzaib/apico"><img src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js%2016-000000?logo=nextdotjs&logoColor=white" alt="Next.js 16">
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Express-000000?logo=express&logoColor=white" alt="Express">
+  <img src="https://img.shields.io/badge/Prisma-2D3748?logo=prisma&logoColor=white" alt="Prisma">
+  <img src="https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/Playwright-2EAD33?logo=playwright&logoColor=white" alt="Playwright">
+</p>
+
+> 📸 **Add a screenshot / demo GIF here.** Drop an image at `docs/demo.gif` and uncomment the block below.
+<!--
+<p align="center">
+  <img src="docs/demo.gif" alt="Apico demo" width="850">
+</p>
+-->
 
 ## 🚀 Why Apico Exists
 
@@ -65,7 +84,7 @@ Beyond its utility, Apico was designed to showcase **elite systems engineering p
 ### Docker (recommended — 2 minutes)
 
 ```bash
-git clone https://github.com/yourusername/apico.git
+git clone https://github.com/muhammadshehzaib/apico.git
 cd apico
 
 # Copy env template and set your JWT secrets
