@@ -19,7 +19,7 @@ const methodColors: Record<HttpMethod, string> = {
 
 export default function HistoryPage() {
   const router = useRouter();
-  const { history, isLoading, fetchHistory, deleteEntry, clearAll } = useRequestHistory();
+  const { history, isLoading, fetchHistory, deleteHistoryEntry, clearHistory } = useRequestHistory();
 
   useEffect(() => {
     fetchHistory();
@@ -35,7 +35,7 @@ export default function HistoryPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-semibold font-heading">History</h1>
         <button
-          onClick={clearAll}
+          onClick={clearHistory}
           className="text-text-muted hover:text-danger text-sm font-medium transition-colors"
           disabled={history.length === 0}
         >
@@ -84,7 +84,7 @@ export default function HistoryPage() {
                   </div>
                 </button>
                 <button
-                  onClick={() => deleteEntry(item.id)}
+                  onClick={() => deleteHistoryEntry(item.id)}
                   className="p-2 text-text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity"
                   title="Remove from history"
                 >

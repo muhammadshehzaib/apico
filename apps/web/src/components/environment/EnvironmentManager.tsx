@@ -13,7 +13,7 @@ interface EnvironmentManagerProps {
   environments: (Environment | GuestEnvironment)[];
   activeEnvironmentId: string | null;
   onSelectEnvironment: (id: string) => void;
-  onCreateEnvironment: (name: string) => Promise<{ id: string }> | { id: string };
+  onCreateEnvironment: (name: string) => Promise<{ id: string } | null> | { id: string } | null;
   onUpdateEnvironment: (id: string, name: string) => Promise<void> | void;
   onDeleteEnvironment: (id: string) => Promise<void>;
   onSaveVariables: (environmentId: string, variables: EnvironmentVariable[]) => Promise<void>;
@@ -69,8 +69,10 @@ export function EnvironmentManager({
     setIsCreating(true);
     try {
       const env = await onCreateEnvironment(name);
-      setSelectedEnvId(env.id);
-      onSelectEnvironment(env.id);
+      if (env) {
+        setSelectedEnvId(env.id);
+        onSelectEnvironment(env.id);
+      }
     } finally {
       setIsCreating(false);
     }

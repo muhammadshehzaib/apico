@@ -106,7 +106,8 @@ export function CollectionsSidebar({
   const [postmanModalOpen, setPostmanModalOpen] = useState(false);
   const [runnerTarget, setRunnerTarget] = useState<CollectionWithRequests | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { activeVariables } = useEnvironment(workspaceId);
+  const { activeEnvironment } = useEnvironment(workspaceId);
+  const activeVariables = activeEnvironment?.variables ?? [];
 
   const handleCreateCollection = async (name: string) => {
     setIsCreating(true);
@@ -666,9 +667,9 @@ export function CollectionsSidebar({
       const text = await file.text();
       const payload = JSON.parse(text);
       await workspaceService.importApico(workspaceId, payload);
-      await fetchCollections(workspaceId);
-      await fetchFolders(workspaceId);
-      await fetchTags(workspaceId);
+      await fetchCollections();
+      await fetchFolders();
+      await fetchTags();
       showToast('Import completed', 'success');
     } catch (err) {
       showToast('Failed to import file', 'error');
@@ -686,9 +687,9 @@ export function CollectionsSidebar({
     setIsClearing(true);
     try {
       const result = await workspaceService.clearWorkspaceData(workspaceId);
-      await fetchCollections(workspaceId);
-      await fetchFolders(workspaceId);
-      await fetchTags(workspaceId);
+      await fetchCollections();
+      await fetchFolders();
+      await fetchTags();
       if (result) {
         showToast(
           `Cleared ${result.collectionsDeleted} collections, ${result.foldersDeleted} folders, ${result.tagsDeleted} tags`,

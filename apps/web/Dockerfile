@@ -1,35 +1,38 @@
-# Build stage
+# syntax=docker/dockerfile:1
+
+# ---------- Build stage ----------
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy root package files
-COPY package*.json ./
+# NEXT_PUBLIC_* values are inlined into the client bundle at BUILD time,
+# so the API URL must be provided here as a build arg (not at runtime).
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
-# Copy web app package files
-COPY apps/web/package*.json ./apps/web/
-
-# Install dependencies
+# Install deps using the web app's own lockfile (no root workspace needed)
+COPY apps/web/package*.json ./
 RUN npm ci
 
-# Copy web app source
-COPY apps/web ./apps/web
+# Build the standalone Next.js output (next.config.ts has output: 'standalone')
+COPY apps/web ./
+RUN npm run build
 
-# Build the app
-RUN npm run build -w apps/web
-
-# Production stage
+# ---------- Production stage ----------
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy necessary files from builder
-COPY --from=builder /app/apps/web/.next/standalone ./
-COPY --from=builder /app/apps/web/.next/static ./.next/static
-COPY --from=builder /app/apps/web/public ./public
+ENV NODE_ENV=production
+ENV PORT=3000
+# Listen on all interfaces inside the container so the reverse proxy can reach it
+ENV HOSTNAME=0.0.0.0
 
-# Expose port
+# Copy the self-contained standalone server + static assets
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
 EXPOSE 3000
 
-# Start the app
 CMD ["node", "server.js"]

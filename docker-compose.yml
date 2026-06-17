@@ -4,8 +4,8 @@ services:
   mysql:
     image: mysql:8.0
     container_name: apico-mysql
-    ports:
-      - "3306:3306"
+    # Not published to the host — only reachable by other containers on this
+    # compose network. Keeps the database off the public VPS IP.
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: apico
@@ -26,8 +26,9 @@ services:
       context: .
       dockerfile: ./api/Dockerfile
     container_name: apico-api
+    # Bound to localhost only; the reverse proxy on the host forwards to it.
     ports:
-      - "${API_PORT:-5000}:5000"
+      - "127.0.0.1:${API_PORT:-5000}:5000"
     environment:
       NODE_ENV: production
       DATABASE_URL: mysql://apico:${MYSQL_PASSWORD:-apico_password}@mysql:3306/apico
@@ -39,6 +40,12 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       WEB_APP_URL: ${WEB_APP_URL:-http://localhost:3000}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Optional SMTP for workspace-invite emails (left empty = disabled)
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-}
     depends_on:
       mysql:
         condition: service_healthy
@@ -54,11 +61,13 @@ services:
     build:
       context: .
       dockerfile: ./apps/web/Dockerfile
+      args:
+        # NEXT_PUBLIC_* is baked in at build time — must be set here, not below.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000/api/v1}
     container_name: apico-web
+    # Bound to localhost only; the reverse proxy on the host forwards to it.
     ports:
-      - "${WEB_PORT:-3000}:3000"
-    environment:
-      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:5000/api/v1}
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
     depends_on:
       api:
         condition: service_healthy
