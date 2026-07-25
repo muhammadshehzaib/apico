@@ -16,13 +16,6 @@
   <img src="https://img.shields.io/badge/Playwright-2EAD33?logo=playwright&logoColor=white" alt="Playwright">
 </p>
 
-> 📸 **Add a screenshot / demo GIF here.** Drop an image at `docs/demo.gif` and uncomment the block below.
-<!--
-<p align="center">
-  <img src="docs/demo.gif" alt="Apico demo" width="850">
-</p>
--->
-
 ## 🚀 Why Apico Exists
 
 Modern API clients are becoming increasingly bloated, slow, and cloud-locked—often forcing users to register accounts just to run a basic request, and silently syncing sensitive client payloads or authentication headers to third-party servers.
