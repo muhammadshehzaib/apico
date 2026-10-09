@@ -39,6 +39,16 @@ Beyond its utility, Apico was designed to showcase **elite systems engineering p
 * **🌐 Secure Backend Proxying:** Integrated Node.js proxy to handle client request execution, bypassing CORS restrictions safely and isolating sensitive request contexts.
 * **🧪 Zero-Auth Sandbox:** A fast guest playground mode that lets developers instantly test requests without committing to database overhead.
 
+### Additional protocol clients
+
+Open **Request** and choose **GraphQL**, **gRPC**, or **WebSocket** from the protocol bar.
+
+- **GraphQL:** Enter an HTTP(S) endpoint, query or mutation, JSON variables, and optional JSON headers. The existing Apico request proxy sends the POST request and shows the full HTTP response, including GraphQL errors in its body.
+- **gRPC:** Paste a self-contained `.proto` definition, enter a `host:port`, package-qualified service name, unary method, JSON message, and optional string metadata. The Apico backend makes the call with a 10-second deadline. Enable TLS for secure endpoints. This client currently supports unary calls; imported `.proto` files, server reflection, and streaming RPCs are not supported.
+- **WebSocket:** Enter a `ws://` or `wss://` URL, connect, send text messages, and inspect a live transcript. The browser opens the connection directly, so browser restrictions apply and custom handshake headers are unavailable.
+
+GraphQL and WebSocket need no extra server setup. gRPC requires the API server to be able to reach the target host, and the gRPC endpoint requires an authenticated Apico user.
+
 ## Architecture
 
 ```

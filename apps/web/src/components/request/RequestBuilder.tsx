@@ -23,8 +23,12 @@ import { useCollections } from '@/hooks/useCollections';
 import { CommandPalette, CommandPaletteItem } from '@/components/ui/CommandPalette';
 import { PinnedTabs } from '@/components/request/PinnedTabs';
 import { EnvironmentManager } from '@/components/environment/EnvironmentManager';
+import { ProtocolWorkbench } from './ProtocolWorkbench';
+
+type Protocol = 'HTTP' | 'GraphQL' | 'gRPC' | 'WebSocket';
 
 export function RequestBuilder() {
+  const [protocol, setProtocol] = useState<Protocol>('HTTP');
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [isCurlModalOpen, setIsCurlModalOpen] = useState(false);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
@@ -396,6 +400,24 @@ export function RequestBuilder() {
     return [...requestItems, ...collectionItems];
   })();
 
+  const protocolNav = (
+    <div className="flex gap-1 border-b border-bg-tertiary bg-bg-secondary px-4 py-2" aria-label="Request protocol">
+      {(['HTTP', 'GraphQL', 'gRPC', 'WebSocket'] as const).map((item) => (
+        <button key={item} type="button" onClick={() => setProtocol(item)}
+          className={`rounded px-3 py-1.5 text-sm ${protocol === item ? 'bg-accent text-white' : 'text-text-muted hover:text-text-primary'}`}>
+          {item}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (protocol !== 'HTTP') {
+    return <div className="flex h-screen flex-col bg-bg-primary">
+      {protocolNav}
+      <ProtocolWorkbench protocol={protocol} />
+    </div>;
+  }
+
   return (
     <div className="flex h-screen bg-bg-primary">
       <div
@@ -435,6 +457,7 @@ export function RequestBuilder() {
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
+        {protocolNav}
         <ErrorBoundary>
           <UrlBar
             method={method}

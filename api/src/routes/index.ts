@@ -10,6 +10,7 @@ import environmentRoutes from './environment.routes';
 import workspaceInviteRoutes from './workspaceInvite.routes';
 import folderRoutes from './folder.routes';
 import tagRoutes from './tag.routes';
+import grpcRoutes from './grpc.routes';
 
 const router = Router();
 
@@ -46,6 +47,7 @@ router.use('/workspaces/:workspaceId/environments', environmentRoutes);
 router.use('/workspaces/:workspaceId/tags', tagRoutes);
 router.use('/collections', collectionRoutes);
 router.use('/requests', requestRoutes);
+router.use('/grpc', grpcRoutes);
 router.use('/history', historyRoutes);
 router.use('/environments', environmentRoutes);
 router.use('/workspace-invites', workspaceInviteRoutes);
