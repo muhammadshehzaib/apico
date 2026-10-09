@@ -89,6 +89,7 @@ export function ProtocolWorkbench({ protocol }: { protocol: Protocol }) {
       };
       const response = await apiService.post<{ response: unknown; duration: number }>('/grpc/call', input);
       const data = response.data.data;
+      if (!data) throw new Error('The gRPC server returned an empty response');
       setResult(`${data.duration} ms\n\n${JSON.stringify(data.response, null, 2)}`);
     } catch (cause) { setError(errorText(cause)); }
     finally { setBusy(false); }
