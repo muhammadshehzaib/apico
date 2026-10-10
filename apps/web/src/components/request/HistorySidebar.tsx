@@ -263,7 +263,7 @@ export function HistorySidebar({
       </div>
 
       {/* Collections Section */}
-      <div className="flex-1 overflow-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
         <CollectionsSidebar
           workspaceId={activeWorkspaceId}
           onLoadRequest={onLoadRequest}

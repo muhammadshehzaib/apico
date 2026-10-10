@@ -64,7 +64,7 @@ export function RequestItem({
   return (
     <div
       onClick={onLoad}
-      className="flex items-center gap-2 px-3 py-2 h-8 pl-8 rounded-md hover:bg-bg-tertiary/60 transition-colors cursor-pointer group relative border border-transparent hover:border-stroke/60"
+      className="flex min-w-0 items-center gap-2 px-2 py-2 min-h-8 rounded-md hover:bg-bg-tertiary/60 transition-colors cursor-pointer group relative border border-transparent hover:border-stroke/60"
       draggable={!!onDragStart}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -85,7 +85,7 @@ export function RequestItem({
         {request.method}
       </span>
 
-      <span className="text-xs font-mono text-text-primary truncate flex-1">
+      <span title={request.name} className="min-w-0 flex-1 text-xs font-mono text-text-primary line-clamp-2 break-words [overflow-wrap:anywhere]">
         {request.name}
       </span>
 

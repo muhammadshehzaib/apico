@@ -806,7 +806,7 @@ export function CollectionsSidebar({
           <span className="text-sm text-text-muted flex-shrink-0">🗂</span>
           <button
             onClick={() => toggleFolder(folder.id)}
-            className="flex-1 text-left text-sm font-medium text-text-primary hover:text-text-primary transition-colors"
+            className="min-w-0 flex-1 py-1 text-left text-sm font-medium text-text-primary hover:text-text-primary transition-colors line-clamp-2 break-words [overflow-wrap:anywhere]"
           >
             {folder.name}
           </button>
@@ -872,16 +872,44 @@ export function CollectionsSidebar({
   const rootCollections = collectionsByFolder.get(null) || [];
 
   return (
-    <div className="p-4 space-y-4" onDragEnd={clearDrag}>
+    <div className="min-w-0 p-4 space-y-4" onDragEnd={clearDrag}>
       <Toast {...toastProps} />
-      <div className="flex items-center justify-between">
-        <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em]">
-          Collections
-        </h3>
-        <div className="flex items-center gap-2">
+      <div className="space-y-2">
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em]">
+            Collections
+          </h3>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={() => setCreateFolderOpen(true)}
+              className="text-text-muted hover:text-text-primary text-sm transition-colors"
+              title="Create folder"
+            >
+              +📁
+            </button>
+            <button
+              onClick={() => setCreateModalOpen(true)}
+              className="text-accent hover:text-accentSoft font-bold text-lg transition-colors"
+              title="Create collection"
+            >
+              +
+            </button>
+            <button
+              onClick={() => setBulkMode((prev) => !prev)}
+              className={`text-xs px-2 py-1 rounded-md border ${
+                bulkMode
+                  ? 'bg-accent/20 text-accent border-accent/40'
+                  : 'bg-bg-tertiary/60 text-text-muted border-stroke'
+              }`}
+            >
+              Bulk
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-1" aria-label="Collection imports and cleanup">
           <button
             onClick={handleImportClick}
-            className="text-text-muted hover:text-text-primary text-xs transition-colors border border-stroke rounded-md px-2 py-1"
+            className="text-text-muted hover:text-text-primary text-[10px] transition-colors border border-stroke rounded-md px-1 py-1.5"
             title="Import Apico JSON"
             disabled={isImporting}
           >
@@ -889,49 +917,25 @@ export function CollectionsSidebar({
           </button>
           <button
             onClick={() => setOpenApiModalOpen(true)}
-            className="text-text-muted hover:text-text-primary text-xs transition-colors border border-stroke rounded-md px-2 py-1"
+            className="text-text-muted hover:text-text-primary text-[10px] transition-colors border border-stroke rounded-md px-1 py-1.5"
             title="Import from OpenAPI / Swagger spec"
           >
             OpenAPI
           </button>
           <button
             onClick={() => setPostmanModalOpen(true)}
-            className="text-text-muted hover:text-text-primary text-xs transition-colors border border-stroke rounded-md px-2 py-1"
+            className="text-text-muted hover:text-text-primary text-[10px] transition-colors border border-stroke rounded-md px-1 py-1.5"
             title="Import from Postman collection (v2.0/v2.1)"
           >
             Postman
           </button>
           <button
             onClick={() => setClearModalOpen(true)}
-            className="text-danger hover:text-danger/80 text-xs transition-colors border border-danger/40 rounded-md px-2 py-1"
+            className="text-danger hover:text-danger/80 text-[10px] transition-colors border border-danger/40 rounded-md px-1 py-1.5"
             title="Delete all collections, requests, folders, and tags"
             disabled={isClearing}
           >
             {isClearing ? 'Clearing...' : 'Clear'}
-          </button>
-          <button
-            onClick={() => setCreateFolderOpen(true)}
-            className="text-text-muted hover:text-text-primary text-sm transition-colors"
-            title="Create folder"
-          >
-            +📁
-          </button>
-          <button
-            onClick={() => setCreateModalOpen(true)}
-            className="text-accent hover:text-accentSoft font-bold text-lg transition-colors"
-            title="Create collection"
-          >
-            +
-          </button>
-          <button
-            onClick={() => setBulkMode((prev) => !prev)}
-            className={`text-xs px-2 py-1 rounded-md border ${
-              bulkMode
-                ? 'bg-accent/20 text-accent border-accent/40'
-                : 'bg-bg-tertiary/60 text-text-muted border-stroke'
-            }`}
-          >
-            Bulk
           </button>
         </div>
       </div>

@@ -123,7 +123,8 @@ export function CollectionItem({
 
         <button
           onClick={handleToggle}
-          className="flex-1 text-left text-sm font-medium text-text-primary hover:text-text-primary transition-colors"
+          title={collection.name}
+          className="min-w-0 flex-1 py-1 text-left text-sm font-medium text-text-primary hover:text-text-primary transition-colors line-clamp-2 break-words [overflow-wrap:anywhere]"
         >
           {collection.name}
         </button>
