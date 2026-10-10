@@ -13,6 +13,7 @@ import {
   PendingInviteForUser,
 } from '@/types';
 import { ExecuteRequestInput, SaveRequestInput } from '@/validations/request.validation';
+import { savedRequestsFromResponse } from '@/utils/saved-requests-response';
 
 class WorkspaceService {
   async createWorkspace(name: string): Promise<Workspace | null> {
@@ -170,10 +171,10 @@ class WorkspaceService {
   }
 
   async getSavedRequests(collectionId: string): Promise<SavedRequest[]> {
-    const response = await apiService.get<SavedRequest[]>(
+    const response = await apiService.get<{ data: SavedRequest[]; total: number; page: number; limit: number; totalPages: number }>(
       API_ENDPOINTS.SAVED_REQUESTS(collectionId)
     );
-    return response.data.data || [];
+    return savedRequestsFromResponse(response.data.data);
   }
 
   async updateSavedRequest(id: string, data: Partial<SaveRequestInput>): Promise<SavedRequest | null> {

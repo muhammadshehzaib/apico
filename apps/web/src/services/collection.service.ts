@@ -1,6 +1,7 @@
 import { apiService } from './api.service';
 import { Collection, SavedRequest } from '@/types';
 import { SaveRequestInput } from '@/validations/request.validation';
+import { savedRequestsFromResponse } from '@/utils/saved-requests-response';
 
 class CollectionService {
   async getCollections(workspaceId: string): Promise<Collection[]> {
@@ -44,10 +45,10 @@ class CollectionService {
   }
 
   async getSavedRequests(collectionId: string): Promise<SavedRequest[]> {
-    const response = await apiService.get<SavedRequest[]>(
+    const response = await apiService.get<{ data: SavedRequest[]; total: number; page: number; limit: number; totalPages: number }>(
       `/requests/${collectionId}/requests`
     );
-    return response.data.data || [];
+    return savedRequestsFromResponse(response.data.data);
   }
 
   async saveRequest(collectionId: string, data: SaveRequestInput): Promise<SavedRequest> {
