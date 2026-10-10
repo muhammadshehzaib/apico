@@ -33,6 +33,7 @@ describe('Apico Import API', () => {
 
   it('should import apico JSON and create folders, collections, requests, and tags', async () => {
     const { accessToken, workspaceId } = await createUserAndWorkspace();
+    const longBody = 'x'.repeat(370);
 
     const payload = {
       format: 'apico',
@@ -55,7 +56,7 @@ describe('Apico Import API', () => {
           url: 'https://example.com/login',
           headers: [],
           params: [],
-          body: '',
+          body: longBody,
           auth: { type: 'none' },
           order: 1,
           tags: [{ name: 'auth' }],
@@ -111,6 +112,7 @@ describe('Apico Import API', () => {
       .set('Authorization', `Bearer ${accessToken}`);
     expect(authRequestsRes.status).toBe(200);
     expect(authRequestsRes.body.data.length).toBe(1);
+    expect(authRequestsRes.body.data[0].body).toBe(longBody);
     expect(authRequestsRes.body.data[0].tags.map((t: any) => t.name)).toContain('auth');
 
     const nestedRequestsRes = await request(app)
