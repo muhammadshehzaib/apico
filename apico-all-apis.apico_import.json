@@ -1,0 +1,1032 @@
+{
+  "format": "apico",
+  "version": 1,
+  "exportedAt": "2026-10-10T11:03:34.296Z",
+  "folders": [],
+  "collections": [
+    {
+      "id": "api-1",
+      "name": "01 - Health and Auth",
+      "order": 0
+    },
+    {
+      "id": "api-2",
+      "name": "02 - Workspaces",
+      "order": 1
+    },
+    {
+      "id": "api-3",
+      "name": "03 - Workspace Invites",
+      "order": 2
+    },
+    {
+      "id": "api-4",
+      "name": "04 - Collections",
+      "order": 3
+    },
+    {
+      "id": "api-5",
+      "name": "05 - Folders",
+      "order": 4
+    },
+    {
+      "id": "api-6",
+      "name": "06 - Environments",
+      "order": 5
+    },
+    {
+      "id": "api-7",
+      "name": "07 - Tags",
+      "order": 6
+    },
+    {
+      "id": "api-8",
+      "name": "08 - Requests",
+      "order": 7
+    },
+    {
+      "id": "api-9",
+      "name": "09 - History",
+      "order": 8
+    },
+    {
+      "id": "api-10",
+      "name": "10 - gRPC",
+      "order": 9
+    }
+  ],
+  "requests": [
+    {
+      "id": "api-1-1",
+      "name": "GET Health check",
+      "collectionId": "api-1",
+      "method": "GET",
+      "url": "{{BASE_URL}}/health",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "none"
+      },
+      "order": 0
+    },
+    {
+      "id": "api-1-2",
+      "name": "POST Register",
+      "collectionId": "api-1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/register",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"Demo User\",\n  \"email\": \"{{USER_EMAIL}}\",\n  \"password\": \"{{USER_PASSWORD}}\"\n}",
+      "auth": {
+        "type": "none"
+      },
+      "order": 1
+    },
+    {
+      "id": "api-1-3",
+      "name": "POST Login",
+      "collectionId": "api-1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/login",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"email\": \"{{USER_EMAIL}}\",\n  \"password\": \"{{USER_PASSWORD}}\"\n}",
+      "auth": {
+        "type": "none"
+      },
+      "order": 2
+    },
+    {
+      "id": "api-1-4",
+      "name": "POST Refresh access token",
+      "collectionId": "api-1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/refresh",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"refreshToken\": \"{{REFRESH_TOKEN}}\"\n}",
+      "auth": {
+        "type": "none"
+      },
+      "order": 3
+    },
+    {
+      "id": "api-1-5",
+      "name": "POST Logout",
+      "collectionId": "api-1",
+      "method": "POST",
+      "url": "{{BASE_URL}}/auth/logout",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "none"
+      },
+      "order": 4
+    },
+    {
+      "id": "api-2-1",
+      "name": "POST Create workspace",
+      "collectionId": "api-2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"API Demo\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 0
+    },
+    {
+      "id": "api-2-2",
+      "name": "GET List my workspaces",
+      "collectionId": "api-2",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 1
+    },
+    {
+      "id": "api-2-3",
+      "name": "GET Get workspace",
+      "collectionId": "api-2",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 2
+    },
+    {
+      "id": "api-2-4",
+      "name": "POST Invite member",
+      "collectionId": "api-2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invite",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"email\": \"{{INVITEE_EMAIL}}\",\n  \"role\": \"VIEWER\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 3
+    },
+    {
+      "id": "api-2-5",
+      "name": "GET List members",
+      "collectionId": "api-2",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 4
+    },
+    {
+      "id": "api-2-6",
+      "name": "GET List pending workspace invites",
+      "collectionId": "api-2",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invites",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 5
+    },
+    {
+      "id": "api-2-7",
+      "name": "POST Revoke invite",
+      "collectionId": "api-2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/invites/{{INVITE_ID}}/revoke",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 6
+    },
+    {
+      "id": "api-2-8",
+      "name": "DELETE Remove member",
+      "collectionId": "api-2",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{USER_ID}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 7
+    },
+    {
+      "id": "api-2-9",
+      "name": "PATCH Change member role",
+      "collectionId": "api-2",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/members/{{USER_ID}}",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"role\": \"EDITOR\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 8
+    },
+    {
+      "id": "api-2-10",
+      "name": "POST Leave workspace",
+      "collectionId": "api-2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/leave",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 9
+    },
+    {
+      "id": "api-2-11",
+      "name": "POST Import Apico data",
+      "collectionId": "api-2",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/import",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"format\": \"apico\",\n  \"version\": 1,\n  \"collections\": [],\n  \"requests\": []\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 10
+    },
+    {
+      "id": "api-2-12",
+      "name": "DELETE Clear workspace data [DESTRUCTIVE]",
+      "collectionId": "api-2",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/clear-data",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 11
+    },
+    {
+      "id": "api-3-1",
+      "name": "GET My pending invites",
+      "collectionId": "api-3",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspace-invites/pending",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 0
+    },
+    {
+      "id": "api-3-2",
+      "name": "GET Preview invite",
+      "collectionId": "api-3",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "none"
+      },
+      "order": 1
+    },
+    {
+      "id": "api-3-3",
+      "name": "POST Accept invite",
+      "collectionId": "api-3",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}/accept",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 2
+    },
+    {
+      "id": "api-3-4",
+      "name": "POST Decline invite",
+      "collectionId": "api-3",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspace-invites/{{INVITE_TOKEN}}/decline",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 3
+    },
+    {
+      "id": "api-4-1",
+      "name": "POST Create collection",
+      "collectionId": "api-4",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"Users API\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 0
+    },
+    {
+      "id": "api-4-2",
+      "name": "GET List collections",
+      "collectionId": "api-4",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/collections",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 1
+    },
+    {
+      "id": "api-4-3",
+      "name": "PATCH Reorder collections",
+      "collectionId": "api-4",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/collections/reorder",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"items\": [\n    {\n      \"id\": \"{{COLLECTION_ID}}\",\n      \"order\": 0\n    }\n  ]\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 2
+    },
+    {
+      "id": "api-4-4",
+      "name": "PUT Update collection",
+      "collectionId": "api-4",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"Users API Updated\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 3
+    },
+    {
+      "id": "api-4-5",
+      "name": "DELETE Delete collection [DESTRUCTIVE]",
+      "collectionId": "api-4",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/collections/{{COLLECTION_ID}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 4
+    },
+    {
+      "id": "api-4-6",
+      "name": "POST Share collection",
+      "collectionId": "api-4",
+      "method": "POST",
+      "url": "{{BASE_URL}}/collections/{{COLLECTION_ID}}/share",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 5
+    },
+    {
+      "id": "api-4-7",
+      "name": "GET Get shared collection",
+      "collectionId": "api-4",
+      "method": "GET",
+      "url": "{{BASE_URL}}/collections/share/{{SHARE_TOKEN}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "none"
+      },
+      "order": 6
+    },
+    {
+      "id": "api-5-1",
+      "name": "POST Create folder",
+      "collectionId": "api-5",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"Users\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 0
+    },
+    {
+      "id": "api-5-2",
+      "name": "GET List folders",
+      "collectionId": "api-5",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 1
+    },
+    {
+      "id": "api-5-3",
+      "name": "PATCH Reorder folders",
+      "collectionId": "api-5",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/reorder",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"items\": [\n    {\n      \"id\": \"{{FOLDER_ID}}\",\n      \"order\": 0\n    }\n  ]\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 2
+    },
+    {
+      "id": "api-5-4",
+      "name": "PUT Update folder",
+      "collectionId": "api-5",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"Users Updated\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 3
+    },
+    {
+      "id": "api-5-5",
+      "name": "DELETE Delete folder [DESTRUCTIVE]",
+      "collectionId": "api-5",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/folders/{{FOLDER_ID}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 4
+    },
+    {
+      "id": "api-6-1",
+      "name": "POST Create environment",
+      "collectionId": "api-6",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"Local\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 0
+    },
+    {
+      "id": "api-6-2",
+      "name": "GET List environments",
+      "collectionId": "api-6",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/environments",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 1
+    },
+    {
+      "id": "api-6-3",
+      "name": "GET Get environment",
+      "collectionId": "api-6",
+      "method": "GET",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 2
+    },
+    {
+      "id": "api-6-4",
+      "name": "PUT Update environment",
+      "collectionId": "api-6",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"Development\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 3
+    },
+    {
+      "id": "api-6-5",
+      "name": "DELETE Delete environment [DESTRUCTIVE]",
+      "collectionId": "api-6",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 4
+    },
+    {
+      "id": "api-6-6",
+      "name": "PUT Replace environment variables",
+      "collectionId": "api-6",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/environments/{{ENVIRONMENT_ID}}/variables",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"variables\": [\n    {\n      \"key\": \"SERVICE_URL\",\n      \"value\": \"https://example.com\",\n      \"enabled\": true,\n      \"isSecret\": false\n    }\n  ]\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 5
+    },
+    {
+      "id": "api-7-1",
+      "name": "GET List tags",
+      "collectionId": "api-7",
+      "method": "GET",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 0
+    },
+    {
+      "id": "api-7-2",
+      "name": "POST Create tag",
+      "collectionId": "api-7",
+      "method": "POST",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"smoke\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 1
+    },
+    {
+      "id": "api-7-3",
+      "name": "PUT Update tag",
+      "collectionId": "api-7",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"regression\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 2
+    },
+    {
+      "id": "api-7-4",
+      "name": "DELETE Delete tag [DESTRUCTIVE]",
+      "collectionId": "api-7",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/workspaces/{{WORKSPACE_ID}}/tags/{{TAG_ID}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 3
+    },
+    {
+      "id": "api-8-1",
+      "name": "POST Execute HTTP request",
+      "collectionId": "api-8",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/execute",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"method\": \"GET\",\n  \"url\": \"https://example.com\",\n  \"headers\": [],\n  \"params\": [],\n  \"auth\": {\n    \"type\": \"none\"\n  }\n}",
+      "auth": {
+        "type": "none"
+      },
+      "order": 0
+    },
+    {
+      "id": "api-8-2",
+      "name": "GET Get shared request",
+      "collectionId": "api-8",
+      "method": "GET",
+      "url": "{{BASE_URL}}/requests/share/{{SHARE_TOKEN}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "none"
+      },
+      "order": 1
+    },
+    {
+      "id": "api-8-3",
+      "name": "GET Search requests",
+      "collectionId": "api-8",
+      "method": "GET",
+      "url": "{{BASE_URL}}/requests/search?workspaceId={{WORKSPACE_ID}}&q=user",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 2
+    },
+    {
+      "id": "api-8-4",
+      "name": "PATCH Reorder requests",
+      "collectionId": "api-8",
+      "method": "PATCH",
+      "url": "{{BASE_URL}}/requests/reorder",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"items\": [\n    {\n      \"id\": \"{{REQUEST_ID}}\",\n      \"order\": 0\n    }\n  ]\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 3
+    },
+    {
+      "id": "api-8-5",
+      "name": "POST Save request",
+      "collectionId": "api-8",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"Example GET\",\n  \"method\": \"GET\",\n  \"url\": \"https://example.com\",\n  \"headers\": [],\n  \"params\": [],\n  \"auth\": {\n    \"type\": \"none\"\n  }\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 4
+    },
+    {
+      "id": "api-8-6",
+      "name": "GET List saved requests",
+      "collectionId": "api-8",
+      "method": "GET",
+      "url": "{{BASE_URL}}/requests/{{COLLECTION_ID}}/requests",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 5
+    },
+    {
+      "id": "api-8-7",
+      "name": "PUT Update saved request",
+      "collectionId": "api-8",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"name\": \"Example GET Updated\"\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 6
+    },
+    {
+      "id": "api-8-8",
+      "name": "PUT Set request tags",
+      "collectionId": "api-8",
+      "method": "PUT",
+      "url": "{{BASE_URL}}/requests/{{REQUEST_ID}}/tags",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"tags\": [\n    \"smoke\"\n  ]\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 7
+    },
+    {
+      "id": "api-8-9",
+      "name": "DELETE Delete saved request [DESTRUCTIVE]",
+      "collectionId": "api-8",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/requests/{{REQUEST_ID}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 8
+    },
+    {
+      "id": "api-8-10",
+      "name": "POST Share request",
+      "collectionId": "api-8",
+      "method": "POST",
+      "url": "{{BASE_URL}}/requests/{{REQUEST_ID}}/share",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 9
+    },
+    {
+      "id": "api-9-1",
+      "name": "GET List my history",
+      "collectionId": "api-9",
+      "method": "GET",
+      "url": "{{BASE_URL}}/history?page=1&limit=50",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 0
+    },
+    {
+      "id": "api-9-2",
+      "name": "DELETE Delete history entry [DESTRUCTIVE]",
+      "collectionId": "api-9",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/history/{{HISTORY_ID}}",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 1
+    },
+    {
+      "id": "api-9-3",
+      "name": "DELETE Clear history [DESTRUCTIVE]",
+      "collectionId": "api-9",
+      "method": "DELETE",
+      "url": "{{BASE_URL}}/history",
+      "headers": [],
+      "params": [],
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 2
+    },
+    {
+      "id": "api-10-1",
+      "name": "POST Call unary gRPC method",
+      "collectionId": "api-10",
+      "method": "POST",
+      "url": "{{BASE_URL}}/grpc/call",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "enabled": true
+        }
+      ],
+      "params": [],
+      "body": "{\n  \"target\": \"localhost:50051\",\n  \"tls\": false,\n  \"proto\": \"syntax = \\\"proto3\\\"; package example; service Greeter { rpc SayHello (HelloRequest) returns (HelloReply); } message HelloRequest { string name = 1; } message HelloReply { string message = 1; }\",\n  \"service\": \"example.Greeter\",\n  \"method\": \"SayHello\",\n  \"message\": {\n    \"name\": \"Apico\"\n  },\n  \"metadata\": {}\n}",
+      "auth": {
+        "type": "bearer",
+        "token": "{{ACCESS_TOKEN}}"
+      },
+      "order": 0
+    }
+  ],
+  "tags": []
+}
