@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import type { PointerEvent } from 'react';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { RequestHistory, HttpMethod, SavedRequest } from '@/types';
@@ -49,6 +50,41 @@ export function HistorySidebar({
 }: HistorySidebarProps) {
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [historyShare, setHistoryShare] = useState(0.5);
+  const panelsRef = useRef<HTMLDivElement>(null);
+  const resizeRef = useRef<{ cursor: string; userSelect: string } | null>(null);
+
+  const updateHistoryShare = (share: number) => {
+    const value = Math.min(0.85, Math.max(0.15, share));
+    setHistoryShare(value);
+    try {
+      localStorage.setItem('apico_history_panel_share', String(value));
+    } catch { /* Resizing also works when storage is unavailable. */ }
+  };
+
+  const finishResize = () => {
+    if (!resizeRef.current) return;
+    document.body.style.cursor = resizeRef.current.cursor;
+    document.body.style.userSelect = resizeRef.current.userSelect;
+    resizeRef.current = null;
+  };
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('apico_history_panel_share');
+      const value = stored === null ? NaN : Number(stored);
+      if (Number.isFinite(value)) setHistoryShare(Math.min(0.85, Math.max(0.15, value)));
+    } catch { /* Keep the default layout. */ }
+    return finishResize;
+  }, []);
+
+  const handleResizeMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!resizeRef.current || !panelsRef.current) return;
+    const bounds = panelsRef.current.getBoundingClientRect();
+    if (bounds.height > 8) {
+      updateHistoryShare((event.clientY - bounds.top - 4) / (bounds.height - 8));
+    }
+  };
   const [methodFilters, setMethodFilters] = useState<Set<HttpMethod>>(new Set());
   const [statusFilter, setStatusFilter] = useState<'all' | '2xx' | '3xx' | '4xx' | '5xx'>('all');
   const [timeFilter, setTimeFilter] = useState<'all' | '24h' | '7d' | '30d'>('all');
@@ -153,7 +189,8 @@ export function HistorySidebar({
       </div>
 
       {/* History Section */}
-      <div className="flex-1 overflow-auto border-b border-bg-tertiary/60">
+      <div ref={panelsRef} className="min-h-0 flex-1 flex flex-col">
+      <div id="sidebar-history" className="min-h-0 overflow-auto" style={{ flex: `${historyShare} 1 0%` }}>
         <div className="p-4">
           <h2 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em] mb-3">
             History
@@ -262,8 +299,46 @@ export function HistorySidebar({
         </div>
       </div>
 
+      <div
+        role="separator"
+        tabIndex={0}
+        aria-label="Resize History and Collections"
+        aria-orientation="horizontal"
+        aria-controls="sidebar-history sidebar-collections"
+        aria-valuemin={15}
+        aria-valuemax={85}
+        aria-valuenow={Math.round(historyShare * 100)}
+        title="Drag up or down to resize Collections. Double-click to reset."
+        className="group flex h-2 shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-bg-tertiary/70 hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+        onPointerDown={(event) => {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          event.currentTarget.setPointerCapture(event.pointerId);
+          resizeRef.current = { cursor: document.body.style.cursor, userSelect: document.body.style.userSelect };
+          document.body.style.cursor = 'row-resize';
+          document.body.style.userSelect = 'none';
+        }}
+        onPointerMove={handleResizeMove}
+        onPointerUp={finishResize}
+        onPointerCancel={finishResize}
+        onLostPointerCapture={finishResize}
+        onDoubleClick={() => updateHistoryShare(0.5)}
+        onKeyDown={(event) => {
+          const step = event.shiftKey ? 0.1 : 0.025;
+          if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+            event.preventDefault();
+            updateHistoryShare(historyShare + (event.key === 'ArrowUp' ? -step : step));
+          } else if (event.key === 'Home' || event.key === 'End') {
+            event.preventDefault();
+            updateHistoryShare(event.key === 'Home' ? 0.15 : 0.85);
+          }
+        }}
+      >
+        <span className="h-0.5 w-8 rounded-full bg-text-muted/50 group-hover:bg-accent" />
+      </div>
+
       {/* Collections Section */}
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+      <div id="sidebar-collections" className="min-h-0 overflow-y-auto overflow-x-hidden" style={{ flex: `${1 - historyShare} 1 0%` }}>
         <CollectionsSidebar
           workspaceId={activeWorkspaceId}
           onLoadRequest={onLoadRequest}
@@ -272,6 +347,7 @@ export function HistorySidebar({
           pinnedRequestIds={pinnedRequestIds}
           onTogglePinRequest={onTogglePinRequest}
         />
+      </div>
       </div>
 
       {/* Save Modal */}
