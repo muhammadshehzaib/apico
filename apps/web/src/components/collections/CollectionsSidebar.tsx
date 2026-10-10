@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import { Toast } from '@/components/ui/Toast';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
 import type { CollectionWithRequests } from '@/hooks/useCollections';
 import { useCollections } from '@/hooks/useCollections';
@@ -21,6 +22,10 @@ import { RequestItem } from './RequestItem';
 import { useEnvironment } from '@/hooks/useEnvironment';
 import type { ParsedEndpoint } from '@/utils/openapi.parser';
 import type { ParsedPostmanRequest } from '@/utils/postman.parser';
+import { reorderSidebarItems, type DropPosition } from '@/utils/sidebar-order';
+
+type SidebarDragItem = { type: 'collection' | 'folder'; id: string };
+type SidebarDropTarget = SidebarDragItem & { position: DropPosition };
 
 interface CollectionsSidebarProps {
   workspaceId: string | null;
@@ -105,6 +110,9 @@ export function CollectionsSidebar({
   const [openApiModalOpen, setOpenApiModalOpen] = useState(false);
   const [postmanModalOpen, setPostmanModalOpen] = useState(false);
   const [runnerTarget, setRunnerTarget] = useState<CollectionWithRequests | null>(null);
+  const [dragItem, setDragItem] = useState<SidebarDragItem | null>(null);
+  const [dropTarget, setDropTarget] = useState<SidebarDropTarget | null>(null);
+  const [isMoving, setIsMoving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { activeEnvironment } = useEnvironment(workspaceId);
   const activeVariables = activeEnvironment?.variables ?? [];
@@ -266,108 +274,113 @@ export function CollectionsSidebar({
     return map;
   }, [folders]);
 
-  const getMaxCollectionOrder = (folderId: string | null) => {
-    const list = collectionsByFolder.get(folderId ?? null) || [];
-    return list.reduce((max, c) => Math.max(max, c.order ?? 0), 0);
+  const clearDrag = () => {
+    setDragItem(null);
+    setDropTarget(null);
   };
 
-  const getMaxFolderOrder = (parentId: string | null) => {
-    const list = foldersByParent.get(parentId ?? null) || [];
-    return list.reduce((max, f) => Math.max(max, f.order ?? 0), 0);
+  const startDrag = (item: SidebarDragItem) => (e: DragEvent) => {
+    e.stopPropagation();
+    setDragItem(item);
+    e.dataTransfer.setData('text/plain', JSON.stringify(item));
+    e.dataTransfer.effectAllowed = 'move';
   };
 
-  const parseDragData = (e: DragEvent) => {
+  const getDropPosition = (e: DragEvent, type: SidebarDragItem['type']): DropPosition => {
+    if (type === 'folder' && dragItem?.type === 'collection') return 'inside';
+    const bounds = e.currentTarget.getBoundingClientRect();
+    const ratio = (e.clientY - bounds.top) / bounds.height;
+    if (type === 'folder' && ratio >= 0.25 && ratio <= 0.75) return 'inside';
+    return ratio < 0.5 ? 'before' : 'after';
+  };
+
+  const handleRowDragOver = (target: SidebarDragItem) => (e: DragEvent) => {
+    e.stopPropagation();
+    if (!dragItem || isMoving || dragItem.id === target.id ||
+      (target.type === 'collection' && dragItem.type !== 'collection')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDropTarget({ ...target, position: getDropPosition(e, target.type) });
+  };
+
+  const moveDraggedItem = async (
+    item: SidebarDragItem,
+    destinationId: string | null,
+    targetId?: string,
+    position: 'before' | 'after' = 'after'
+  ) => {
+    setIsMoving(true);
     try {
-      const raw = e.dataTransfer.getData('text/plain');
-      return raw ? JSON.parse(raw) : null;
+      if (item.type === 'collection') {
+        const dragged = collections.find((c) => c.id === item.id);
+        if (!dragged) return;
+        const items = reorderSidebarItems(collectionsByFolder.get(destinationId) || [], dragged, targetId, position);
+        await reorderCollections(items.map(({ id, order }) => ({ id, order, folderId: destinationId })));
+      } else {
+        const dragged = folders.find((f) => f.id === item.id);
+        if (!dragged) return;
+        // A folder cannot be dropped into itself or any of its descendants.
+        let ancestorId = destinationId;
+        const visited = new Set<string>();
+        while (ancestorId) {
+          if (ancestorId === dragged.id || visited.has(ancestorId)) {
+            showToast('Cannot move a folder into itself or its descendants', 'error');
+            return;
+          }
+          visited.add(ancestorId);
+          ancestorId = folders.find((f) => f.id === ancestorId)?.parentId ?? null;
+        }
+        const items = reorderSidebarItems(foldersByParent.get(destinationId) || [], dragged, targetId, position);
+        await reorderFolders(items.map(({ id, order }) => ({ id, order, parentId: destinationId })));
+      }
+      if (destinationId) setExpandedFolderIds((prev) => new Set([...prev, destinationId]));
+    } catch {
+      showToast('Failed to move item. Please try again.', 'error');
+    } finally {
+      setIsMoving(false);
+    }
+  };
+
+  const readDropItem = (e: DragEvent): SidebarDragItem | null => {
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+      return data && (data.type === 'collection' || data.type === 'folder') && typeof data.id === 'string'
+        ? data : null;
     } catch {
       return null;
     }
   };
 
-  const handleCollectionDragStart = (collectionId: string) => (e: DragEvent) => {
-    e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'collection', id: collectionId }));
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleFolderDragStart = (folderId: string) => (e: DragEvent) => {
-    e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'folder', id: folderId }));
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
   const handleCollectionDrop = (target: CollectionWithRequests) => async (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const data = parseDragData(e);
-    if (!data || data.type !== 'collection' || data.id === target.id) return;
-
-    const dragged = collections.find((c) => c.id === data.id);
-    if (!dragged) return;
-
-    if ((dragged.folderId ?? null) !== (target.folderId ?? null)) {
-      const newOrder = getMaxCollectionOrder(target.folderId ?? null) + 1;
-      await reorderCollections([
-        { id: dragged.id, order: newOrder, folderId: target.folderId ?? null },
-      ]);
-      return;
-    }
-
-    await reorderCollections([
-      { id: dragged.id, order: target.order ?? 0, folderId: target.folderId ?? null },
-      { id: target.id, order: dragged.order ?? 0, folderId: target.folderId ?? null },
-    ]);
+    const item = readDropItem(e);
+    const position = getDropPosition(e, 'collection') as 'before' | 'after';
+    clearDrag();
+    if (!item || isMoving || item.type !== 'collection' || item.id === target.id) return;
+    await moveDraggedItem(item, target.folderId ?? null, target.id, position);
   };
 
   const handleFolderDrop = (target: Folder) => async (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const data = parseDragData(e);
-    if (!data) return;
-
-    if (data.type === 'collection') {
-      const dragged = collections.find((c) => c.id === data.id);
-      if (!dragged) return;
-      const newOrder = getMaxCollectionOrder(target.id) + 1;
-      await reorderCollections([{ id: dragged.id, order: newOrder, folderId: target.id }]);
-      return;
-    }
-
-    if (data.type === 'folder') {
-      if (data.id === target.id) return;
-      const dragged = folders.find((f) => f.id === data.id);
-      if (!dragged) return;
-
-      if ((dragged.parentId ?? null) === (target.parentId ?? null)) {
-        await reorderFolders([
-          { id: dragged.id, order: target.order ?? 0, parentId: dragged.parentId ?? null },
-          { id: target.id, order: dragged.order ?? 0, parentId: target.parentId ?? null },
-        ]);
-        return;
-      }
-
-      const newOrder = getMaxFolderOrder(target.id) + 1;
-      await reorderFolders([{ id: dragged.id, order: newOrder, parentId: target.id }]);
+    const item = readDropItem(e);
+    const position = getDropPosition(e, 'folder');
+    clearDrag();
+    if (!item || isMoving || item.id === target.id) return;
+    if (position === 'inside' || item.type === 'collection') {
+      await moveDraggedItem(item, target.id);
+    } else {
+      await moveDraggedItem(item, target.parentId ?? null, target.id, position);
     }
   };
 
   const handleRootDrop = async (e: DragEvent) => {
     e.preventDefault();
-    const data = parseDragData(e);
-    if (!data) return;
-
-    if (data.type === 'collection') {
-      const dragged = collections.find((c) => c.id === data.id);
-      if (!dragged) return;
-      const newOrder = getMaxCollectionOrder(null) + 1;
-      await reorderCollections([{ id: dragged.id, order: newOrder, folderId: null }]);
-    }
-
-    if (data.type === 'folder') {
-      const dragged = folders.find((f) => f.id === data.id);
-      if (!dragged) return;
-      const newOrder = getMaxFolderOrder(null) + 1;
-      await reorderFolders([{ id: dragged.id, order: newOrder, parentId: null }]);
-    }
+    e.stopPropagation();
+    const item = readDropItem(e);
+    clearDrag();
+    if (item && !isMoving) await moveDraggedItem(item, null);
   };
 
   const handleTagRequest = async (request: SavedRequest) => {
@@ -731,7 +744,17 @@ export function CollectionsSidebar({
         onToggle={() => toggleExpand(collection.id)}
         onRename={() => handleRenameCollection(collection.id, collection.name)}
         onDelete={() => handleDeleteCollection(collection.id)}
-        onRun={() => setRunnerTarget(collection)}
+        onRun={async () => {
+          try {
+            const requests = await fetchRequests(collection.id);
+            setRunnerTarget({ ...collection, requests });
+          } catch {
+            showToast('Failed to load requests', 'error');
+          }
+        }}
+        onRetryRequests={() => {
+          void fetchRequests(collection.id).catch(() => showToast('Failed to load requests', 'error'));
+        }}
         onLoadRequest={onLoadRequest}
         onRenameRequest={(request) => handleRenameRequest(request, collection.id)}
         onDeleteRequest={(request) => handleDeleteRequest(request, collection.id)}
@@ -744,8 +767,11 @@ export function CollectionsSidebar({
         showSelect={bulkMode}
         isSelected={selectedCollections.has(collection.id)}
         onSelect={(selected) => toggleCollectionSelect(collection.id, selected)}
-        onDragStart={handleCollectionDragStart(collection.id)}
-        onDragOver={(e) => e.preventDefault()}
+        onDragStart={isMoving ? undefined : startDrag({ type: 'collection', id: collection.id })}
+        onDragEnd={clearDrag}
+        isDragging={dragItem?.id === collection.id}
+        dropPosition={dropTarget?.type === 'collection' && dropTarget.id === collection.id ? dropTarget.position : undefined}
+        onDragOver={handleRowDragOver({ type: 'collection', id: collection.id })}
         onDrop={handleCollectionDrop(collection)}
       />
     ))
@@ -755,16 +781,22 @@ export function CollectionsSidebar({
     const childFolders = foldersByParent.get(folder.id) || [];
     const childCollections = collectionsByFolder.get(folder.id) || [];
     const isExpanded = expandedFolderIds.has(folder.id);
+    const position = dropTarget?.type === 'folder' && dropTarget.id === folder.id ? dropTarget.position : undefined;
 
     return (
       <div key={folder.id} className="space-y-1">
         <div
-          className="flex items-center gap-2 h-9 rounded-md hover:bg-bg-tertiary/60 transition-colors group border border-transparent hover:border-stroke/60 px-1"
-          draggable
-          onDragStart={handleFolderDragStart(folder.id)}
-          onDragOver={(e) => e.preventDefault()}
+          className={`relative flex items-center gap-2 min-h-9 rounded-md hover:bg-bg-tertiary/60 transition-colors group border px-1 ${position === 'inside' ? 'border-accent bg-accent/10' : 'border-transparent hover:border-stroke/60'} ${dragItem?.id === folder.id ? 'opacity-40' : ''}`}
+          draggable={!isMoving}
+          onDragStart={startDrag({ type: 'folder', id: folder.id })}
+          onDragEnd={clearDrag}
+          onDragOver={handleRowDragOver({ type: 'folder', id: folder.id })}
           onDrop={handleFolderDrop(folder)}
         >
+          {position && position !== 'inside' && (
+            <span className={`pointer-events-none absolute left-0 right-0 h-0.5 bg-accent ${position === 'before' ? 'top-0' : 'bottom-0'}`} />
+          )}
+          <span title="Drag to reorder or move folder" aria-label="Drag to reorder or move folder" className="cursor-grab active:cursor-grabbing text-text-muted select-none">&#x283F;</span>
           <button
             onClick={() => toggleFolder(folder.id)}
             className="px-1 text-text-muted hover:text-text-primary transition-colors flex-shrink-0"
@@ -840,7 +872,8 @@ export function CollectionsSidebar({
   const rootCollections = collectionsByFolder.get(null) || [];
 
   return (
-    <div className="p-4 space-y-4" onDragOver={(e) => e.preventDefault()} onDrop={handleRootDrop}>
+    <div className="p-4 space-y-4" onDragEnd={clearDrag}>
+      <Toast {...toastProps} />
       <div className="flex items-center justify-between">
         <h3 className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em]">
           Collections
@@ -1022,6 +1055,21 @@ export function CollectionsSidebar({
           <>
             {rootFolders.map((folder) => renderFolder(folder))}
             {renderCollections(rootCollections)}
+            {dragItem && (
+              <div
+                className="rounded-md border border-dashed border-accent/50 px-3 py-3 text-xs text-text-muted hover:bg-accent/10"
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.dataTransfer.dropEffect = 'move';
+                  setDropTarget(null);
+                }}
+                onDrop={handleRootDrop}
+              >
+                Drop here to move to top level
+              </div>
+            )}
+            {isMoving && <p role="status" className="text-xs text-text-muted">Saving order...</p>}
           </>
         )}
       </div>

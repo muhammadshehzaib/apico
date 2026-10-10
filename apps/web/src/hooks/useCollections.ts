@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
+import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { Collection, SavedRequest, Folder, Tag } from '@/types';
 import { SaveRequestInput } from '@/validations/request.validation';
 import { 
@@ -9,7 +10,7 @@ import {
   useUpdateCollectionMutation, 
   useDeleteCollectionMutation,
   useReorderCollectionsMutation,
-  useRequestsQuery,
+  collectionKeys,
   useSaveRequestMutation,
   useUpdateRequestMutation,
   useDeleteRequestMutation,
@@ -27,14 +28,23 @@ import { folderService } from '@/services/folder.service';
 export interface CollectionWithRequests extends Collection {
   requests: SavedRequest[];
   isLoadingRequests: boolean;
+  requestsError?: boolean;
 }
 
 export function useCollections(workspaceId: string | null) {
-  const { data: rawCollections = [], isLoading, error: collectionsError, refetch: fetchCollections } = useCollectionsQuery(workspaceId);
+  const queryClient = useQueryClient();
+  const { data: rawCollections = [], isLoading, error: collectionsError, refetch: refetchCollections } = useCollectionsQuery(workspaceId);
   const { data: folders = [], isLoading: isFoldersLoading, refetch: fetchFolders } = useFoldersQuery(workspaceId);
   const { data: tags = [], isLoading: isTagsLoading, refetch: fetchTags } = useTagsQuery(workspaceId);
 
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const requestQueries = useQueries({
+    queries: rawCollections.map((collection) => ({
+      queryKey: collectionKeys.requests(collection.id),
+      queryFn: () => collectionService.getSavedRequests(collection.id),
+      enabled: expandedIds.has(collection.id),
+    })),
+  });
   
   // Create mutations
   const createCollectionMut = useCreateCollectionMutation();
@@ -71,20 +81,26 @@ export function useCollections(workspaceId: string | null) {
     []
   );
 
-  // Fallback for fetching requests (using standard api directly or relying on component level query)
-  // To avoid fetching all requests for all collections at once, we'd normally want a separate hook per collection.
-  // For compatibility with the old hook shape, we just map collections.
   const fetchRequests = useCallback(async (collectionId: string) => {
-    return collectionService.getSavedRequests(collectionId);
-  }, []);
+    return queryClient.fetchQuery({
+      queryKey: collectionKeys.requests(collectionId),
+      queryFn: () => collectionService.getSavedRequests(collectionId),
+      staleTime: 0,
+    });
+  }, [queryClient]);
 
-  const collections: CollectionWithRequests[] = useMemo(() => {
-    return rawCollections.map(c => ({
-      ...c,
-      requests: [], // Note: for full migration, components should use useRequestsQuery per collection
-      isLoadingRequests: false
-    }));
-  }, [rawCollections]);
+  const fetchCollections = useCallback(async () => {
+    // Imports may add requests to collections that are already open and cached.
+    await queryClient.invalidateQueries({ queryKey: ['collections'] });
+    return refetchCollections();
+  }, [queryClient, refetchCollections]);
+
+  const collections: CollectionWithRequests[] = rawCollections.map((collection, index) => ({
+    ...collection,
+    requests: requestQueries[index].data ?? [],
+    isLoadingRequests: expandedIds.has(collection.id) && requestQueries[index].isPending,
+    requestsError: requestQueries[index].isError,
+  }));
 
   // Wrappers
   const createCollection = async (name: string, folderId?: string | null) => {
@@ -115,15 +131,16 @@ export function useCollections(workspaceId: string | null) {
   
   const reorderFolders = async (items: any[]) => {
     if (!workspaceId) return;
-    return folderService.reorderFolders(workspaceId, items);
+    await folderService.reorderFolders(workspaceId, items);
+    await fetchFolders();
   };
 
   const updateRequestTags = async (id: string, tagsList: string[]) => updateRequestTagsMut.mutateAsync({ id, tags: tagsList });
   
-  const searchRequests = async (params: any) => {
+  const searchRequests = useCallback(async (params: any) => {
     if (!workspaceId) return [];
     return collectionService.searchRequests({ workspaceId, ...params });
-  };
+  }, [workspaceId]);
 
   const shareCollection = async (id: string) => collectionService.shareCollection(id);
   const shareRequest = async (id: string) => collectionService.shareRequest(id);

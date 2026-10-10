@@ -6,6 +6,7 @@ import { CollectionWithRequests } from '@/hooks/useCollections';
 import { SavedRequest } from '@/types';
 import { RequestItem } from './RequestItem';
 import { SkeletonGroup } from '@/components/ui/SkeletonGroup';
+import type { DropPosition } from '@/utils/sidebar-order';
 
 interface CollectionItemProps {
   collection: CollectionWithRequests;
@@ -14,6 +15,7 @@ interface CollectionItemProps {
   onRename: () => void;
   onDelete: () => void;
   onRun?: () => void;
+  onRetryRequests?: () => void;
   onLoadRequest: (request: SavedRequest) => void;
   onRenameRequest: (request: SavedRequest) => void;
   onDeleteRequest: (request: SavedRequest) => void;
@@ -29,6 +31,9 @@ interface CollectionItemProps {
   onDragStart?: (e: DragEvent<HTMLDivElement>) => void;
   onDragOver?: (e: DragEvent<HTMLDivElement>) => void;
   onDrop?: (e: DragEvent<HTMLDivElement>) => void;
+  onDragEnd?: () => void;
+  dropPosition?: DropPosition;
+  isDragging?: boolean;
 }
 
 export function CollectionItem({
@@ -38,6 +43,7 @@ export function CollectionItem({
   onRename,
   onDelete,
   onRun,
+  onRetryRequests,
   onLoadRequest,
   onRenameRequest,
   onDeleteRequest,
@@ -53,6 +59,9 @@ export function CollectionItem({
   onDragStart,
   onDragOver,
   onDrop,
+  onDragEnd,
+  dropPosition,
+  isDragging,
 }: CollectionItemProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -81,12 +90,19 @@ export function CollectionItem({
   return (
     <div className="space-y-1" ref={menuRef}>
       <div
-        className="flex items-center gap-2 h-9 rounded-md hover:bg-bg-tertiary/60 transition-colors group border border-transparent hover:border-stroke/60 px-1"
+        className={`relative flex items-center gap-2 min-h-9 rounded-md hover:bg-bg-tertiary/60 transition-colors group border border-transparent hover:border-stroke/60 px-1 ${isDragging ? 'opacity-40' : ''}`}
         draggable={!!onDragStart}
         onDragStart={onDragStart}
         onDragOver={onDragOver}
         onDrop={onDrop}
+        onDragEnd={onDragEnd}
       >
+        {dropPosition && (
+          <span className={`pointer-events-none absolute left-0 right-0 h-0.5 bg-accent ${dropPosition === 'before' ? 'top-0' : 'bottom-0'}`} />
+        )}
+        {onDragStart && (
+          <span title="Drag to reorder collection" aria-label="Drag to reorder collection" className="cursor-grab active:cursor-grabbing text-text-muted select-none">⠿</span>
+        )}
         {showSelect && (
           <input
             type="checkbox"
@@ -206,6 +222,13 @@ export function CollectionItem({
           {collection.isLoadingRequests ? (
             <div className="py-2">
               <SkeletonGroup type="collection-item" count={2} />
+            </div>
+          ) : collection.requestsError ? (
+            <div role="alert" className="py-1 text-xs text-danger">
+              Failed to load requests.
+              {onRetryRequests && (
+                <button onClick={onRetryRequests} className="ml-2 underline">Retry</button>
+              )}
             </div>
           ) : collection.requests.length === 0 ? (
             <div className="py-1 text-xs text-text-muted">

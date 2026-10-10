@@ -84,18 +84,25 @@ GraphQL and WebSocket need no extra server setup. gRPC requires the API server t
 
 ## Quick Start
 
-### Docker (recommended — 2 minutes)
+### Run everything in Docker
 
-```bash
-git clone https://github.com/muhammadshehzaib/apico.git
-cd apico
+Install Docker Desktop and Node.js 22, then run these commands from the repository root:
 
-# Copy env template and set your JWT secrets
-cp .env.docker .env
-# Edit .env — set JWT_SECRET and JWT_REFRESH_SECRET
+```powershell
+# Generate local environment files (existing files are preserved).
+node scripts/dev.mjs env
 
-docker compose up --build
+# Build and start MySQL, the API, and the frontend.
+docker compose --env-file .env.local up -d --build
+
+# Follow logs, or stop the stack while keeping database data.
+docker compose --env-file .env.local logs -f
+docker compose --env-file .env.local down
 ```
+
+The API container automatically applies database migrations, including the request body fix.
+Rebuild the images after source changes. The generated root `.env.local` uses localhost URLs;
+`.env.docker` remains the deployment template.
 
 | Service | URL |
 |---|---|
@@ -103,25 +110,59 @@ docker compose up --build
 | API | http://localhost:5000/api/v1 |
 | API docs | http://localhost:5000/api-docs |
 
-### Manual Setup
+### Develop locally with hot reload
 
-**Backend**
-```bash
+Use Docker Desktop for MySQL and Node.js 22 for the frontend and backend.
+Run from the repository root:
+
+```powershell
+# First run: create env files, start MySQL, install dependencies, generate Prisma,
+# and apply committed migrations.
+node scripts/dev.mjs setup
+
+# Start frontend and backend together. Ctrl+C stops both app servers.
+node scripts/dev.mjs
+```
+
+The URLs are the same as above. The development database is separate from the full Docker
+stack and uses `127.0.0.1:3307`. Stop the full Docker stack before starting local app servers
+because both use ports 3000 and 5000.
+
+For separate terminals:
+
+```powershell
+# Terminal 1
+node scripts/dev.mjs backend
+
+# Terminal 2
+node scripts/dev.mjs frontend
+```
+
+On later runs, start the database and then the apps:
+
+```powershell
+docker compose -f docker-compose.dev.yml up -d --wait
+node scripts/dev.mjs
+```
+
+After pulling new database migrations:
+
+```powershell
 cd api
-cp .env.example .env        # fill in DATABASE_URL, JWT secrets
-npm install
-npm run db:generate
-npm run db:migrate
-npm run dev                 # http://localhost:5000
+npx.cmd prisma generate
+npx.cmd prisma migrate deploy
 ```
 
-**Frontend**
-```bash
-cd apps/web
-cp .env.example .env.local  # set NEXT_PUBLIC_API_BASE_URL
-npm install
-npm run dev                 # http://localhost:3000
+To stop the development database while preserving its data:
+
+```powershell
+docker compose -f docker-compose.dev.yml down
 ```
+
+The script preserves existing environment files. If you already have `api/.env` or
+`apps/web/.env.local`, check their database connection and API URL against the values above.
+You can also run `npm.cmd run dev` directly inside `api` and `apps/web` after setup.
+On macOS/Linux, use `npm` and `npx` in place of `npm.cmd` and `npx.cmd`.
 
 ## Running Tests
 
@@ -163,7 +204,7 @@ npm run test:e2e
 
 | Variable | Description |
 |---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | Backend API base URL (e.g. `http://localhost:5000/api/v1`) |
+| `NEXT_PUBLIC_API_URL` | Backend API base URL (e.g. `http://localhost:5000/api/v1`) |
 
 ## Technical Decisions
 
