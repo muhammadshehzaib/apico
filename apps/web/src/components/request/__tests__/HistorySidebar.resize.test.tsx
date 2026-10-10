@@ -2,7 +2,12 @@ import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { HistorySidebar } from '../HistorySidebar';
 
-vi.mock('react-redux', () => ({ useSelector: () => 'workspace' }));
+vi.mock('react-redux', () => ({
+  useDispatch: () => vi.fn(),
+  useSelector: (selector: (state: unknown) => unknown) => selector({
+    workspace: { activeWorkspaceId: 'workspace', workspaces: [{ id: 'workspace', name: 'Testing' }], isLoading: false },
+  }),
+}));
 vi.mock('@/hooks/useCollections', () => ({ useCollections: () => ({ collections: [] }) }));
 vi.mock('@/components/collections/CollectionsSidebar', () => ({ CollectionsSidebar: () => <div>Collection contents</div> }));
 vi.mock('@/components/collections/SaveRequestModal', () => ({ SaveRequestModal: () => null }));

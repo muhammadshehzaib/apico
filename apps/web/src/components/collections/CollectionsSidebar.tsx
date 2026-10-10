@@ -29,6 +29,7 @@ type SidebarDropTarget = SidebarDragItem & { position: DropPosition };
 
 interface CollectionsSidebarProps {
   workspaceId: string | null;
+  isWorkspaceLoading?: boolean;
   onLoadRequest: (request: SavedRequest) => void;
   currentRequest: { method: string; url: string };
   onSaveRequest: () => void;
@@ -38,6 +39,7 @@ interface CollectionsSidebarProps {
 
 export function CollectionsSidebar({
   workspaceId,
+  isWorkspaceLoading = false,
   onLoadRequest,
   currentRequest,
   onSaveRequest,
@@ -723,6 +725,10 @@ export function CollectionsSidebar({
     setClearModalOpen(false);
   };
 
+
+  if (isWorkspaceLoading) {
+    return <div className="p-4" role="status" aria-label="Loading workspace"><SkeletonGroup type="collection-item" count={2} /></div>;
+  }
 
   if (!workspaceId) {
     return (

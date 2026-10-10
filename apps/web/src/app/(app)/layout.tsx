@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { AuthProvider } from '@/contexts/auth.context';
 
 import { QueryProvider } from '@/providers/QueryProvider';
+import { WorkspaceSession } from '@/providers/WorkspaceSession';
 
 export default function AppLayout({
   children,
@@ -20,6 +21,7 @@ export default function AppLayout({
     <QueryProvider>
       <Provider store={store}>
         <AuthProvider>
+          <WorkspaceSession />
           <div className="flex h-screen">
             {showSidebar && <Sidebar />}
             <main className={`flex-1 overflow-auto bg-bg-primary/90 ${!showSidebar ? 'w-full' : ''}`}>

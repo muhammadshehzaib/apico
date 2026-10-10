@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import type { PointerEvent } from 'react';
 import Link from 'next/link';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RequestHistory, HttpMethod, SavedRequest } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Toast } from '@/components/ui/Toast';
@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/useToast';
 import { RootState } from '@/store';
 import { useCollections } from '@/hooks/useCollections';
 import type { SaveRequestInput } from '@/validations/request.validation';
+import { setActiveWorkspace, setActiveEnvironment } from '@/store/slices/workspace.slice';
 
 interface HistorySidebarProps {
   history: RequestHistory[];
@@ -92,6 +93,9 @@ export function HistorySidebar({
   const activeWorkspaceId = useSelector(
     (state: RootState) => state.workspace.activeWorkspaceId
   );
+  const dispatch = useDispatch();
+  const workspaces = useSelector((state: RootState) => state.workspace.workspaces);
+  const isWorkspaceLoading = useSelector((state: RootState) => state.workspace.isLoading);
   const { collections } = useCollections(activeWorkspaceId);
 
   const filteredHistory = useMemo(() => {
@@ -159,13 +163,25 @@ export function HistorySidebar({
     <aside className={`w-full bg-bg-secondary/90 border-r border-bg-tertiary/60 h-screen flex flex-col overflow-hidden backdrop-blur ${className}`}>
       {/* Header */}
       <div className="p-6 border-b border-bg-tertiary/60 flex-shrink-0 space-y-4">
-        <Link 
-          href="/workspace" 
-          className="inline-flex items-center gap-2 text-xs font-semibold text-text-muted hover:text-accent transition-colors group"
-        >
-          <span className="text-sm group-hover:-translate-x-1 transition-transform">←</span>
-          Back to Workspaces
-        </Link>
+        <div className="space-y-2">
+          <label htmlFor="request-workspace" className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.2em]">Workspace</label>
+          <select
+            id="request-workspace"
+            value={activeWorkspaceId ?? ''}
+            disabled={isWorkspaceLoading || workspaces.length === 0}
+            onChange={(event) => {
+              dispatch(setActiveWorkspace(event.target.value));
+              dispatch(setActiveEnvironment(null));
+            }}
+            className="w-full min-w-0 rounded-md border border-stroke bg-bg-primary px-3 py-2 text-sm text-text-primary"
+          >
+            <option value="" disabled>{isWorkspaceLoading ? 'Loading workspaces...' : 'Select workspace'}</option>
+            {workspaces.map((workspace) => <option key={workspace.id} value={workspace.id}>{workspace.name}</option>)}
+          </select>
+          <Link href={activeWorkspaceId ? `/workspace/${activeWorkspaceId}` : '/workspace'} className="inline-block text-xs text-text-muted hover:text-accent">
+            {activeWorkspaceId ? 'Manage workspace' : 'Create a workspace'}
+          </Link>
+        </div>
         <h1 className="text-lg font-semibold text-text-primary">Requester</h1>
         <div className="flex gap-2">
           <Button
@@ -341,6 +357,7 @@ export function HistorySidebar({
       <div id="sidebar-collections" className="min-h-0 overflow-y-auto overflow-x-hidden" style={{ flex: `${1 - historyShare} 1 0%` }}>
         <CollectionsSidebar
           workspaceId={activeWorkspaceId}
+          isWorkspaceLoading={isWorkspaceLoading}
           onLoadRequest={onLoadRequest}
           currentRequest={currentRequest}
           onSaveRequest={() => setSaveModalOpen(true)}
